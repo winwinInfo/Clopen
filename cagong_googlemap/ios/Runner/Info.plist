@@ -46,4 +46,6 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 </dict>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>The app needs location permission</string>
 </plist>
