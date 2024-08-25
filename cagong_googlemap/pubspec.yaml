@@ -8,7 +8,11 @@ environment:
 
 dependencies:
   flutter:
+    assets:
+    - assets/images/
+    - assets/json/
     sdk: flutter
+
 
 dev_dependencies:
   flutter_test:

@@ -43,6 +43,9 @@ class _HomeViewState extends State<HomeView> {
       ),
       body: <Widget>[
         /// Home page
+        /// //
+        /// //
+        /// 
         Card(
           shadowColor: Colors.transparent,
           margin: const EdgeInsets.all(8.0),
