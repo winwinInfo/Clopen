@@ -6,10 +6,15 @@ import 'package:flutter/services.dart' show rootBundle;
 import '../models/cafe.dart';
 
 class CustomMarkerGenerator {
-  static Future<BitmapDescriptor> createCustomMarkerBitmap(Cafe cafe,
-      {double imageScale = 0.5}) async {
+  static Future<BitmapDescriptor> createCustomMarkerBitmap(
+    Cafe cafe, {
+    double imageScale = 0.5,
+    double titleFontSize = 16,
+    double subtitleFontSize = 12,
+  }) async {
     // 마커 이미지 로드
-    final ByteData imageData = await rootBundle.load('images/marker.png');
+    final ByteData imageData =
+        await rootBundle.load('assets/images/marker.png');
     final Uint8List imageBytes = imageData.buffer.asUint8List();
     final ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
     final ui.FrameInfo fi = await codec.getNextFrame();
@@ -27,9 +32,16 @@ class CustomMarkerGenerator {
     // 크기 조절된 마커 이미지 그리기
     canvas.drawImage(resizedImage, Offset.zero, Paint());
 
+    // 텍스트 영역 크기 계산 (텍스트 크기에 따라 조정)
+    final double textAreaHeight =
+        (titleFontSize + subtitleFontSize * 2 + 20).ceil().toDouble();
+    final double textAreaWidth = 180.0;
+
     // 텍스트 배경 그리기
     final Paint bgPaint = Paint()..color = Colors.white.withOpacity(0.8);
-    canvas.drawRect(Rect.fromLTWH(0, newHeight.toDouble(), 180, 60), bgPaint);
+    canvas.drawRect(
+        Rect.fromLTWH(0, newHeight.toDouble(), textAreaWidth, textAreaHeight),
+        bgPaint);
 
     // 텍스트 그리기를 위한 TextPainter 설정
     TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
@@ -38,30 +50,37 @@ class CustomMarkerGenerator {
     textPainter.text = TextSpan(
       text: cafe.name,
       style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+          fontSize: titleFontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.black),
     );
-    textPainter.layout(maxWidth: 180);
+    textPainter.layout(maxWidth: textAreaWidth);
     textPainter.paint(canvas, Offset(5, newHeight.toDouble() + 5));
 
     // 평일 영업 시간 그리기
     textPainter.text = TextSpan(
       text: 'Weekday: ${cafe.hoursWeekday}',
-      style: TextStyle(fontSize: 12, color: Colors.black),
+      style: TextStyle(fontSize: subtitleFontSize, color: Colors.black),
     );
-    textPainter.layout(maxWidth: 180);
-    textPainter.paint(canvas, Offset(5, newHeight.toDouble() + 25));
+    textPainter.layout(maxWidth: textAreaWidth);
+    textPainter.paint(
+        canvas, Offset(5, newHeight.toDouble() + titleFontSize + 10));
 
     // 주말 영업 시간 그리기
     textPainter.text = TextSpan(
       text: 'Weekend: ${cafe.hoursWeekend}',
-      style: TextStyle(fontSize: 12, color: Colors.black),
+      style: TextStyle(fontSize: subtitleFontSize, color: Colors.black),
     );
-    textPainter.layout(maxWidth: 180);
-    textPainter.paint(canvas, Offset(5, newHeight.toDouble() + 40));
+    textPainter.layout(maxWidth: textAreaWidth);
+    textPainter.paint(
+        canvas,
+        Offset(
+            5, newHeight.toDouble() + titleFontSize + subtitleFontSize + 15));
 
     // 캔버스에 그린 내용을 이미지로 변환
-    final ui.Image img =
-        await pictureRecorder.endRecording().toImage(180, newHeight + 60);
+    final ui.Image img = await pictureRecorder
+        .endRecording()
+        .toImage(textAreaWidth.round(), newHeight + textAreaHeight.round());
     final ByteData? data = await img.toByteData(format: ui.ImageByteFormat.png);
 
     // 이미지를 BitmapDescriptor로 변환하여 반환

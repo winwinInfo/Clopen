@@ -35,17 +35,17 @@ class _MapScreenState extends State<MapScreen> {
       _cafes = jsonResponse.map((data) => Cafe.fromJson(data)).toList();
 
       for (final cafe in _cafes) {
-        final markerIcon =
-            await CustomMarkerGenerator.createCustomMarkerBitmap(cafe);
+        final markerIcon = await CustomMarkerGenerator.createCustomMarkerBitmap(
+          cafe,
+          imageScale: 0.3,
+          titleFontSize: 18,
+          subtitleFontSize: 14,
+        );
         final marker = Marker(
           markerId: MarkerId('${cafe.latitude},${cafe.longitude}'),
           position: LatLng(cafe.latitude, cafe.longitude),
           icon: markerIcon,
-          infoWindow: InfoWindow(
-            title: cafe.name,
-            snippet:
-                'Weekday: ${cafe.hoursWeekday}, Weekend: ${cafe.hoursWeekend}',
-          ),
+          onTap: () => _showBottomSheet(cafe),
         );
         _markers.add(marker);
       }
@@ -54,8 +54,7 @@ class _MapScreenState extends State<MapScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading cafe data: $e', _showBottomSheet);
-
+      print('Error loading cafe data: $e');
       setState(() {
         _isLoading = false;
       });
