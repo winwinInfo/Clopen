@@ -43,3 +43,117 @@ Future<Set<Marker>> createMarkers(List<Cafe> cafes) async {
 
   return markers;
 }
+
+
+////////////////////////////////////////////////////////////////
+// import 'dart:ui' as ui;
+// import 'package:flutter/material.dart';
+// import 'package:flutter/rendering.dart';
+// import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import '../models/cafe.dart';
+
+// class CustomMarkerGenerator {
+//   static Future<BitmapDescriptor> createCustomMarkerBitmap(Cafe cafe) async {
+//     final Widget markerWidget = CustomMarkerWidget(cafe: cafe);
+//     final key = GlobalKey();
+//     final pixelRatio = WidgetsBinding.instance.window.devicePixelRatio;
+
+//     final render = Build(
+//       key: key,
+//       widget: RepaintBoundary(
+//         key: key,
+//         child: markerWidget,
+//       ),
+//     );
+
+//     final pngBytes = await render.toPngBytes(pixelRatio);
+//     return BitmapDescriptor.fromBytes(pngBytes);
+//   }
+// }
+
+// class CustomMarkerWidget extends StatelessWidget {
+//   final Cafe cafe;
+
+//   CustomMarkerWidget({required this.cafe});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(20),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black26,
+//             blurRadius: 3,
+//             offset: Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Text(
+//             cafe.name,
+//             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+//           ),
+//           Text(
+//             'Weekday: ${cafe.hoursWeekday}',
+//             style: TextStyle(fontSize: 10),
+//           ),
+//           Text(
+//             'Weekend: ${cafe.hoursWeekend}',
+//             style: TextStyle(fontSize: 10),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// class Build {
+//   final GlobalKey key;
+//   final Widget widget;
+
+//   Build({required this.key, required this.widget});
+
+//   Future<Uint8List> toPngBytes(double pixelRatio) async {
+//     WidgetsFlutterBinding.ensureInitialized();
+//     final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
+
+//     final RenderView renderView = RenderView(
+//       child: RenderPositionedBox(child: repaintBoundary),
+//       configuration: ViewConfiguration(
+//         size: Size.infinite,
+//         offset: Offset.zero,
+//       ),
+//     );
+
+//     final PipelineOwner pipelineOwner = PipelineOwner();
+//     final BuildOwner buildOwner = BuildOwner(focusManager: FocusManager());
+
+//     pipelineOwner.rootNode = renderView;
+//     renderView.prepareInitialFrame();
+
+//     final RenderObjectToWidgetElement<RenderBox> rootElement =
+//         RenderObjectToWidgetAdapter<RenderBox>(
+//       container: repaintBoundary,
+//       child: widget,
+//     ).attachToRenderTree(buildOwner);
+
+//     buildOwner.buildScope(rootElement);
+//     buildOwner.finalizeTree();
+
+//     pipelineOwner.flushLayout();
+//     pipelineOwner.flushCompositingBits();
+//     pipelineOwner.flushPaint();
+
+//     final ui.Image image =
+//         await repaintBoundary.toImage(pixelRatio: pixelRatio);
+//     final ByteData? byteData =
+//         await image.toByteData(format: ui.ImageByteFormat.png);
+
+//     return byteData!.buffer.asUint8List();
+//   }
+// }

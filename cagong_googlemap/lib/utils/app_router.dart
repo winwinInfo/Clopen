@@ -4,17 +4,18 @@ import '../screens/map_screen.dart';
 import '../screens/mypage_screen.dart';
 import '../screens/payments_screen.dart';
 
-class AppRouterDelegate extends RouterDelegate<RouteInformation> with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
+class AppRouterDelegate extends RouterDelegate<RouteInformation>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   int _selectedIndex = 0;
 
   List<Widget> get _screens => [
-    const MapScreen(),
-    const PaymentScreen(),
-    // const MypageScreen(),
-  ];
+        const MapScreen(),
+        const PaymentScreen(),
+        // const MypageScreen(),
+      ];
 
   void _onItemTapped(int index) {
     _selectedIndex = index;
@@ -66,9 +67,11 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation> with ChangeNoti
   }
 }
 
-class AppRouteInformationParser extends RouteInformationParser<RouteInformation> {
+class AppRouteInformationParser
+    extends RouteInformationParser<RouteInformation> {
   @override
-  Future<RouteInformation> parseRouteInformation(RouteInformation routeInformation) async {
+  Future<RouteInformation> parseRouteInformation(
+      RouteInformation routeInformation) async {
     return routeInformation;
   }
 
