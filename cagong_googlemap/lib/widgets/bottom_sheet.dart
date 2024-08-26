@@ -24,7 +24,7 @@ class BottomSheetContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.25, // 바텀 시트의 초기 크기
+      initialChildSize: 0.80, // 바텀 시트의 초기 크기
       maxChildSize: 0.8,      // 바텀 시트가 확장될 수 있는 최대 크기
       minChildSize: 0.1,      // 바텀 시트가 최소한으로 보여지는 크기
       expand: true,
