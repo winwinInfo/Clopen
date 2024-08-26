@@ -1,3 +1,4 @@
+import 'package:cagong_googlemap/widgets/bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
@@ -53,11 +54,36 @@ class _MapScreenState extends State<MapScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading cafe data: $e');
+      print('Error loading cafe data: $e', _showBottomSheet);
+
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  void _showBottomSheet(Cafe cafe) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return BottomSheetContent(
+          name: cafe.name,
+          message: cafe.message,
+          address: cafe.address,
+          price: cafe.price,
+          hoursWeekday: cafe.hoursWeekday.toString(),
+          hoursWeekend: cafe.hoursWeekend.toString(),
+          videoUrl: cafe.videoUrl,
+          seatingInfo: cafe.seatingTypes
+              .map((seating) => {
+                    'type': seating.type,
+                    'count': seating.count,
+                    'power': seating.powerCount,
+                  })
+              .toList(),
+        );
+      },
+    );
   }
 
   @override

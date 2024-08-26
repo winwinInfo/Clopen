@@ -1,9 +1,12 @@
+import 'package:cagong_googlemap/widgets/bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import '../models/cafe.dart';
+import 'package:cagong_googlemap/screens/map_screen.dart';
+
 
 Future<BitmapDescriptor> resizeMarkerImage(
     String assetPath, int width, int height) async {
@@ -23,7 +26,7 @@ Future<BitmapDescriptor> resizeMarkerImage(
   return BitmapDescriptor.fromBytes(resizedImageData);
 }
 
-Future<Set<Marker>> createMarkers(List<Cafe> cafes) async {
+Future<Set<Marker>> createMarkers(List<Cafe> cafes, Function(Cafe) onTap) async {
   // 커스텀 마커 아이콘 로드 및 리사이즈
   BitmapDescriptor customIcon =
       await resizeMarkerImage('images/marker.png', 25, 25);
@@ -37,7 +40,10 @@ Future<Set<Marker>> createMarkers(List<Cafe> cafes) async {
         title: cafe.name,
         snippet: cafe.message,
       ),
-      icon: customIcon, // 리사이즈된 커스텀 마커 아이콘 설정
+      icon: customIcon,
+      onTap: () {
+        onTap(cafe);// 리사이즈된 커스텀 마커 아이콘 설정
+      }
     );
   }).toSet();
 
