@@ -1,3 +1,4 @@
+import 'package:cagong_googlemap/widgets/bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
@@ -36,10 +37,33 @@ class _MapScreenState extends State<MapScreen> {
     List<Cafe> cafes = jsonResponse.map((data) => Cafe.fromJson(data)).toList();
 
     // 마커를 생성하여 상태에 저장합니다.
-    Set<Marker> markers = await createMarkers(cafes);
+    Set<Marker> markers = await createMarkers(cafes, _showBottomSheet);
+
     setState(() {
       _markers = markers;
     });
+  }
+
+  void _showBottomSheet(Cafe cafe) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return BottomSheetContent(
+              name: cafe.name,
+              message: cafe.message,
+              address: cafe.address,
+              price: cafe.price,
+              hoursWeekday: cafe.hoursWeekday.toString(),
+              hoursWeekend: cafe.hoursWeekend.toString(),
+              videoUrl: cafe.videoUrl,
+              seatingInfo: cafe.seatingTypes.map((seating) => {
+                'type' : seating.type,
+                'count' : seating.count,
+                'power' : seating.powerCount,
+              }).toList(),
+          );
+        },
+    );
   }
 
   @override

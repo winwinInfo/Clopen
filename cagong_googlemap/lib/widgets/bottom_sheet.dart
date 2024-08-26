@@ -5,7 +5,8 @@ class BottomSheetContent extends StatelessWidget {
   final String message;
   final String address;
   final String price;
-  final String hours;
+  final String hoursWeekday;
+  final String hoursWeekend;
   final String videoUrl;
   final List<Map<String, dynamic>> seatingInfo;
 
@@ -14,7 +15,8 @@ class BottomSheetContent extends StatelessWidget {
     required this.message,
     required this.address,
     required this.price,
-    required this.hours,
+    required this.hoursWeekday,
+    required this.hoursWeekend,
     required this.videoUrl,
     required this.seatingInfo,
   });
@@ -53,7 +55,8 @@ class BottomSheetContent extends StatelessWidget {
                 SizedBox(height: 10),
                 Text("주소: $address", style: TextStyle(fontSize: 14)),
                 Text("가격: $price", style: TextStyle(fontSize: 14)),
-                Text("영업 시간: $hours", style: TextStyle(fontSize: 14)),
+                Text("평일 이용 시간: $hoursWeekday", style: TextStyle(fontSize: 14)),
+                Text("주말 이용 시간: $hoursWeekend", style: TextStyle(fontSize: 14)),
                 SizedBox(height: 10),
                 ...seatingInfo.map((seating) {
                   return Text(
