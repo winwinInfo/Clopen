@@ -38,8 +38,8 @@ class _MapScreenState extends State<MapScreen> {
         final markerIcon = await CustomMarkerGenerator.createCustomMarkerBitmap(
           cafe,
           imageScale: 0.3,
-          titleFontSize: 18,
-          subtitleFontSize: 14,
+          titleFontSize: 14,
+          subtitleFontSize: 12,
         );
         final marker = Marker(
           markerId: MarkerId('${cafe.latitude},${cafe.longitude}'),

@@ -38,7 +38,7 @@ class CustomMarkerGenerator {
     final double textAreaWidth = 180.0;
 
     // 텍스트 배경 그리기
-    final Paint bgPaint = Paint()..color = Colors.white.withOpacity(0.8);
+    final Paint bgPaint = Paint()..color = Colors.white.withOpacity(0.0);
     canvas.drawRect(
         Rect.fromLTWH(0, newHeight.toDouble(), textAreaWidth, textAreaHeight),
         bgPaint);
