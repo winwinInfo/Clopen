@@ -98,13 +98,11 @@ class _MapScreenState extends State<MapScreen> {
           hoursWeekday: cafe.hoursWeekday.toString(),
           hoursWeekend: cafe.hoursWeekend.toString(),
           videoUrl: cafe.videoUrl,
-          seatingInfo: cafe.seatingTypes
-              .map((seating) => {
+          seatingInfo: cafe.seatingTypes.map((seating) => {
                     'type': seating.type,
                     'count': seating.count,
                     'power': seating.powerCount,
-                  })
-              .toList(),
+                  }).toList(),
         );
       },
     );
