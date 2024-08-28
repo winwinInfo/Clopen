@@ -38,21 +38,26 @@ class CustomMarkerGenerator {
     final double textAreaWidth = 180.0;
 
     // 텍스트 배경 그리기
-    final Paint bgPaint = Paint()..color = Colors.white.withOpacity(0.0);
+    final Paint bgPaint = Paint()..color = Colors.white.withOpacity(0.8);
     canvas.drawRect(
         Rect.fromLTWH(0, newHeight.toDouble(), textAreaWidth, textAreaHeight),
         bgPaint);
 
     // 텍스트 그리기를 위한 TextPainter 설정
-    TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
+    TextPainter textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textScaleFactor: 1.0, // 텍스트 스케일 팩터 추가
+    );
 
     // 카페 이름 그리기
     textPainter.text = TextSpan(
       text: cafe.name,
       style: TextStyle(
-          fontSize: titleFontSize,
-          fontWeight: FontWeight.bold,
-          color: Colors.black),
+        fontSize: titleFontSize,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+        fontFamily: 'Roboto', // 폰트 지정
+      ),
     );
     textPainter.layout(maxWidth: textAreaWidth);
     textPainter.paint(canvas, Offset(5, newHeight.toDouble() + 5));
@@ -60,7 +65,11 @@ class CustomMarkerGenerator {
     // 평일 영업 시간 그리기
     textPainter.text = TextSpan(
       text: 'Weekday: ${cafe.hoursWeekday}',
-      style: TextStyle(fontSize: subtitleFontSize, color: Colors.black),
+      style: TextStyle(
+        fontSize: subtitleFontSize,
+        color: Colors.black,
+        fontFamily: 'Roboto', // 폰트 지정
+      ),
     );
     textPainter.layout(maxWidth: textAreaWidth);
     textPainter.paint(
@@ -69,7 +78,11 @@ class CustomMarkerGenerator {
     // 주말 영업 시간 그리기
     textPainter.text = TextSpan(
       text: 'Weekend: ${cafe.hoursWeekend}',
-      style: TextStyle(fontSize: subtitleFontSize, color: Colors.black),
+      style: TextStyle(
+        fontSize: subtitleFontSize,
+        color: Colors.black,
+        fontFamily: 'Roboto', // 폰트 지정
+      ),
     );
     textPainter.layout(maxWidth: textAreaWidth);
     textPainter.paint(
@@ -80,7 +93,7 @@ class CustomMarkerGenerator {
     // 캔버스에 그린 내용을 이미지로 변환
     final ui.Image img = await pictureRecorder
         .endRecording()
-        .toImage(textAreaWidth.round(), newHeight + textAreaHeight.round());
+        .toImage(textAreaWidth.round(), (newHeight + textAreaHeight).round());
     final ByteData? data = await img.toByteData(format: ui.ImageByteFormat.png);
 
     // 이미지를 BitmapDescriptor로 변환하여 반환

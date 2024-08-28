@@ -4,7 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
+import '../widgets/current_location_button.dart';
 import '../models/cafe.dart';
 import '../utils/custom_marker_generator.dart';
 import '../widgets/search_bar.dart' as CustomSearchBar;
@@ -23,34 +23,12 @@ class _MapScreenState extends State<MapScreen> {
   Set<Marker> _markers = {};
   List<Cafe> _cafes = [];
   bool _isLoading = true;
-  bool _myLocationEnabled = true;
-  StreamSubscription<Position>? _positionStreamSubscription;
-  // 검색을 위한 TextEditingController 추가
-  //TextEditingController _searchController = TextEditingController();
+  Marker? _currentLocationMarker;
 
   @override
   void initState() {
     super.initState();
     _loadCafesAndCreateMarkers();
-    _checkLocationPermission();
-  }
-
-  @override
-  void dispose() {
-    _positionStreamSubscription?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _checkLocationPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('위치 권한이 필요합니다.')),
-        );
-      }
-    }
   }
 
   Future<void> _loadCafesAndCreateMarkers() async {
@@ -98,14 +76,29 @@ class _MapScreenState extends State<MapScreen> {
           hoursWeekday: cafe.hoursWeekday.toString(),
           hoursWeekend: cafe.hoursWeekend.toString(),
           videoUrl: cafe.videoUrl,
-          seatingInfo: cafe.seatingTypes.map((seating) => {
+          seatingInfo: cafe.seatingTypes
+              .map((seating) => {
                     'type': seating.type,
                     'count': seating.count,
                     'power': seating.powerCount,
-                  }).toList(),
+                  })
+              .toList(),
         );
       },
     );
+  }
+
+  void _onLocationFound(Marker marker) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newLatLng(marker.position));
+
+    setState(() {
+      if (_currentLocationMarker != null) {
+        _markers.remove(_currentLocationMarker);
+      }
+      _currentLocationMarker = marker;
+      _markers.add(_currentLocationMarker!);
+    });
   }
 
   @override
@@ -123,7 +116,7 @@ class _MapScreenState extends State<MapScreen> {
                     zoom: 11.0,
                   ),
                   myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
+                  myLocationButtonEnabled: true,
                   zoomControlsEnabled: false,
                   markers: _markers,
                 ),
@@ -139,12 +132,10 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
           Positioned(
-            //현위치 버튼
-            right: 16,
             bottom: 16,
-            child: FloatingActionButton(
-              child: Icon(Icons.my_location),
-              onPressed: _goToCurrentLocation,
+            right: 16,
+            child: CurrentLocationButton(
+              onLocationFound: _onLocationFound,
             ),
           ),
         ],
@@ -154,79 +145,6 @@ class _MapScreenState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
-  }
-
-  Future<void> _toggleLocationTracking() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('위치 권한이 필요합니다.')),
-        );
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('위치 권한 설정을 확인해주세요.')),
-      );
-      return;
-    }
-
-    setState(() {
-      _myLocationEnabled = !_myLocationEnabled;
-    });
-
-    if (_myLocationEnabled) {
-      _startLocationUpdates();
-    } else {
-      _stopLocationUpdates();
-    }
-  }
-
-  void _startLocationUpdates() {
-    setState(() {
-      _myLocationEnabled = true;
-    });
-
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
-      ),
-    ).listen((Position position) {
-      _updateCameraPosition(position);
-    });
-
-    _goToCurrentLocation();
-  }
-
-  void _stopLocationUpdates() {
-    _positionStreamSubscription?.cancel();
-    _positionStreamSubscription = null;
-  }
-
-  Future<void> _updateCameraPosition(Position position) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newLatLng(
-      LatLng(position.latitude, position.longitude),
-    ));
-  }
-
-  Future<void> _goToCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      _updateCameraPosition(position);
-    } catch (e) {
-      print('Error getting current location: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('현재 위치를 가져오는데 실패했습니다.')),
-      );
-    }
   }
 
   void _handleCafeSelected(Cafe selectedCafe) async {
