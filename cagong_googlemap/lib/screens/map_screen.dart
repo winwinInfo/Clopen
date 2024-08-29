@@ -1,4 +1,3 @@
-import 'package:cagong_googlemap/widgets/bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
@@ -8,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import '../models/cafe.dart';
 import '../utils/custom_marker_generator.dart';
 import '../widgets/search_bar.dart' as CustomSearchBar;
+import '../widgets/bottom_sheet.dart';
+import 'dart:ui' as ui;
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -17,48 +18,46 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  // Google 지도 컨트롤러를 위한 Completer
   Completer<GoogleMapController> _controller = Completer();
+  // 초기 지도 중심 좌표 (서울시청)
   static const LatLng _center = const LatLng(37.5665, 126.9780);
 
+  // 지도에 표시될 모든 마커를 저장하는 Set
   Set<Marker> _markers = {};
+  // 로드된 카페 정보를 저장하는 리스트
   List<Cafe> _cafes = [];
+  // 데이터 로딩 상태를 나타내는 플래그
   bool _isLoading = true;
-  bool _myLocationEnabled = true;
+  // 현재 위치를 나타내는 마커
+  Marker? _currentLocationMarker;
+  // 위치 추적을 위한 StreamSubscription
   StreamSubscription<Position>? _positionStreamSubscription;
-  // 검색을 위한 TextEditingController 추가
-  //TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadCafesAndCreateMarkers();
-    _checkLocationPermission();
+    _loadCafesAndCreateMarkers(); // 카페 데이터 로드 및 마커 생성
+    _getCurrentLocation(); // 현재 위치 가져오기
+    _startLocationTracking(); // 위치 추적 시작
   }
 
   @override
   void dispose() {
+    // 위치 추적 구독 취소
     _positionStreamSubscription?.cancel();
     super.dispose();
   }
 
-  Future<void> _checkLocationPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('위치 권한이 필요합니다.')),
-        );
-      }
-    }
-  }
-
+  /// 카페 데이터를 로드하고 마커를 생성하는 메서드
   Future<void> _loadCafesAndCreateMarkers() async {
     try {
+      // JSON 파일에서 카페 데이터 로드
       String jsonString = await rootBundle.loadString('json/cafe_info.json');
       List<dynamic> jsonResponse = json.decode(jsonString);
       _cafes = jsonResponse.map((data) => Cafe.fromJson(data)).toList();
 
+      // 각 카페에 대한 마커 생성
       for (final cafe in _cafes) {
         final markerIcon = await CustomMarkerGenerator.createCustomMarkerBitmap(
           cafe,
@@ -75,6 +74,7 @@ class _MapScreenState extends State<MapScreen> {
         _markers.add(marker);
       }
 
+      // 로딩 완료 상태 업데이트
       setState(() {
         _isLoading = false;
       });
@@ -86,6 +86,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  /// 카페 정보를 보여주는 바텀 시트를 표시하는 메서드
   void _showBottomSheet(Cafe cafe) {
     showModalBottomSheet(
       context: context,
@@ -98,22 +99,102 @@ class _MapScreenState extends State<MapScreen> {
           hoursWeekday: cafe.hoursWeekday.toString(),
           hoursWeekend: cafe.hoursWeekend.toString(),
           videoUrl: cafe.videoUrl,
-          seatingInfo: cafe.seatingTypes.map((seating) => {
+          seatingInfo: cafe.seatingTypes
+              .map((seating) => {
                     'type': seating.type,
                     'count': seating.count,
                     'power': seating.powerCount,
-                  }).toList(),
+                  })
+              .toList(),
         );
       },
     );
   }
 
+  /// 현재 위치를 가져오고 마커를 업데이트하는 메서드
+  Future<void> _getCurrentLocation() async {
+    try {
+      // 위치 권한 확인
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          // 권한이 거부된 경우 처리
+          return;
+        }
+      }
+
+      // 현재 위치 가져오기
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      _updateCurrentLocationMarker(position);
+    } catch (e) {
+      print('Error getting current location: $e');
+    }
+  }
+
+  /// 실시간 위치 추적을 시작하는 메서드
+  void _startLocationTracking() {
+    _positionStreamSubscription = Geolocator.getPositionStream(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      ),
+    ).listen((Position position) {
+      _updateCurrentLocationMarker(position);
+    });
+  }
+
+  /// 현재 위치 마커를 업데이트하는 메서드
+  Future<void> _updateCurrentLocationMarker(Position position) async {
+    final LatLng location = LatLng(position.latitude, position.longitude);
+    final BitmapDescriptor markerIcon =
+        await _createResizedMarkerImageFromAsset(
+            'images/current_location_marker.png', 35);
+
+    setState(() {
+      // 기존 현재 위치 마커 제거
+      if (_currentLocationMarker != null) {
+        _markers.remove(_currentLocationMarker);
+      }
+      // 새로운 현재 위치 마커 생성 및 추가
+      _currentLocationMarker = Marker(
+        markerId: MarkerId('current_location'),
+        position: location,
+        icon: markerIcon,
+        infoWindow: InfoWindow(title: '현재 위치'),
+      );
+      _markers.add(_currentLocationMarker!);
+    });
+  }
+
+  /// 에셋 이미지를 로드하고 크기를 조정하여 BitmapDescriptor로 반환하는 메서드
+  Future<BitmapDescriptor> _createResizedMarkerImageFromAsset(
+      String assetName, int width) async {
+    final ByteData data = await rootBundle.load(assetName);
+    final ui.Codec codec = await ui
+        .instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
+    final ui.FrameInfo fi = await codec.getNextFrame();
+    final data2 = await fi.image.toByteData(format: ui.ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(data2!.buffer.asUint8List());
+  }
+
+  /// 현재 위치로 카메라를 이동시키는 메서드
+  void _moveToCurrentLocation() async {
+    if (_currentLocationMarker != null) {
+      final GoogleMapController controller = await _controller.future;
+      controller.animateCamera(
+          CameraUpdate.newLatLng(_currentLocationMarker!.position));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar 제거함
       body: Stack(
         children: [
+          // 로딩 중이면 로딩 인디케이터 표시, 아니면 구글 맵 표시
           _isLoading
               ? Center(child: CircularProgressIndicator())
               : GoogleMap(
@@ -122,29 +203,28 @@ class _MapScreenState extends State<MapScreen> {
                     target: _center,
                     zoom: 11.0,
                   ),
-                  myLocationEnabled: true,
+                  myLocationEnabled: false,
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
                   markers: _markers,
                 ),
-          // 상단에 SearchBar 추가
+          // 검색 바 위젯
           Positioned(
-            top: MediaQuery.of(context).padding.top + 10, // 상태 바 높이 + 추가 패딩
+            top: MediaQuery.of(context).padding.top + 10,
             left: 10,
             right: 10,
             child: CustomSearchBar.SearchBar(
-              //controller: _searchController,
               cafes: _cafes,
               onCafeSelected: _handleCafeSelected,
             ),
           ),
+          // 현재 위치 버튼
           Positioned(
-            //현위치 버튼
-            right: 16,
             bottom: 16,
+            right: 16,
             child: FloatingActionButton(
               child: Icon(Icons.my_location),
-              onPressed: _goToCurrentLocation,
+              onPressed: _moveToCurrentLocation,
             ),
           ),
         ],
@@ -152,89 +232,19 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  /// 구글 맵이 생성될 때 호출되는 콜백 메서드
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
   }
 
-  Future<void> _toggleLocationTracking() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('위치 권한이 필요합니다.')),
-        );
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('위치 권한 설정을 확인해주세요.')),
-      );
-      return;
-    }
-
-    setState(() {
-      _myLocationEnabled = !_myLocationEnabled;
-    });
-
-    if (_myLocationEnabled) {
-      _startLocationUpdates();
-    } else {
-      _stopLocationUpdates();
-    }
-  }
-
-  void _startLocationUpdates() {
-    setState(() {
-      _myLocationEnabled = true;
-    });
-
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
-      ),
-    ).listen((Position position) {
-      _updateCameraPosition(position);
-    });
-
-    _goToCurrentLocation();
-  }
-
-  void _stopLocationUpdates() {
-    _positionStreamSubscription?.cancel();
-    _positionStreamSubscription = null;
-  }
-
-  Future<void> _updateCameraPosition(Position position) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newLatLng(
-      LatLng(position.latitude, position.longitude),
-    ));
-  }
-
-  Future<void> _goToCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      _updateCameraPosition(position);
-    } catch (e) {
-      print('Error getting current location: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('현재 위치를 가져오는데 실패했습니다.')),
-      );
-    }
-  }
-
+  /// 카페가 선택되었을 때 호출되는 메서드
   void _handleCafeSelected(Cafe selectedCafe) async {
     final GoogleMapController controller = await _controller.future;
+    // 선택된 카페 위치로 카메라 이동
     controller.animateCamera(CameraUpdate.newLatLng(
       LatLng(selectedCafe.latitude, selectedCafe.longitude),
     ));
-    // Bottom Sheet를 표시합니다.
+    // 카페 정보 바텀 시트 표시
     _showBottomSheet(selectedCafe);
   }
 }
