@@ -10,6 +10,7 @@ import '../widgets/search_bar.dart' as CustomSearchBar;
 import '../widgets/bottom_sheet.dart';
 import 'dart:ui' as ui;
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
+import 'detail_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -30,6 +31,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Cafe? _selectedCafe;
   GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
+  bool _isBottomSheetFullyExpanded = false;
 
   @override
   void initState() {
@@ -188,24 +190,37 @@ class _MapScreenState extends State<MapScreen> {
         persistentHeader: Container(height: 0),
         expandableContent: _selectedCafe == null
             ? SizedBox.shrink()
-            : BottomSheetContent(
-                height:
-                    MediaQuery.of(context).size.height * 0.5, // 화면 높이의 50%로 설정
-                name: _selectedCafe!.name,
-                message: _selectedCafe!.message,
-                address: _selectedCafe!.address,
-                price: _selectedCafe!.price,
-                hoursWeekday: _selectedCafe!.hoursWeekday.toString(),
-                hoursWeekend: _selectedCafe!.hoursWeekend.toString(),
-                videoUrl: _selectedCafe!.videoUrl,
-                seatingInfo: _selectedCafe!.seatingTypes
-                    .map((seating) => {
-                          'type': seating.type,
-                          'count': seating.count,
-                          'power': seating.powerCount,
-                        })
-                    .toList(),
+            : GestureDetector(
+                onTap: _handleBottomSheetTap,
+                onVerticalDragUpdate: _handleBottomSheetDrag,
+                child: BottomSheetContent(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  name: _selectedCafe!.name,
+                  message: _selectedCafe!.message,
+                  address: _selectedCafe!.address,
+                  price: _selectedCafe!.price,
+                  hoursWeekday: _selectedCafe!.hoursWeekday.toString(),
+                  hoursWeekend: _selectedCafe!.hoursWeekend.toString(),
+                  videoUrl: _selectedCafe!.videoUrl,
+                  seatingInfo: _selectedCafe!.seatingTypes
+                      .map((seating) => {
+                            'type': seating.type,
+                            'count': seating.count,
+                            'power': seating.powerCount,
+                          })
+                      .toList(),
+                ),
               ),
+        onIsExtendedCallback: () {
+          setState(() {
+            _isBottomSheetFullyExpanded = true;
+          });
+        },
+        onIsContractedCallback: () {
+          setState(() {
+            _isBottomSheetFullyExpanded = false;
+          });
+        },
       ),
     );
   }
@@ -227,5 +242,27 @@ class _MapScreenState extends State<MapScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bottomSheetKey.currentState?.expand();
     });
+  }
+
+  void _handleBottomSheetTap() {
+    if (_isBottomSheetFullyExpanded) {
+      _navigateToDetailScreen();
+    } else {
+      _bottomSheetKey.currentState?.expand();
+    }
+  }
+
+  void _handleBottomSheetDrag(DragUpdateDetails details) {
+    if (details.primaryDelta! < -20 && _isBottomSheetFullyExpanded) {
+      _navigateToDetailScreen();
+    }
+  }
+
+  void _navigateToDetailScreen() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => DetailScreen(cafe: _selectedCafe!),
+      ),
+    );
   }
 }
