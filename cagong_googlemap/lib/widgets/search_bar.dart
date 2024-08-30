@@ -25,6 +25,7 @@ class SearchBar extends StatelessWidget {
             border: Border.all(color: Colors.grey[300]!),
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.search, color: Colors.grey),
               SizedBox(width: 8),
