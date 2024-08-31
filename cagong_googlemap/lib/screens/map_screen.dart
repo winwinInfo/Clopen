@@ -151,76 +151,77 @@ class MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ExpandableBottomSheet(
-        key: _bottomSheetKey,
-        background: Stack(
-          children: [
-            _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : GoogleMap(
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: const CameraPosition(
-                      target: _center,
-                      zoom: 11.0,
-                    ),
-                    myLocationEnabled: false,
-                    myLocationButtonEnabled: false,
-                    zoomControlsEnabled: false,
-                    markers: _markers,
+      body: Stack(
+        children: [
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : GoogleMap(
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: const CameraPosition(
+                    target: _center,
+                    zoom: 11.0,
                   ),
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              left: 10,
-              right: 10,
-              child: custom_search_bar.SearchBar(
-                cafes: _cafes,
-                onCafeSelected: _handleCafeSelected,
-              ),
-            ),
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: FloatingActionButton(
-                onPressed: _moveToCurrentLocation,
-                child: const Icon(Icons.my_location),
-              ),
-            ),
-          ],
-        ),
-        persistentHeader: Container(height: 0),
-        expandableContent: _selectedCafe == null
-            ? const SizedBox.shrink()
-            : GestureDetector(
-                onTap: _handleBottomSheetTap,
-                onVerticalDragUpdate: _handleBottomSheetDrag,
-                child: BottomSheetContent(
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  name: _selectedCafe!.name,
-                  message: _selectedCafe!.message,
-                  address: _selectedCafe!.address,
-                  price: _selectedCafe!.price,
-                  hoursWeekday: _selectedCafe!.hoursWeekday.toString(),
-                  hoursWeekend: _selectedCafe!.hoursWeekend.toString(),
-                  videoUrl: _selectedCafe!.videoUrl,
-                  seatingInfo: _selectedCafe!.seatingTypes
-                      .map((seating) => {
-                            'type': seating.type,
-                            'count': seating.count,
-                            'power': seating.powerCount,
-                          })
-                      .toList(),
+                  myLocationEnabled: false,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  markers: _markers,
                 ),
-              ),
-        onIsExtendedCallback: () {
-          setState(() {
-            _isBottomSheetFullyExpanded = true;
-          });
-        },
-        onIsContractedCallback: () {
-          setState(() {
-            _isBottomSheetFullyExpanded = false;
-          });
-        },
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 10,
+            right: 10,
+            child: custom_search_bar.SearchBar(
+              cafes: _cafes,
+              onCafeSelected: _handleCafeSelected,
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: _moveToCurrentLocation,
+              child: const Icon(Icons.my_location),
+            ),
+          ),
+          ExpandableBottomSheet(
+            key: _bottomSheetKey,
+            background: Container(height: 0),
+            expandableContent: _selectedCafe == null
+                ? const SizedBox.shrink()
+                : GestureDetector(
+                    onTap: _handleBottomSheetTap,
+                    onVerticalDragUpdate: _handleBottomSheetDrag,
+                    child: BottomSheetContent(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      name: _selectedCafe!.name,
+                      message: _selectedCafe!.message,
+                      address: _selectedCafe!.address,
+                      price: _selectedCafe!.price,
+                      hoursWeekday: _selectedCafe!.hoursWeekday.toString(),
+                      hoursWeekend: _selectedCafe!.hoursWeekend.toString(),
+                      videoUrl: _selectedCafe!.videoUrl,
+                      seatingInfo: _selectedCafe!.seatingTypes
+                          .map((seating) => {
+                                'type': seating.type,
+                                'count': seating.count,
+                                'power': seating.powerCount,
+                              })
+                          .toList(),
+                    ),
+                  ),
+            onIsExtendedCallback: () {
+              setState(() {
+                _isBottomSheetFullyExpanded = true;
+              });
+            },
+            onIsContractedCallback: () {
+              setState(() {
+                _isBottomSheetFullyExpanded = false;
+                _selectedCafe = null;
+              });
+            },
+          ),
+        ],
       ),
     );
   }
