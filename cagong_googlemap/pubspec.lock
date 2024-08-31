@@ -74,7 +74,7 @@ packages:
     source: hosted
     version: "5.1.1"
   expandable_bottom_sheet:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: expandable_bottom_sheet
       sha256: d62455231ccd53bf7a153c87e2cdecd2c8e7d737cb5262a5fc9481c5e3aed7d1
@@ -129,7 +129,7 @@ packages:
     source: sdk
     version: "0.0.0"
   geolocator:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: geolocator
       sha256: "0ec58b731776bc43097fcf751f79681b6a8f6d3bc737c94779fe9f1ad73c1a81"

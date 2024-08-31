@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import '../screens/map_screen.dart';
-import '../screens/mypage_screen.dart';
 import '../screens/payments_screen.dart';
 
 class AppRouterDelegate extends RouterDelegate<RouteInformation>

@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/cafe.dart';
 import '../utils/custom_marker_generator.dart';
-import '../widgets/search_bar.dart' as CustomSearchBar;
+import '../widgets/search_bar.dart' as custom_search_bar;
 import '../widgets/bottom_sheet.dart';
 import 'dart:ui' as ui;
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
@@ -172,7 +172,7 @@ class MapScreenState extends State<MapScreen> {
               top: MediaQuery.of(context).padding.top + 10,
               left: 10,
               right: 10,
-              child: CustomSearchBar.SearchBar(
+              child: custom_search_bar.SearchBar(
                 cafes: _cafes,
                 onCafeSelected: _handleCafeSelected,
               ),
