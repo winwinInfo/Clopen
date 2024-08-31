@@ -13,8 +13,12 @@ class CustomMarkerGenerator {
     double subtitleFontSize = 12,
   }) async {
     // 마커 이미지 로드
+        // 마커 이미지 로드 (Co-work 값에 따라 다른 이미지 사용)
+    final String markerImagePath = cafe.coWork == 1
+        ? 'images/special.png'
+        : 'images/marker.png';
     final ByteData imageData =
-        await rootBundle.load('assets/images/marker.png');
+        await rootBundle.load(markerImagePath);
     final Uint8List imageBytes = imageData.buffer.asUint8List();
     final ui.Codec codec = await ui.instantiateImageCodec(
       imageBytes,
