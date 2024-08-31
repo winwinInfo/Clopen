@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../models/cafe.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 class DetailScreen extends StatefulWidget {
   final Cafe cafe;
@@ -40,7 +42,14 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   void dispose() {
-    _controller?.close();
+    if (!kIsWeb) {
+      // 웹 플랫폼이 아닐 경우에만 close 메서드 호출
+      _controller?.close();
+    } else {
+      // 웹 플랫폼일 경우 대체 정리 로직
+      _controller?.pauseVideo();
+      _controller = null;
+    }
     super.dispose();
   }
 
