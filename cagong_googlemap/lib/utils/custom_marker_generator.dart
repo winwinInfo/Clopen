@@ -16,7 +16,11 @@ class CustomMarkerGenerator {
     final ByteData imageData =
         await rootBundle.load('assets/images/marker.png');
     final Uint8List imageBytes = imageData.buffer.asUint8List();
-    final ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
+    final ui.Codec codec = await ui.instantiateImageCodec(
+      imageBytes,
+      targetWidth: 100,
+      targetHeight: 100,
+    );
     final ui.FrameInfo fi = await codec.getNextFrame();
 
     // 이미지 크기 조절
@@ -35,7 +39,7 @@ class CustomMarkerGenerator {
     // 텍스트 영역 크기 계산 (텍스트 크기에 따라 조정)
     final double textAreaHeight =
         (titleFontSize + subtitleFontSize * 2 + 20).ceil().toDouble();
-    final double textAreaWidth = 180.0;
+    const double textAreaWidth = 180.0;
 
     // 텍스트 배경 그리기
     final Paint bgPaint = Paint()..color = Colors.white.withOpacity(0.8);
