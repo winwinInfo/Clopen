@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class Cafe {
   final String name;
   final double latitude;
@@ -12,21 +14,23 @@ class Cafe {
   final List<Seating> seatingTypes;
   final int coWork;
   final double id;
+  final Map<String, String> dailyHours;  // New field for daily business hours
 
   Cafe({
     required this.name,
     required this.latitude,
     required this.longitude,
-    this.message = 'No message provided', // 기본값 설정
-    this.address = 'No address provided', // 기본값 설정
-    this.hoursWeekday = -1.0, // 기본값 설정
-    this.hoursWeekend = -1.0, // 기본값 설정
-    this.price = 'Price not available', // 기본값 설정
-    this.videoUrl = '', // 기본값 설정
-    this.businessHours = 'Hours not available', // 기본값 설정
+    this.message = 'No message provided',
+    this.address = 'No address provided',
+    this.hoursWeekday = -1.0,
+    this.hoursWeekend = -1.0,
+    this.price = 'Price not available',
+    this.videoUrl = '',
+    this.businessHours = 'Hours not available',
     required this.seatingTypes,
-    this.coWork = 0, // 기본값 설정
+    this.coWork = 0,
     required this.id,
+    required this.dailyHours,  // New parameter
   });
 
   factory Cafe.fromJson(Map<String, dynamic> json) {
@@ -34,27 +38,39 @@ class Cafe {
     for (int i = 1; i <= 5; i++) {
       if (json['Seating Type $i'] != null) {
         seatingList.add(Seating(
-          type: json['Seating Type $i'] ?? 'Unknown', // 기본값 설정
-          count: json['Seating Count $i']?.toDouble() ?? 0.0, // 기본값 설정
-          powerCount: json['Power Count $i']?.toString() ?? '0', // 기본값 설정
+          type: json['Seating Type $i'] ?? 'Unknown',
+          count: json['Seating Count $i']?.toDouble() ?? 0.0,
+          powerCount: json['Power Count $i']?.toString() ?? '0',
         ));
       }
     }
 
+    // Create a map for daily business hours
+    Map<String, String> dailyHours = {
+      '월': json['월'] ?? 'Not available',
+      '화': json['화'] ?? 'Not available',
+      '수': json['수'] ?? 'Not available',
+      '목': json['목'] ?? 'Not available',
+      '금': json['금'] ?? 'Not available',
+      '토': json['토'] ?? 'Not available',
+      '일': json['일'] ?? 'Not available',
+    };
+
     return Cafe(
-      name: json['Name'] ?? 'Unnamed Cafe', // 기본값 설정
-      latitude: json['Position (Latitude)']?.toDouble() ?? 0.0, // 기본값 설정
-      longitude: json['Position (Longitude)']?.toDouble() ?? 0.0, // 기본값 설정
-      message: json['Message'] ?? 'No message provided', // 기본값 설정
-      address: json['Address'] ?? 'No address provided', // 기본값 설정
-      hoursWeekday: json['Hours_weekday']?.toDouble() ?? -1.0, // 기본값 설정
-      hoursWeekend: json['Hours_weekend']?.toDouble() ?? -1.0, // 기본값 설정
-      price: json['Price'] ?? 'Price not available', // 기본값 설정
-      videoUrl: json['Video URL'] ?? '', // 기본값 설정
-      businessHours: json['영업 시간'] ?? 'Hours not available', // 기본값 설정
+      name: json['Name'] ?? 'Unnamed Cafe',
+      latitude: json['Position (Latitude)']?.toDouble() ?? 0.0,
+      longitude: json['Position (Longitude)']?.toDouble() ?? 0.0,
+      message: json['Message'] ?? 'No message provided',
+      address: json['Address'] ?? 'No address provided',
+      hoursWeekday: json['Hours_weekday']?.toDouble() ?? -1.0,
+      hoursWeekend: json['Hours_weekend']?.toDouble() ?? -1.0,
+      price: json['Price'] ?? 'Price not available',
+      videoUrl: json['Video URL'] ?? '',
+      businessHours: json['영업 시간'] ?? 'Hours not available',
       seatingTypes: seatingList,
-      coWork: json['Co-work'] ?? 0, // 기본값 설정
-      id: json['ID']?.toDouble() ?? 0.0, // 기본값 설정
+      coWork: json['Co-work'] ?? 0,
+      id: json['ID']?.toDouble() ?? 0.0,
+      dailyHours: dailyHours,  // Add the daily hours map
     );
   }
 }

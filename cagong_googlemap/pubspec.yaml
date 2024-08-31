@@ -14,6 +14,8 @@ dependencies:
   image: ^4.0.15
   geolocator: ^13.0.1
   expandable_bottom_sheet: ^1.1.1+1
+  youtube_player_iframe: ^4.0.4
+
 
 dev_dependencies:
   flutter_test:
