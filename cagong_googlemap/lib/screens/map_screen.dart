@@ -13,24 +13,24 @@ import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'detail_screen.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({Key? key}) : super(key: key);
+  const MapScreen({super.key});
 
   @override
   _MapScreenState createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
-  Completer<GoogleMapController> _controller = Completer();
-  static const LatLng _center = const LatLng(37.5665, 126.9780);
+  final Completer<GoogleMapController> _controller = Completer();
+  static const LatLng _center = LatLng(37.5665, 126.9780);
 
-  Set<Marker> _markers = {};
+  final Set<Marker> _markers = {};
   List<Cafe> _cafes = [];
   bool _isLoading = true;
   Marker? _currentLocationMarker;
   StreamSubscription<Position>? _positionStreamSubscription;
 
   Cafe? _selectedCafe;
-  GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
+  final GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
   bool _isBottomSheetFullyExpanded = false;
 
   @override
@@ -101,7 +101,7 @@ class _MapScreenState extends State<MapScreen> {
 
   void _startLocationTracking() {
     _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: LocationSettings(
+      locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 10,
       ),
@@ -121,10 +121,10 @@ class _MapScreenState extends State<MapScreen> {
         _markers.remove(_currentLocationMarker);
       }
       _currentLocationMarker = Marker(
-        markerId: MarkerId('current_location'),
+        markerId: const MarkerId('current_location'),
         position: location,
         icon: markerIcon,
-        infoWindow: InfoWindow(title: '현재 위치'),
+        infoWindow: const InfoWindow(title: '현재 위치'),
       );
       _markers.add(_currentLocationMarker!);
     });
@@ -156,10 +156,10 @@ class _MapScreenState extends State<MapScreen> {
         background: Stack(
           children: [
             _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : GoogleMap(
                     onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
+                    initialCameraPosition: const CameraPosition(
                       target: _center,
                       zoom: 11.0,
                     ),
@@ -181,15 +181,15 @@ class _MapScreenState extends State<MapScreen> {
               bottom: 16,
               right: 16,
               child: FloatingActionButton(
-                child: Icon(Icons.my_location),
                 onPressed: _moveToCurrentLocation,
+                child: const Icon(Icons.my_location),
               ),
             ),
           ],
         ),
         persistentHeader: Container(height: 0),
         expandableContent: _selectedCafe == null
-            ? SizedBox.shrink()
+            ? const SizedBox.shrink()
             : GestureDetector(
                 onTap: _handleBottomSheetTap,
                 onVerticalDragUpdate: _handleBottomSheetDrag,
