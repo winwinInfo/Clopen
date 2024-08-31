@@ -16,10 +16,10 @@ class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
   @override
-  _MapScreenState createState() => _MapScreenState();
+  MapScreenState createState() => MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class MapScreenState extends State<MapScreen> {
   final Completer<GoogleMapController> _controller = Completer();
   static const LatLng _center = LatLng(37.5665, 126.9780);
 
