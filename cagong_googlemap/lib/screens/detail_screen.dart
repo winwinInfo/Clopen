@@ -50,7 +50,14 @@ class _DetailScreenState extends State<DetailScreen> {
     return '$hours 시간';
   }
 
-  Widget _buildBusinessHoursTable() {
+  String _getBusinessHourText(String? hours) {
+    if (hours == null || hours.isEmpty || hours == '-1') {
+      return '휴무';
+    }
+    return hours;
+  }
+
+ Widget _buildBusinessHoursTable() {
     return Table(
       border: TableBorder.all(),
       children: [
@@ -69,7 +76,7 @@ class _DetailScreenState extends State<DetailScreen> {
               .map((day) => TableCell(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(widget.cafe.dailyHours[day] ?? 'N/A', textAlign: TextAlign.center),
+                      child: Text(_getBusinessHourText(widget.cafe.dailyHours[day]), textAlign: TextAlign.center),
                     ),
                   ))
               .toList(),
