@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
@@ -11,6 +12,7 @@ import '../widgets/bottom_sheet.dart';
 import 'dart:ui' as ui;
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'detail_screen.dart';
+import 'package:flutter/foundation.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -189,6 +191,7 @@ class MapScreenState extends State<MapScreen> {
             expandableContent: _selectedCafe == null
                 ? const SizedBox.shrink()
                 : GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: _handleBottomSheetTap,
                     onVerticalDragUpdate: _handleBottomSheetDrag,
                     child: BottomSheetContent(
