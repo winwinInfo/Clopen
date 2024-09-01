@@ -255,25 +255,26 @@ void handleCafeSelected(Cafe selectedCafe) async {
       });
 }
 
-  void handleBottomSheetTap() {
-    if (_isBottomSheetFullyExpanded) {
-      navigateToDetailScreen();
-    } else {
-      _bottomSheetKey.currentState?.expand();
-    }
-  }
+  // void handleBottomSheetTap() {
+  //   if (_isBottomSheetFullyExpanded) {
+  //     navigateToDetailScreen();
+  //   } else {
+  //     _bottomSheetKey.currentState?.expand();
+  //   }
+  // }
 
-  void handleBottomSheetDrag(DragUpdateDetails details) {
-    if (details.primaryDelta! < -20 && _isBottomSheetFullyExpanded) {
-      navigateToDetailScreen();
-    }
-  }
+  // void handleBottomSheetDrag(DragUpdateDetails details) {
+  //   if (details.primaryDelta! < -20 && _isBottomSheetFullyExpanded) {
+  //     navigateToDetailScreen();
+  //   }
+  // }
 
-  void navigateToDetailScreen() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => DetailScreen(cafe: _selectedCafe!),
-      ),
-    );
-  }
+  // void navigateToDetailScreen() {
+  //   Navigator.of(context).push(
+  //     MaterialPageRoute(
+  //       builder: (context) => DetailScreen(cafe: _selectedCafe!),
+  //     ),
+  //   );
+  // }
+}
 }
