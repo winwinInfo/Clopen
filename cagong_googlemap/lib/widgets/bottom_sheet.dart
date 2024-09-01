@@ -1,100 +1,173 @@
 import 'package:flutter/material.dart';
-import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
+import 'package:intl/intl.dart';
+import '../models/cafe.dart';  // Cafe 모델이 정의된 파일
+import '../screens/detail_screen.dart';  // DetailScreen이 정의된 파일
 
-class BottomSheetContent extends StatelessWidget {
-  final String name;
-  final String message;
-  final String address;
-  final String price;
-  final String hoursWeekday;
-  final String hoursWeekend;
-  final String videoUrl;
-  final List<Map<String, dynamic>> seatingInfo;
-  final double? height;
 
-  const BottomSheetContent({
-    super.key,
-    required this.name,
-    required this.message,
-    required this.address,
-    required this.price,
-    required this.hoursWeekday,
-    required this.hoursWeekend,
-    required this.videoUrl,
-    required this.seatingInfo,
-    this.height,
-  });
+class CafeBottomSheet extends StatelessWidget {
+  final Cafe cafe;
+
+  const CafeBottomSheet({Key? key, required this.cafe}) : super(key: key);
+
+  String _getUsageTimeText(double hours) {
+    if (hours == -1) return '무제한';
+    if (hours == 0) return '권장X';
+    return '$hours 시간';
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: Colors.white, // 배경색을 흰색으로 설정
-        borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(20)), // 상단 모서리를 둥글게 처리
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DetailScreen(cafe: cafe)),
+        );
+      },
+      child: Container(
+        height: 250,
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
                 children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: Text(
+                      cafe.name,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    message,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 10),
-                  Text("주소: $address", style: const TextStyle(fontSize: 14)),
-                  Text("가격: $price", style: const TextStyle(fontSize: 14)),
-                  Text("평일 이용 시간: $hoursWeekday",
-                      style: const TextStyle(fontSize: 14)),
-                  Text("주말 이용 시간: $hoursWeekend",
-                      style: const TextStyle(fontSize: 14)),
-                  const SizedBox(height: 10),
-                  const Text("좌석 정보:",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ...seatingInfo.map((seating) {
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 10.0, top: 5.0),
-                      child: Text(
-                        "${seating['type']}석 - ${seating['count']}석 (콘센트: ${seating['power']})",
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    );
-                  }),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      print("영상 링크 열기: $videoUrl");
-                    },
-                    child: const Text("영상 보기"),
-                  ),
+                  _buildOpenStatusChip(),
                 ],
               ),
-            ),
-          ],
+              SizedBox(height: 8),
+              Text(
+                cafe.message,
+                style: TextStyle(fontSize: 14),
+              ),
+              SizedBox(height: 8),
+              Text(
+                "평일 이용 시간: ${_getUsageTimeText(cafe.hoursWeekday)}",
+                style: TextStyle(fontSize: 14),
+              ),
+              SizedBox(height: 4),
+              Text(
+                "주말 이용 시간: ${_getUsageTimeText(cafe.hoursWeekend)}",
+                style: TextStyle(fontSize: 14),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+String _getOpenStatus() {
+  final now = DateTime.now();
+  final dayOfWeek = DateFormat('E').format(now);
+  final currentTime = DateFormat('HH:mm').format(now);
+  
+  String todayHours = cafe.dailyHours[_koreanDayOfWeek(dayOfWeek)] ?? 'Not available';
+  
+  if (todayHours == 'Not available' || todayHours == '-1') {
+    return '휴무일';
+  }
+  
+  List<String> hours = todayHours.split('~');
+  if (hours.length != 2) return '정보 없음';
+  
+  String openTime = hours[0].trim();
+  String closeTime = hours[1].trim();
+  
+  if (_isTimeBetween(currentTime, openTime, closeTime)) {
+    return '영업중';
+  } else {
+    return '영업 종료';
+  }
+}
+
+Widget _buildOpenStatusChip() {
+  String status = _getOpenStatus();
+  Color statusColor;
+  switch (status) {
+    case '영업중':
+      statusColor = Colors.green;
+      break;
+    case '영업 종료':
+      statusColor = Colors.grey;
+      break;
+    case '휴무일':
+      statusColor = Colors.red;
+      break;
+    default:
+      statusColor = Colors.blue;
+  }
+  return Chip(
+    label: Text(
+      status,
+      style: TextStyle(color: Colors.white),
+    ),
+    backgroundColor: statusColor,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),  // 원하는 둥근 정도로 조절 가능
+    ),
+  );
+}
+
+  bool _isCurrentlyOpen() {
+    final now = DateTime.now();
+    final dayOfWeek = DateFormat('E').format(now);
+    final currentTime = DateFormat('HH:mm').format(now);
+    
+    String todayHours = cafe.dailyHours[_koreanDayOfWeek(dayOfWeek)] ?? 'Not available';
+    
+    if (todayHours == 'Not available' || todayHours.toLowerCase() == 'closed') {
+      return false;
+    }
+    
+    List<String> hours = todayHours.split('-');
+    if (hours.length != 2) return false;
+    
+    String openTime = hours[0].trim();
+    String closeTime = hours[1].trim();
+    
+    return _isTimeBetween(currentTime, openTime, closeTime);
+  }
+
+  String _koreanDayOfWeek(String englishDay) {
+    switch (englishDay) {
+      case 'Mon': return '월';
+      case 'Tue': return '화';
+      case 'Wed': return '수';
+      case 'Thu': return '목';
+      case 'Fri': return '금';
+      case 'Sat': return '토';
+      case 'Sun': return '일';
+      default: return '';
+    }
+  }
+
+  bool _isTimeBetween(String current, String open, String close) {
+    int currentMinutes = _timeToMinutes(current);
+    int openMinutes = _timeToMinutes(open);
+    int closeMinutes = _timeToMinutes(close);
+    
+    if (closeMinutes < openMinutes) {
+      return currentMinutes >= openMinutes || currentMinutes <= closeMinutes;
+    } else {
+      return currentMinutes >= openMinutes && currentMinutes <= closeMinutes;
+    }
+  }
+
+  int _timeToMinutes(String time) {
+    List<String> parts = time.split(':');
+    return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+  }
+
+  String _formatBusinessHours() {
+    return cafe.dailyHours.entries.map((entry) => '${entry.key}: ${entry.value}').join('\n');
   }
 }

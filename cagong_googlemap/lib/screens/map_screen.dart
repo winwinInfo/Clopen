@@ -35,7 +35,7 @@ class MapScreenState extends State<MapScreen> {
   Cafe? _selectedCafe;
   final GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
   final bool _isBottomSheetFullyExpanded = false;
-  double _bottomSheetHeight = 0;
+  final double _bottomSheetHeight = 0;
 
   @override
   void initState() {
@@ -233,56 +233,43 @@ class MapScreenState extends State<MapScreen> {
     setState(() {
       _selectedCafe = selectedCafe;
     });
+void handleCafeSelected(Cafe selectedCafe) async {
+  final GoogleMapController controller = await _controller.future;
+  controller.animateCamera(CameraUpdate.newLatLng(
+    LatLng(selectedCafe.latitude, selectedCafe.longitude),
+  ));
+  setState(() {
+    _selectedCafe = selectedCafe;
+    _isBottomSheetOpen = true;
+  });
 
-    final bottomSheetController = Scaffold.of(context).showBottomSheet(
-      (BuildContext context) {
-        return Container(
-          height: 200,
-          color: Colors.amber,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Text('BottomSheet'),
-                ElevatedButton(
-                  child: const Text('Close BottomSheet'),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-    bottomSheetController.closed.then((_) {
-      setState(() {
-        _bottomSheetHeight = 0;
+  Scaffold.of(context)
+      .showBottomSheet(
+        (BuildContext context) => CafeBottomSheet(cafe: selectedCafe),
+      )
+      .closed
+      .whenComplete(() {
+        setState(() {
+          _isBottomSheetOpen = false;
+        });
       });
-    });
+}
 
-    setState(() {
-      _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
-    });
-  }
-
-  void _handleBottomSheetTap() {
+  void handleBottomSheetTap() {
     if (_isBottomSheetFullyExpanded) {
-      _navigateToDetailScreen();
+      navigateToDetailScreen();
     } else {
       _bottomSheetKey.currentState?.expand();
     }
   }
 
-  void _handleBottomSheetDrag(DragUpdateDetails details) {
+  void handleBottomSheetDrag(DragUpdateDetails details) {
     if (details.primaryDelta! < -20 && _isBottomSheetFullyExpanded) {
-      _navigateToDetailScreen();
+      navigateToDetailScreen();
     }
   }
 
-  void _navigateToDetailScreen() {
+  void navigateToDetailScreen() {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => DetailScreen(cafe: _selectedCafe!),
