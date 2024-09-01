@@ -13,10 +13,6 @@ import '../widgets/filter.dart';
 import 'dart:ui' as ui;
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'detail_screen.dart';
-import 'package:flutter/foundation.dart';
-
-
-
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -32,12 +28,13 @@ class MapScreenState extends State<MapScreen> {
   final Set<Marker> _markers = {};
   List<Cafe> _cafes = [];
   bool _isLoading = true;
+  bool _isBottomSheetOpen = false;
   Marker? _currentLocationMarker;
   StreamSubscription<Position>? _positionStreamSubscription;
 
   Cafe? _selectedCafe;
   final GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
-  bool _isBottomSheetFullyExpanded = false;
+  final bool _isBottomSheetFullyExpanded = false;
 
   @override
   void initState() {
@@ -159,19 +156,22 @@ class MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: const CameraPosition(
-                    target: _center,
-                    zoom: 11.0,
+          AbsorbPointer(
+            absorbing: _isBottomSheetOpen,
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : GoogleMap(
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: const CameraPosition(
+                      target: _center,
+                      zoom: 11.0,
+                    ),
+                    myLocationEnabled: false,
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
+                    markers: _markers,
                   ),
-                  myLocationEnabled: false,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  markers: _markers,
-                ),
+          ),
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             left: 10,
@@ -185,23 +185,23 @@ class MapScreenState extends State<MapScreen> {
                     onCafeSelected: _handleCafeSelected,
                   ),
                 ),
-                SizedBox(width: 5), // 간격 추가
+                const SizedBox(width: 5), // 간격 추가
                 Expanded(
                   flex: 15, // 필터 버튼의 너비 설정
                   child: ElevatedButton(
                     onPressed: () {
                       showFilterDialog(context);
                     },
-                    child: Icon(Icons.filter_list),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      minimumSize: Size(0, 48), // 버튼의 최소 높이를 48로 설정
+                      minimumSize: const Size(0, 48), // 버튼의 최소 높이를 48로 설정
                       backgroundColor: Colors.blue, // 버튼 배경색 설정
-                      foregroundColor: Colors.white, // 아이콘 색상 설정                      
+                      foregroundColor: Colors.white, // 아이콘 색상 설정
                     ),
+                    child: const Icon(Icons.filter_list),
                   ),
                 ),
               ],
@@ -214,45 +214,6 @@ class MapScreenState extends State<MapScreen> {
               onPressed: _moveToCurrentLocation,
               child: const Icon(Icons.my_location),
             ),
-          ),
-          ExpandableBottomSheet(
-            key: _bottomSheetKey,
-            background: Container(height: 0),
-            expandableContent: _selectedCafe == null
-                ? const SizedBox.shrink()
-                : GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: _handleBottomSheetTap,
-                    onVerticalDragUpdate: _handleBottomSheetDrag,
-                    child: BottomSheetContent(
-                      height: MediaQuery.of(context).size.height * 0.4,
-                      name: _selectedCafe!.name,
-                      message: _selectedCafe!.message,
-                      address: _selectedCafe!.address,
-                      price: _selectedCafe!.price,
-                      hoursWeekday: _selectedCafe!.hoursWeekday.toString(),
-                      hoursWeekend: _selectedCafe!.hoursWeekend.toString(),
-                      videoUrl: _selectedCafe!.videoUrl,
-                      seatingInfo: _selectedCafe!.seatingTypes
-                          .map((seating) => {
-                                'type': seating.type,
-                                'count': seating.count,
-                                'power': seating.powerCount,
-                              })
-                          .toList(),
-                    ),
-                  ),
-            onIsExtendedCallback: () {
-              setState(() {
-                _isBottomSheetFullyExpanded = true;
-              });
-            },
-            onIsContractedCallback: () {
-              setState(() {
-                _isBottomSheetFullyExpanded = false;
-                _selectedCafe = null;
-              });
-            },
           ),
         ],
       ),
@@ -270,12 +231,42 @@ class MapScreenState extends State<MapScreen> {
     ));
     setState(() {
       _selectedCafe = selectedCafe;
+      _isBottomSheetOpen = true;
     });
 
-    //바텀 시트를 화면의 50%까지 확장
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _bottomSheetKey.currentState?.expand();
-    });
+    Scaffold.of(context)
+        .showBottomSheet(
+          (BuildContext context) {
+            return Container(
+              height: 200,
+              color: Colors.amber,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text('BottomSheet'),
+                    ElevatedButton(
+                      child: const Text('Close BottomSheet'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          _isBottomSheetOpen = false;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        )
+        .closed
+        .whenComplete(() {
+          setState(() {
+            _isBottomSheetOpen = false;
+          });
+        });
   }
 
   void _handleBottomSheetTap() {
