@@ -13,6 +13,7 @@ import '../widgets/filter.dart';
 import 'dart:ui' as ui;
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'detail_screen.dart';
+import 'package:flutter/foundation.dart'; // Factory를 사용하기 위해 추가
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -28,13 +29,13 @@ class MapScreenState extends State<MapScreen> {
   final Set<Marker> _markers = {};
   List<Cafe> _cafes = [];
   bool _isLoading = true;
-  bool _isBottomSheetOpen = false;
   Marker? _currentLocationMarker;
   StreamSubscription<Position>? _positionStreamSubscription;
 
   Cafe? _selectedCafe;
   final GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
   final bool _isBottomSheetFullyExpanded = false;
+  double _bottomSheetHeight = 0;
 
   @override
   void initState() {
@@ -156,8 +157,8 @@ class MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          AbsorbPointer(
-            absorbing: _isBottomSheetOpen,
+          Padding(
+            padding: EdgeInsets.only(bottom: _bottomSheetHeight),
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : GoogleMap(
@@ -231,42 +232,40 @@ class MapScreenState extends State<MapScreen> {
     ));
     setState(() {
       _selectedCafe = selectedCafe;
-      _isBottomSheetOpen = true;
     });
 
-    Scaffold.of(context)
-        .showBottomSheet(
-          (BuildContext context) {
-            return Container(
-              height: 200,
-              color: Colors.amber,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Text('BottomSheet'),
-                    ElevatedButton(
-                      child: const Text('Close BottomSheet'),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          _isBottomSheetOpen = false;
-                        });
-                      },
-                    ),
-                  ],
+    final bottomSheetController = Scaffold.of(context).showBottomSheet(
+      (BuildContext context) {
+        return Container(
+          height: 200,
+          color: Colors.amber,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Text('BottomSheet'),
+                ElevatedButton(
+                  child: const Text('Close BottomSheet'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
-              ),
-            );
-          },
-        )
-        .closed
-        .whenComplete(() {
-          setState(() {
-            _isBottomSheetOpen = false;
-          });
-        });
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    bottomSheetController.closed.then((_) {
+      setState(() {
+        _bottomSheetHeight = 0;
+      });
+    });
+
+    setState(() {
+      _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
+    });
   }
 
   void _handleBottomSheetTap() {
