@@ -35,7 +35,7 @@ class MapScreenState extends State<MapScreen> {
   Cafe? _selectedCafe;
   final GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
   final bool _isBottomSheetFullyExpanded = false;
-  final double _bottomSheetHeight = 0;
+  double _bottomSheetHeight = 0;
 
   @override
   void initState() {
@@ -233,48 +233,42 @@ class MapScreenState extends State<MapScreen> {
     setState(() {
       _selectedCafe = selectedCafe;
     });
-void handleCafeSelected(Cafe selectedCafe) async {
-  final GoogleMapController controller = await _controller.future;
-  controller.animateCamera(CameraUpdate.newLatLng(
-    LatLng(selectedCafe.latitude, selectedCafe.longitude),
-  ));
-  setState(() {
-    _selectedCafe = selectedCafe;
-    _isBottomSheetOpen = true;
-  });
 
-  Scaffold.of(context)
-      .showBottomSheet(
-        (BuildContext context) => CafeBottomSheet(cafe: selectedCafe),
-      )
-      .closed
-      .whenComplete(() {
-        setState(() {
-          _isBottomSheetOpen = false;
-        });
+    final bottomSheetController = Scaffold.of(context).showBottomSheet(
+      (BuildContext context) => CafeBottomSheet(cafe: selectedCafe),
+    );
+    bottomSheetController.closed.then((_) {
+      setState(() {
+        _bottomSheetHeight = 0;
       });
+    });
+
+    setState(() {
+      _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
+    });
+  }
 }
 
-  // void handleBottomSheetTap() {
-  //   if (_isBottomSheetFullyExpanded) {
-  //     navigateToDetailScreen();
-  //   } else {
-  //     _bottomSheetKey.currentState?.expand();
-  //   }
-  // }
+//   void handleBottomSheetTap() {
+//     if (_isBottomSheetFullyExpanded) {
+//       navigateToDetailScreen();
+//     } else {
+//       _bottomSheetKey.currentState?.expand();
+//     }
+//   }
 
-  // void handleBottomSheetDrag(DragUpdateDetails details) {
-  //   if (details.primaryDelta! < -20 && _isBottomSheetFullyExpanded) {
-  //     navigateToDetailScreen();
-  //   }
-  // }
+//   void handleBottomSheetDrag(DragUpdateDetails details) {
+//     if (details.primaryDelta! < -20 && _isBottomSheetFullyExpanded) {
+//       navigateToDetailScreen();
+//     }
+//   }
 
-  // void navigateToDetailScreen() {
-  //   Navigator.of(context).push(
-  //     MaterialPageRoute(
-  //       builder: (context) => DetailScreen(cafe: _selectedCafe!),
-  //     ),
-  //   );
-  // }
-}
-}
+//   void navigateToDetailScreen() {
+//     Navigator.of(context).push(
+//       MaterialPageRoute(
+//         builder: (context) => DetailScreen(cafe: _selectedCafe!),
+//       ),
+//     );
+//   }
+// }
+
