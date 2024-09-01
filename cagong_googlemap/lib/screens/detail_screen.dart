@@ -94,6 +94,26 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
+  Widget _buildCouponImage() {
+    String imageName = '${widget.cafe.name}쿠폰.png';
+    
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.8,
+          maxHeight: 600,
+        ),
+        child: AspectRatio(
+          aspectRatio: 9 / 16,
+          child: Image.asset(
+            'assets/images/coupons/$imageName',
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSeatingInfoTable() {
     return Table(
       border: TableBorder.all(),
@@ -141,9 +161,15 @@ class _DetailScreenState extends State<DetailScreen> {
               Text("좌석 정보:", style: TextStyle(fontWeight: FontWeight.bold)),
               _buildSeatingInfoTable(),
               SizedBox(height: 20),
+              if (widget.cafe.coWork == 1) ...[
+                Text("쿠폰:", style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 10),
+                _buildCouponImage(),
+                SizedBox(height: 20),
+              ],               
               if (_controller != null)
                 Text("카페 영상:", style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
+              SizedBox(height: 10),             
               if (_controller != null)
                 Center(
                   child: ConstrainedBox(

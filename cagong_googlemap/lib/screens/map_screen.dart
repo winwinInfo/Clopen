@@ -9,10 +9,14 @@ import '../models/cafe.dart';
 import '../utils/custom_marker_generator.dart';
 import '../widgets/search_bar.dart' as custom_search_bar;
 import '../widgets/bottom_sheet.dart';
+import '../widgets/filter.dart';
 import 'dart:ui' as ui;
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'detail_screen.dart';
 import 'package:flutter/foundation.dart';
+
+
+
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -172,9 +176,35 @@ class MapScreenState extends State<MapScreen> {
             top: MediaQuery.of(context).padding.top + 10,
             left: 10,
             right: 10,
-            child: custom_search_bar.SearchBar(
-              cafes: _cafes,
-              onCafeSelected: _handleCafeSelected,
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 85, // 검색창의 너비를 80%로 설정
+                  child: custom_search_bar.SearchBar(
+                    cafes: _cafes,
+                    onCafeSelected: _handleCafeSelected,
+                  ),
+                ),
+                SizedBox(width: 5), // 간격 추가
+                Expanded(
+                  flex: 15, // 필터 버튼의 너비 설정
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showFilterDialog(context);
+                    },
+                    child: Icon(Icons.filter_list),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      minimumSize: Size(0, 48), // 버튼의 최소 높이를 48로 설정
+                      backgroundColor: Colors.blue, // 버튼 배경색 설정
+                      foregroundColor: Colors.white, // 아이콘 색상 설정                      
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Positioned(
@@ -195,7 +225,7 @@ class MapScreenState extends State<MapScreen> {
                     onTap: _handleBottomSheetTap,
                     onVerticalDragUpdate: _handleBottomSheetDrag,
                     child: BottomSheetContent(
-                      height: MediaQuery.of(context).size.height * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.4,
                       name: _selectedCafe!.name,
                       message: _selectedCafe!.message,
                       address: _selectedCafe!.address,
