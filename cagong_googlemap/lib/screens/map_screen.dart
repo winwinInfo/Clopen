@@ -34,7 +34,6 @@ class MapScreenState extends State<MapScreen> {
 
   Cafe? _selectedCafe;
   final GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
-  final bool _isBottomSheetFullyExpanded = false;
   double _bottomSheetHeight = 0;
 
   @override
@@ -248,6 +247,7 @@ class MapScreenState extends State<MapScreen> {
     });
   }
 }
+
 
 //   void handleBottomSheetTap() {
 //     if (_isBottomSheetFullyExpanded) {
