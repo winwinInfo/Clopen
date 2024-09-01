@@ -224,50 +224,27 @@ class MapScreenState extends State<MapScreen> {
     _controller.complete(controller);
   }
 
-  void _handleCafeSelected(Cafe selectedCafe) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newLatLng(
-      LatLng(selectedCafe.latitude, selectedCafe.longitude),
-    ));
-    setState(() {
-      _selectedCafe = selectedCafe;
-      _isBottomSheetOpen = true;
-    });
+void _handleCafeSelected(Cafe selectedCafe) async {
+  final GoogleMapController controller = await _controller.future;
+  controller.animateCamera(CameraUpdate.newLatLng(
+    LatLng(selectedCafe.latitude, selectedCafe.longitude),
+  ));
+  setState(() {
+    _selectedCafe = selectedCafe;
+    _isBottomSheetOpen = true;
+  });
 
-    Scaffold.of(context)
-        .showBottomSheet(
-          (BuildContext context) {
-            return Container(
-              height: 200,
-              color: Colors.amber,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const Text('BottomSheet'),
-                    ElevatedButton(
-                      child: const Text('Close BottomSheet'),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          _isBottomSheetOpen = false;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        )
-        .closed
-        .whenComplete(() {
-          setState(() {
-            _isBottomSheetOpen = false;
-          });
+  Scaffold.of(context)
+      .showBottomSheet(
+        (BuildContext context) => CafeBottomSheet(cafe: selectedCafe),
+      )
+      .closed
+      .whenComplete(() {
+        setState(() {
+          _isBottomSheetOpen = false;
         });
-  }
+      });
+}
 
   void _handleBottomSheetTap() {
     if (_isBottomSheetFullyExpanded) {
