@@ -26,6 +26,7 @@ class MapScreenState extends State<MapScreen> {
   final Completer<GoogleMapController> _controller = Completer();
   static const LatLng _center = LatLng(37.5665, 126.9780);
 
+  List<Cafe> _filteredCafes = [];
   final Set<Marker> _markers = {};
   List<Cafe> _cafes = [];
   bool _isLoading = true;
@@ -179,27 +180,25 @@ class MapScreenState extends State<MapScreen> {
             child: Row(
               children: [
                 Expanded(
-                  flex: 85, // 검색창의 너비를 80%로 설정
+                  flex: 85,
                   child: custom_search_bar.SearchBar(
                     cafes: _cafes,
                     onCafeSelected: _handleCafeSelected,
                   ),
                 ),
-                const SizedBox(width: 5), // 간격 추가
+                const SizedBox(width: 5),
                 Expanded(
-                  flex: 15, // 필터 버튼의 너비 설정
+                  flex: 15,
                   child: ElevatedButton(
-                    onPressed: () {
-                      showFilterDialog(context);
-                    },
+                    onPressed: () => showFilterDialog(context),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      minimumSize: const Size(0, 48), // 버튼의 최소 높이를 48로 설정
-                      backgroundColor: Colors.blue, // 버튼 배경색 설정
-                      foregroundColor: Colors.white, // 아이콘 색상 설정
+                      minimumSize: const Size(0, 48),
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
                     ),
                     child: const Icon(Icons.filter_list),
                   ),
@@ -246,29 +245,9 @@ class MapScreenState extends State<MapScreen> {
       _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
     });
   }
+
 }
 
 
-//   void handleBottomSheetTap() {
-//     if (_isBottomSheetFullyExpanded) {
-//       navigateToDetailScreen();
-//     } else {
-//       _bottomSheetKey.currentState?.expand();
-//     }
-//   }
 
-//   void handleBottomSheetDrag(DragUpdateDetails details) {
-//     if (details.primaryDelta! < -20 && _isBottomSheetFullyExpanded) {
-//       navigateToDetailScreen();
-//     }
-//   }
-
-//   void navigateToDetailScreen() {
-//     Navigator.of(context).push(
-//       MaterialPageRoute(
-//         builder: (context) => DetailScreen(cafe: _selectedCafe!),
-//       ),
-//     );
-//   }
-// }
 

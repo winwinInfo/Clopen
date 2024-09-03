@@ -8,6 +8,14 @@ import '../models/cafe.dart';
 import 'package:cagong_googlemap/screens/map_screen.dart';
 
 
+
+// ㅇ
+// ㅇ
+// ㅇ 이 파일은 현재 안쓰고 있습니다.
+// ㅇ
+// ㅇ
+
+
 Future<BitmapDescriptor> resizeMarkerImage(
     String assetPath, int width, int height) async {
   // 1. 에셋에서 이미지 바이트 로드
