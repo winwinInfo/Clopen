@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 
-class Cafe {
+
+class Cafe with ClusterItem{
   final String name;
   final double latitude;
   final double longitude;
@@ -73,6 +76,8 @@ class Cafe {
       dailyHours: dailyHours,  // Add the daily hours map
     );
   }
+  @override
+  LatLng get location => LatLng(latitude, longitude); 
 }
 
 class Seating {
@@ -85,4 +90,5 @@ class Seating {
     required this.count,
     required this.powerCount,
   });
+
 }
