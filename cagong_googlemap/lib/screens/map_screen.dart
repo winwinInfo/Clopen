@@ -164,30 +164,74 @@ class MapScreenState extends State<MapScreen> {
     // }
   
 
-  // 추가: _markerBuilder 메서드
+  // 클러스터링 하면서 추가된 마커빌더
   Future<Marker>_markerBuilder(dynamic cluster) async {
-    if(cluster is Cluster<Cafe>){
+    if (cluster.isMultiple) {
+      // 클러스터 마커 처리
       return Marker(
-            markerId: MarkerId(cluster.getId()),
-            position: cluster.location,
-            onTap: () {
-              if (cluster.isMultiple) {
-                // 클러스터를 탭했을 때의 동작
-              } else {
-                // 단일 카페 마커를 탭했을 때의 동작
-                _handleCafeSelected(cluster.items.first);
-              }
-            },
-            icon: await _getMarkerBitmap(cluster.isMultiple ? 125 : 75,
-                text: cluster.isMultiple ? cluster.count.toString() : null),
-          );
-    }
-    else{
+        markerId: MarkerId(cluster.getId()),
+        position: cluster.location,
+        onTap: () {
+          print('Cluster tapped with ${cluster.count} items');
+          // 클러스터 탭 처리 로직
+        },
+        icon: await _getClusterMarker(cluster.count),
+      );
+    } else {
+      // 단일 마커 처리
+      final cafe = cluster.items.first;
+      final markerIcon = await CustomMarkerGenerator.createCustomMarkerBitmap(
+        cafe,
+        markerSize: 32,
+        fontSize: 12,
+        maxTextWidth: 200,
+      );
       return Marker(
-        markerId: MarkerId('default'),
-        position: const LatLng(0, 0),
+        markerId: MarkerId('${cafe.latitude},${cafe.longitude}'),
+        position: LatLng(cafe.latitude, cafe.longitude),
+        icon: markerIcon,
+        onTap: () => _handleCafeSelected(cafe),
       );
     }
+  }
+
+  Future<BitmapDescriptor> _getClusterMarker(int clusterSize) async {
+    final size = (clusterSize < 10) ? 120 : (clusterSize < 100) ? 150 : 180.0;
+    final fontSize = (clusterSize < 10) ? 35.0 : (clusterSize < 100) ? 40.0 : 45.0;
+    
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final paint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill;
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    );
+
+    // 원 그리기
+    canvas.drawCircle(Offset(size / 2, size / 2), size / 2, paint);
+
+    // 텍스트 그리기
+    textPainter.text = TextSpan(
+      text: clusterSize.toString(),
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(size / 2 - textPainter.width / 2, size / 2 - textPainter.height / 2),
+    );
+
+    // 이미지로 변환
+    final image = await recorder.endRecording().toImage(size.toInt(), size.toInt());
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+
+    return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
 
   // 클러스터링 마커 그리기
