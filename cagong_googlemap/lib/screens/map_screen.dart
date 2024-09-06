@@ -71,17 +71,15 @@ class MapScreenState extends State<MapScreen> {
   final Completer<GoogleMapController> _controller = Completer();
   static const LatLng _center = LatLng(37.5665, 126.9780);
 
-  List<Cafe> _filteredCafes = [];
+  final FilterManager _filterManager = FilterManager();
   final Set<Marker> _markers = {};
   List<Cafe> _cafes = [];
   bool _isLoading = true;
   Marker? _currentLocationMarker;
   StreamSubscription<Position>? _positionStreamSubscription;
-
-  Cafe? _selectedCafe;
-  final GlobalKey<ExpandableBottomSheetState> _bottomSheetKey = GlobalKey();
   double _bottomSheetHeight = 0;
 
+  Cafe? _selectedCafe;
   late ClusterManager<Cafe> _clusterManager;
 
   @override
@@ -123,6 +121,13 @@ class MapScreenState extends State<MapScreen> {
     } catch (e) {
       print('Error loading cafe data: $e');
     }
+  }
+
+  //필터 적용 
+  void _applyFilters() {
+    List<Cafe> filteredCafes = _filterManager.applyFilters(_cafes);
+    _clusterManager.setItems(filteredCafes);
+    _clusterManager.updateMap();
   }
 
   // 추가: _updateMarkers 메서드
@@ -316,7 +321,7 @@ Future<void> _updateCurrentLocationMarker(Position position) async {
                 Expanded(
                   flex: 15,
                   child: ElevatedButton(
-                    onPressed: () => showFilterDialog(context),
+                    onPressed: () => showFilterDialog(context, _filterManager, _applyFilters),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
