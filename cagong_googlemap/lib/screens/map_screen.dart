@@ -136,33 +136,7 @@ class MapScreenState extends State<MapScreen> {
       }
     });
   }
-    //   for (final cafe in _cafes) {
-    //     final markerIcon = await CustomMarkerGenerator.createCustomMarkerBitmap(
-    //       cafe,
-    //       markerSize: 32, // 마커 크기 조절
-    //       fontSize: 12,    // 글씨 크기 조절
-    //       maxTextWidth: 200, // 최대 텍스트 너비 설정
-    //     );
-    //     final marker = Marker(
-    //       markerId: MarkerId('${cafe.latitude},${cafe.longitude}'),
-    //       position: LatLng(cafe.latitude, cafe.longitude),
-    //       icon: markerIcon,
-    //       anchor: Offset(0.5, 0.5),  // 여기서 Offset을 사용합니다.
-    //       onTap: () => _handleCafeSelected(cafe),
-    //     );
-    //     _markers.add(marker);
-    //   }
 
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // } catch (e) {
-    //   print('Error loading cafe data: $e');
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // }
-  
 
   // 클러스터링 하면서 추가된 마커빌더
   Future<Marker>_markerBuilder(dynamic cluster) async {
@@ -196,13 +170,16 @@ class MapScreenState extends State<MapScreen> {
   }
 
   Future<BitmapDescriptor> _getClusterMarker(int clusterSize) async {
-    final size = (clusterSize < 10) ? 120 : (clusterSize < 100) ? 150 : 180.0;
-    final fontSize = (clusterSize < 10) ? 35.0 : (clusterSize < 100) ? 40.0 : 45.0;
+    // final size = (clusterSize < 10) ? 80 : (clusterSize < 100) ? 100 : 120.0;
+    // final fontSize = (clusterSize < 10) ? 25.0 : (clusterSize < 100) ? 30.0 : 35.0;
     
+    final size = 60 + (clusterSize * 0.5).clamp(0, 60);
+    final fontSize = (20 + (clusterSize * 0.2).clamp(0, 20)).toDouble();
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     final paint = Paint()
-      ..color = Colors.blue
+      ..color = Colors.brown
       ..style = PaintingStyle.fill;
     final textPainter = TextPainter(
       textDirection: TextDirection.ltr,
@@ -233,38 +210,6 @@ class MapScreenState extends State<MapScreen> {
 
     return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
-
-  // 클러스터링 마커 그리기
-  Future<BitmapDescriptor> _getMarkerBitmap(int size, {String? text}) async {
-    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
-    final Canvas canvas = Canvas(pictureRecorder);
-    final Paint paint1 = Paint()..color = Colors.blue;
-    final Paint paint2 = Paint()..color = Colors.white;
-
-    canvas.drawCircle(Offset(size / 2, size / 2), size / 2.0, paint1);
-    canvas.drawCircle(Offset(size / 2, size / 2), size / 2.2, paint2);
-    canvas.drawCircle(Offset(size / 2, size / 2), size / 2.8, paint1);
-
-    if (text != null) {
-      TextPainter painter = TextPainter(textDirection: TextDirection.ltr);
-      painter.text = TextSpan(
-        text: text,
-        style: TextStyle(fontSize: size / 3, color: Colors.white, fontWeight: FontWeight.normal),
-      );
-      painter.layout();
-      painter.paint(
-        canvas,
-        Offset(size / 2 - painter.width / 2, size / 2 - painter.height / 2),
-      );
-    }
-
-    final image = await pictureRecorder.endRecording().toImage(size, size);
-    final data = await image.toByteData(format: ui.ImageByteFormat.png);
-
-    return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
-  }
-
-
 
 
 //현위치 얻어오기
@@ -425,7 +370,7 @@ Future<void> _updateCurrentLocationMarker(Position position) async {
     });
 
     setState(() {
-      _bottomSheetHeight = 150; // 바텀 시트가 열릴 때의 높이
+      _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
     });
   }
 }

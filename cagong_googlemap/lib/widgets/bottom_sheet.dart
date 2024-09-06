@@ -25,7 +25,7 @@ class CafeBottomSheet extends StatelessWidget {
         );
       },
       child: Container(
-        height: 250,
+        height: 200,
         color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
