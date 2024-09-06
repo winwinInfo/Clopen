@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "447275815920",
+    "project_id": "cagonginfo",
+    "storage_bucket": "cagonginfo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447275815920:android:35e2fa445b228ee97ac335",
+        "android_client_info": {
+          "package_name": "com.example.cagong_googlemap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABolZAxsqvzWXVsg0RO-DPoemF-1SOY0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447275815920:android:8139f46bb4fadeff7ac335",
+        "android_client_info": {
+          "package_name": "info.cagong.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABolZAxsqvzWXVsg0RO-DPoemF-1SOY0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
