@@ -11,7 +11,6 @@ import '../widgets/search_bar.dart' as custom_search_bar;
 import '../widgets/bottom_sheet.dart';
 import '../widgets/filter.dart';
 import 'dart:ui' as ui;
-import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 
 class LocationMarkerUtils {
@@ -124,7 +123,7 @@ class MapScreenState extends State<MapScreen> {
     }
   }
 
-  //필터 적용 
+  //필터 적용
   void _applyFilters() {
     List<Cafe> filteredCafes = _filterManager.applyFilters(_cafes);
     _clusterManager.setItems(filteredCafes);
@@ -230,7 +229,8 @@ class MapScreenState extends State<MapScreen> {
       }
 
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
       );
       _updateCurrentLocationMarker(position);
     } catch (e) {
@@ -322,7 +322,8 @@ class MapScreenState extends State<MapScreen> {
                 Expanded(
                   flex: 15,
                   child: ElevatedButton(
-                    onPressed: () => showFilterDialog(context, _filterManager, _applyFilters),
+                    onPressed: () => showFilterDialog(
+                        context, _filterManager, _applyFilters),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
