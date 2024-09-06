@@ -11,14 +11,14 @@ void showFilterDialog(BuildContext context) {
           child: ListBody(
             children: <Widget>[
               CheckboxListTile(
-                title: Text('와이파이'),
+                title: Text('영업중'),
                 value: false,
                 onChanged: (bool? value) {
                   // 상태 업데이트 로직
                 },
               ),
               CheckboxListTile(
-                title: Text('콘센트'),
+                title: Text('권장 시간'),
                 value: false,
                 onChanged: (bool? value) {
                   // 상태 업데이트 로직
