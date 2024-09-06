@@ -9,10 +9,10 @@ class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key, required this.cafe});
 
   @override
-  _DetailScreenState createState() => _DetailScreenState();
+  DetailScreenState createState() => DetailScreenState();
 }
 
-class _DetailScreenState extends State<DetailScreen> {
+class DetailScreenState extends State<DetailScreen> {
   YoutubePlayerController? _controller;
 
   @override
@@ -171,11 +171,14 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.cafe.name),
+        title: Text(
+          widget.cafe.name,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

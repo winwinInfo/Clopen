@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
@@ -78,7 +77,6 @@ class MapScreenState extends State<MapScreen> {
   StreamSubscription<Position>? _positionStreamSubscription;
   double _bottomSheetHeight = 0;
 
-  Cafe? _selectedCafe;
   late ClusterManager<Cafe> _clusterManager;
 
   @override
@@ -352,31 +350,38 @@ class MapScreenState extends State<MapScreen> {
     );
   }
 
-  void _onMapCreated(GoogleMapController controller) {
-    _controller.complete(controller);
-  }
-
 //카페 마커를 선택했을 때 실행되는 함수
   void _handleCafeSelected(Cafe selectedCafe) async {
+    final scaffoldContext = Scaffold.of(context);
     final GoogleMapController controller = await _controller.future;
+
+    //카메라를 선택된 카페 위치로 이동
     controller.animateCamera(CameraUpdate.newLatLng(
       LatLng(selectedCafe.latitude, selectedCafe.longitude),
     ));
-    setState(() {
-      _selectedCafe = selectedCafe;
-    });
 
-    final bottomSheetController = Scaffold.of(context).showBottomSheet(
+    //mounted 체크 : 위젯이 트리에 있는지 확인
+    if (!mounted) return;
+
+    //바텀 시트 열기
+    final bottomSheetController = scaffoldContext.showBottomSheet(
       (BuildContext context) => CafeBottomSheet(cafe: selectedCafe),
     );
+
+    //바텀시트 닫힐 떄의 처리
     bottomSheetController.closed.then((_) {
-      setState(() {
-        _bottomSheetHeight = 0;
-      });
+      if (mounted) {
+        setState(() {
+          _bottomSheetHeight = 0;
+        });
+      }
     });
 
-    setState(() {
-      _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
-    });
+    //mounted 상태에서 바텀 시트의 높이 설정
+    if (mounted) {
+      setState(() {
+        _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
+      });
+    }
   }
 }
