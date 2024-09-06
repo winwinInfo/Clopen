@@ -14,9 +14,8 @@ class CustomMarkerGenerator {
     double maxTextWidth = 150,
   }) async {
     // 마커 이미지 로드 및 리사이징
-    final String markerImagePath = cafe.coWork == 1
-        ? 'images/special.png'
-        : 'images/marker.png';
+    final String markerImagePath =
+        cafe.coWork == 1 ? 'images/special.png' : 'images/marker.png';
     final ByteData imageData = await rootBundle.load(markerImagePath);
     final Uint8List imageBytes = imageData.buffer.asUint8List();
     final ui.Codec codec = await ui.instantiateImageCodec(
@@ -61,12 +60,12 @@ class CustomMarkerGenerator {
 
     // 캔버스 크기 계산
     final double width = max(fi.image.width.toDouble(), textPainter.width + 8);
-    final double height = fi.image.height.toDouble() + textPainter.height+4;
+    final double height = fi.image.height.toDouble() + textPainter.height + 4;
 
     // 캔버스 생성
     final pictureRecorder = ui.PictureRecorder();
     final canvas = Canvas(pictureRecorder,
-        Rect.fromPoints(Offset(0, 0), Offset(width, height)));
+        Rect.fromPoints(const Offset(0, 0), Offset(width, height)));
 
     // 안티앨리어싱 비활성화
     final Paint paint = Paint()..isAntiAlias = false;

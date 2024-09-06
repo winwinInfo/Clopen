@@ -14,51 +14,51 @@ import 'dart:ui' as ui;
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 
-
 class LocationMarkerUtils {
   static BitmapDescriptor? _circleMarker;
 
   static Future<void> initializeCircleMarker() async {
-    if (_circleMarker == null) {
-      _circleMarker = await _createCircleMarker(Colors.red, 20);
-    }
+    _circleMarker ??= await _createCircleMarker(Colors.red, 20);
   }
 
-static Future<BitmapDescriptor> _createCircleMarker(Color color, double size) async { //원 모양 마커 만들기
-  final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
-  final Canvas canvas = Canvas(pictureRecorder);
+  static Future<BitmapDescriptor> _createCircleMarker(
+      Color color, double size) async {
+    //원 모양 마커 만들기
+    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(pictureRecorder);
 
-  // 하얀색 테두리 Paint 객체
-  final Paint borderPaint = Paint()
-    ..color = Colors.white
-    ..style = PaintingStyle.fill;
+    // 하얀색 테두리 Paint 객체
+    final Paint borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
 
-  // 빨간색 원 Paint 객체
-  final Paint circlePaint = Paint()
-    ..color = color
-    ..style = PaintingStyle.fill;
+    // 빨간색 원 Paint 객체
+    final Paint circlePaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
 
-  // 하얀색 테두리 원 (테두리 역할, 빨간 원보다 크기 큼)
-  canvas.drawCircle(Offset(size / 2, size / 2), size / 2, borderPaint);
+    // 하얀색 테두리 원 (테두리 역할, 빨간 원보다 크기 큼)
+    canvas.drawCircle(Offset(size / 2, size / 2), size / 2, borderPaint);
 
-  // 빨간색 원 (하얀색 테두리 안에 들어가도록 약간 작게)
-  canvas.drawCircle(Offset(size / 2, size / 2), size / 2 - 3, circlePaint);
+    // 빨간색 원 (하얀색 테두리 안에 들어가도록 약간 작게)
+    canvas.drawCircle(Offset(size / 2, size / 2), size / 2 - 3, circlePaint);
 
-  final img = await pictureRecorder.endRecording().toImage(size.toInt(), size.toInt());
-  final data = await img.toByteData(format: ui.ImageByteFormat.png);
+    final img = await pictureRecorder
+        .endRecording()
+        .toImage(size.toInt(), size.toInt());
+    final data = await img.toByteData(format: ui.ImageByteFormat.png);
 
-  return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
-}
-
+    return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
+  }
 
   static BitmapDescriptor getCircleMarker() {
     if (_circleMarker == null) {
-      throw Exception("Circle marker not initialized. Call initializeCircleMarker() first.");
+      throw Exception(
+          "Circle marker not initialized. Call initializeCircleMarker() first.");
     }
     return _circleMarker!;
   }
 }
-
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -89,17 +89,18 @@ class MapScreenState extends State<MapScreen> {
     _clusterManager = ClusterManager<Cafe>(
       [],
       _updateMarkers,
-      markerBuilder : _markerBuilder,
-    );    
+      markerBuilder: _markerBuilder,
+    );
     _initializeLocationMarker();
     _loadCafesAndCreateMarkers();
     _getCurrentLocation();
     _startLocationTracking();
   }
 
- Future<void> _initializeLocationMarker() async {
-  await LocationMarkerUtils.initializeCircleMarker();
-}
+  Future<void> _initializeLocationMarker() async {
+    await LocationMarkerUtils.initializeCircleMarker();
+  }
+
   @override
   void dispose() {
     _positionStreamSubscription?.cancel();
@@ -142,9 +143,8 @@ class MapScreenState extends State<MapScreen> {
     });
   }
 
-
   // 클러스터링 하면서 추가된 마커빌더
-  Future<Marker>_markerBuilder(dynamic cluster) async {
+  Future<Marker> _markerBuilder(dynamic cluster) async {
     if (cluster.isMultiple) {
       // 클러스터 마커 처리
       return Marker(
@@ -177,7 +177,7 @@ class MapScreenState extends State<MapScreen> {
   Future<BitmapDescriptor> _getClusterMarker(int clusterSize) async {
     // final size = (clusterSize < 10) ? 80 : (clusterSize < 100) ? 100 : 120.0;
     // final fontSize = (clusterSize < 10) ? 25.0 : (clusterSize < 100) ? 30.0 : 35.0;
-    
+
     final size = 60 + (clusterSize * 0.5).clamp(0, 60);
     final fontSize = (20 + (clusterSize * 0.2).clamp(0, 20)).toDouble();
 
@@ -206,16 +206,17 @@ class MapScreenState extends State<MapScreen> {
     textPainter.layout();
     textPainter.paint(
       canvas,
-      Offset(size / 2 - textPainter.width / 2, size / 2 - textPainter.height / 2),
+      Offset(
+          size / 2 - textPainter.width / 2, size / 2 - textPainter.height / 2),
     );
 
     // 이미지로 변환
-    final image = await recorder.endRecording().toImage(size.toInt(), size.toInt());
+    final image =
+        await recorder.endRecording().toImage(size.toInt(), size.toInt());
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
 
     return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
-
 
 //현위치 얻어오기
   Future<void> _getCurrentLocation() async {
@@ -250,23 +251,23 @@ class MapScreenState extends State<MapScreen> {
   }
 
 //현위치 마커 업데이트
-Future<void> _updateCurrentLocationMarker(Position position) async {
-  final LatLng location = LatLng(position.latitude, position.longitude);
-  
-  setState(() {
-    if (_currentLocationMarker != null) {
-      _markers.remove(_currentLocationMarker);
-    }
-    _currentLocationMarker = Marker(
-      markerId: const MarkerId('current_location'),
-      position: location,
-      icon: LocationMarkerUtils.getCircleMarker(),
-      infoWindow: const InfoWindow(title: '현재 위치'),
-      zIndex:100.0,
-    );
-    _markers.add(_currentLocationMarker!);
-  });
-}
+  Future<void> _updateCurrentLocationMarker(Position position) async {
+    final LatLng location = LatLng(position.latitude, position.longitude);
+
+    setState(() {
+      if (_currentLocationMarker != null) {
+        _markers.remove(_currentLocationMarker);
+      }
+      _currentLocationMarker = Marker(
+        markerId: const MarkerId('current_location'),
+        position: location,
+        icon: LocationMarkerUtils.getCircleMarker(),
+        infoWindow: const InfoWindow(title: '현재 위치'),
+        zIndex: 100.0,
+      );
+      _markers.add(_currentLocationMarker!);
+    });
+  }
 
 //현위치로 카메라 이동
   void _moveToCurrentLocation() async {
@@ -328,7 +329,7 @@ Future<void> _updateCurrentLocationMarker(Position position) async {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       minimumSize: const Size(0, 48),
-                      backgroundColor: Colors.brown,
+                      backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
                     ),
                     child: const Icon(Icons.filter_list),
@@ -354,7 +355,6 @@ Future<void> _updateCurrentLocationMarker(Position position) async {
     _controller.complete(controller);
   }
 
-
 //카페 마커를 선택했을 때 실행되는 함수
   void _handleCafeSelected(Cafe selectedCafe) async {
     final GoogleMapController controller = await _controller.future;
@@ -379,7 +379,3 @@ Future<void> _updateCurrentLocationMarker(Position position) async {
     });
   }
 }
-
-
-
-

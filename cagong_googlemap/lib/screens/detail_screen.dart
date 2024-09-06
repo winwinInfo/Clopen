@@ -3,11 +3,10 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../models/cafe.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-
 class DetailScreen extends StatefulWidget {
   final Cafe cafe;
 
-  const DetailScreen({Key? key, required this.cafe}) : super(key: key);
+  const DetailScreen({super.key, required this.cafe});
 
   @override
   _DetailScreenState createState() => _DetailScreenState();
@@ -24,7 +23,8 @@ class _DetailScreenState extends State<DetailScreen> {
 
   void _initializeController() {
     if (widget.cafe.videoUrl.isNotEmpty) {
-      final videoId = YoutubePlayerController.convertUrlToId(widget.cafe.videoUrl);
+      final videoId =
+          YoutubePlayerController.convertUrlToId(widget.cafe.videoUrl);
       if (videoId != null) {
         _controller = YoutubePlayerController.fromVideoId(
           videoId: videoId,
@@ -66,7 +66,7 @@ class _DetailScreenState extends State<DetailScreen> {
     return hours;
   }
 
- Widget _buildBusinessHoursTable() {
+  Widget _buildBusinessHoursTable() {
     return Table(
       border: TableBorder.all(),
       children: [
@@ -75,7 +75,9 @@ class _DetailScreenState extends State<DetailScreen> {
               .map((day) => TableCell(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(day, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(day,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ))
               .toList(),
@@ -85,7 +87,9 @@ class _DetailScreenState extends State<DetailScreen> {
               .map((day) => TableCell(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(_getBusinessHourText(widget.cafe.dailyHours[day]), textAlign: TextAlign.center),
+                      child: Text(
+                          _getBusinessHourText(widget.cafe.dailyHours[day]),
+                          textAlign: TextAlign.center),
                     ),
                   ))
               .toList(),
@@ -96,7 +100,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget _buildCouponImage() {
     String imageName = '${widget.cafe.name}쿠폰.png';
-    
+
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -118,20 +122,47 @@ class _DetailScreenState extends State<DetailScreen> {
     return Table(
       border: TableBorder.all(),
       children: [
-        TableRow(
+        const TableRow(
           children: [
-            TableCell(child: Padding(padding: const EdgeInsets.all(8.0), child: Text('좌석 유형', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))),
-            TableCell(child: Padding(padding: const EdgeInsets.all(8.0), child: Text('좌석 수', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))),
-            TableCell(child: Padding(padding: const EdgeInsets.all(8.0), child: Text('콘센트 수', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)))),
+            TableCell(
+                child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('좌석 유형',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.bold)))),
+            TableCell(
+                child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('좌석 수',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.bold)))),
+            TableCell(
+                child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('콘센트 수',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.bold)))),
           ],
         ),
         ...widget.cafe.seatingTypes.map((seating) => TableRow(
-          children: [
-            TableCell(child: Padding(padding: const EdgeInsets.all(8.0), child: Text(seating.type, textAlign: TextAlign.center))),
-            TableCell(child: Padding(padding: const EdgeInsets.all(8.0), child: Text(seating.count.toString(), textAlign: TextAlign.center))),
-            TableCell(child: Padding(padding: const EdgeInsets.all(8.0), child: Text(seating.powerCount, textAlign: TextAlign.center))),
-          ],
-        )).toList(),
+              children: [
+                TableCell(
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child:
+                            Text(seating.type, textAlign: TextAlign.center))),
+                TableCell(
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(seating.count.toString(),
+                            textAlign: TextAlign.center))),
+                TableCell(
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(seating.powerCount,
+                            textAlign: TextAlign.center))),
+              ],
+            )),
       ],
     );
   }
@@ -148,28 +179,32 @@ class _DetailScreenState extends State<DetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.cafe.message, style: TextStyle(fontSize: 18)),
-              SizedBox(height: 20),
+              Text(widget.cafe.message, style: const TextStyle(fontSize: 18)),
+              const SizedBox(height: 20),
               Text("주소: ${widget.cafe.address}"),
               Text("가격: ${widget.cafe.price}"),
               Text("평일 이용 시간: ${_getUsageTimeText(widget.cafe.hoursWeekday)}"),
               Text("주말 이용 시간: ${_getUsageTimeText(widget.cafe.hoursWeekend)}"),
-              SizedBox(height: 20),
-              Text("영업 시간:", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              const Text("영업 시간:",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               _buildBusinessHoursTable(),
-              SizedBox(height: 20),
-              Text("좌석 정보:", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              const Text("좌석 정보:",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               _buildSeatingInfoTable(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (widget.cafe.coWork == 1) ...[
-                Text("쿠폰:", style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 10),
+                const Text("쿠폰:",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
                 _buildCouponImage(),
-                SizedBox(height: 20),
-              ],               
+                const SizedBox(height: 20),
+              ],
               if (_controller != null)
-                Text("카페 영상:", style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),             
+                const Text("카페 영상:",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
               if (_controller != null)
                 Center(
                   child: ConstrainedBox(
