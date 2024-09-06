@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 
-
-class Cafe with ClusterItem{
+class Cafe with ClusterItem {
   final String name;
   final double latitude;
   final double longitude;
@@ -17,7 +15,7 @@ class Cafe with ClusterItem{
   final List<Seating> seatingTypes;
   final int coWork;
   final double id;
-  final Map<String, String> dailyHours;  // New field for daily business hours
+  final Map<String, String> dailyHours; // New field for daily business hours
 
   Cafe({
     required this.name,
@@ -33,7 +31,7 @@ class Cafe with ClusterItem{
     required this.seatingTypes,
     this.coWork = 0,
     required this.id,
-    required this.dailyHours,  // New parameter
+    required this.dailyHours, // New parameter
   });
 
   factory Cafe.fromJson(Map<String, dynamic> json) {
@@ -73,11 +71,11 @@ class Cafe with ClusterItem{
       seatingTypes: seatingList,
       coWork: json['Co-work'] ?? 0,
       id: json['ID']?.toDouble() ?? 0.0,
-      dailyHours: dailyHours,  // Add the daily hours map
+      dailyHours: dailyHours, // Add the daily hours map
     );
   }
   @override
-  LatLng get location => LatLng(latitude, longitude); 
+  LatLng get location => LatLng(latitude, longitude);
 }
 
 class Seating {
@@ -90,5 +88,4 @@ class Seating {
     required this.count,
     required this.powerCount,
   });
-
 }

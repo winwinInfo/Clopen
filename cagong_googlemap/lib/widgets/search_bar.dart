@@ -8,8 +8,8 @@ class SearchBar extends StatelessWidget {
   const SearchBar({
     required this.cafes,
     required this.onCafeSelected,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class SearchBar extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _showSearchInterface(context),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8.0),
@@ -27,8 +27,8 @@ class SearchBar extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.search, color: Colors.grey),
-              SizedBox(width: 8),
+              const Icon(Icons.search, color: Colors.grey),
+              const SizedBox(width: 8),
               Text(
                 '카페 이름 또는 주소 검색...',
                 style: TextStyle(color: Colors.grey[600]),
@@ -58,7 +58,7 @@ class _CafeSearchDelegate extends SearchDelegate<Cafe?> {
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -69,7 +69,7 @@ class _CafeSearchDelegate extends SearchDelegate<Cafe?> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
       onPressed: () {
         close(context, null);
       },

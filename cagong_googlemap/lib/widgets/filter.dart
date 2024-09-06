@@ -3,22 +3,22 @@ import 'package:flutter/material.dart';
 void showFilterDialog(BuildContext context) {
   showDialog(
     context: context,
-    barrierColor: Colors.black54,  // 반투명한 검정색 배경 설정
+    barrierColor: Colors.black54, // 반투명한 검정색 배경 설정
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('필터'),
+        title: const Text('필터'),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
               CheckboxListTile(
-                title: Text('영업중'),
+                title: const Text('와이파이'),
                 value: false,
                 onChanged: (bool? value) {
                   // 상태 업데이트 로직
                 },
               ),
               CheckboxListTile(
-                title: Text('권장 시간'),
+                title: const Text('콘센트'),
                 value: false,
                 onChanged: (bool? value) {
                   // 상태 업데이트 로직
@@ -30,13 +30,13 @@ void showFilterDialog(BuildContext context) {
         ),
         actions: <Widget>[
           TextButton(
-            child: Text('취소'),
+            child: const Text('취소'),
             onPressed: () {
               Navigator.of(context).pop();
             },
           ),
           TextButton(
-            child: Text('적용'),
+            child: const Text('적용'),
             onPressed: () {
               // 필터 적용 로직
               Navigator.of(context).pop();
