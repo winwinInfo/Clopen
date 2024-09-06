@@ -329,7 +329,7 @@ class MapScreenState extends State<MapScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       minimumSize: const Size(0, 48),
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.brown,
                       foregroundColor: Colors.white,
                     ),
                     child: const Icon(Icons.filter_list),

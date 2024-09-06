@@ -90,9 +90,9 @@ class FilterManager {
     return int.parse(parts[0]) * 60 + int.parse(parts[1]);
   }
 
-
-  // ... (other helper methods remain the same)
 }
+
+
 
 void showFilterDialog(BuildContext context, FilterManager filterManager, Function applyFilters) {
   TextEditingController _hoursController = TextEditingController(
@@ -119,27 +119,27 @@ void showFilterDialog(BuildContext context, FilterManager filterManager, Functio
                       });
                     },
                   ),
-                  CheckboxListTile(
-                    title: Text('권장 시간 필터 사용'),
-                    value: filterManager.options.useRecommendedTime,
-                    onChanged: (bool? value) {
+                  SizedBox(height: 16),
+                  Text('권장 시간 (이상)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextField(
+                    controller: _hoursController,
+                    decoration: InputDecoration(
+                      hintText: '예: 2',
+                    ),
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (value) {
+                      double? hours = double.tryParse(value);
                       setState(() {
-                        filterManager.options.useRecommendedTime = value ?? false;
+                        if (hours != null && hours > 0) {
+                          filterManager.options.useRecommendedTime = true;
+                          filterManager.options.recommendedHours = hours;
+                        } else {
+                          filterManager.options.useRecommendedTime = false;
+                          filterManager.options.recommendedHours = 0;
+                        }
                       });
                     },
                   ),
-                  if (filterManager.options.useRecommendedTime)
-                    TextField(
-                      controller: _hoursController,
-                      decoration: InputDecoration(
-                        labelText: '권장 시간 (시간 단위)',
-                        hintText: '예: 2.5',
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(decimal: true),
-                      onChanged: (value) {
-                        filterManager.options.recommendedHours = double.tryParse(value) ?? 0;
-                      },
-                    ),
                 ],
               ),
             ),
