@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../models/cafe.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_fonts/google_fonts.dart';
 
 class DetailScreen extends StatefulWidget {
   final Cafe cafe;
@@ -171,9 +172,10 @@ class DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           widget.cafe.name,
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: GoogleFonts.notoSansNKo(fontWeight: FontWeight.w800),
         ),
       ),
       body: SingleChildScrollView(
@@ -182,8 +184,51 @@ class DetailScreenState extends State<DetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.cafe.message, style: const TextStyle(fontSize: 18)),
-              const SizedBox(height: 20),
+              Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(10),
+                child: Text(
+                  widget.cafe.message,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.jua(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.place_rounded,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        widget.cafe.address,
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.emoji_food_beverage_rounded,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      const Text('아아가격ㆍ'),
+                      Text(widget.cafe.price),
+                    ],
+                  ),
+                ],
+              ),
               Text("주소: ${widget.cafe.address}"),
               Text("가격: ${widget.cafe.price}"),
               Text("평일 이용 시간: ${_getUsageTimeText(widget.cafe.hoursWeekday)}"),

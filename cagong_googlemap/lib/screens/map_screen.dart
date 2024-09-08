@@ -249,7 +249,7 @@ class MapScreenState extends State<MapScreen> {
   }
 
 //현위치 마커 업데이트
-  Future<void> _updateCurrentLocationMarker(Position position) async {
+  void _updateCurrentLocationMarker(Position position) async {
     final LatLng location = LatLng(position.latitude, position.longitude);
 
     setState(() {
