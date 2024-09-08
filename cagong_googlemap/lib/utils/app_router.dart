@@ -11,8 +11,8 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
 
   List<Widget> get _screens => [
         const MapScreen(),
-        const PaymentScreen(),
-        // const MypageScreen(),
+        SignUpScreen(),
+        //const MypageScreen(),
       ];
 
   void _onItemTapped(int index) {

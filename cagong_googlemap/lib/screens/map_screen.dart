@@ -216,7 +216,7 @@ class MapScreenState extends State<MapScreen> {
   }
 
 //현위치 얻어오기
-  Future<void> _getCurrentLocation() async {
+  void _getCurrentLocation() async {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -227,8 +227,7 @@ class MapScreenState extends State<MapScreen> {
       }
 
       Position position = await Geolocator.getCurrentPosition(
-        locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.high),
+        desiredAccuracy: LocationAccuracy.high, // LocationSettings 대신 desiredAccuracy 사용
       );
       _updateCurrentLocationMarker(position);
     } catch (e) {
