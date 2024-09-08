@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
@@ -15,7 +17,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('회원가입'),
+        title: const Text('회원가입'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -25,7 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             children: [
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: '이메일'),
+                decoration: const InputDecoration(labelText: '이메일'),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || !value.contains('@')) {
@@ -36,7 +38,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(labelText: '비밀번호'),
+                decoration: const InputDecoration(labelText: '비밀번호'),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.length < 6) {
@@ -45,10 +47,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _signUp,
-                child: Text('회원가입'),
+                child: const Text('회원가입'),
               ),
             ],
           ),
@@ -67,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 password: _passwordController.text);
         // 성공 시 처리 (예: 홈 화면으로 이동)
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('회원가입 성공!')),
+          const SnackBar(content: Text('회원가입 성공!')),
         );
       } on FirebaseAuthException catch (e) {
         // FirebaseAuthException 처리
@@ -86,7 +88,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       } catch (e) {
         print('Error: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('회원가입 중 오류가 발생했습니다')),
+          const SnackBar(content: Text('회원가입 중 오류가 발생했습니다')),
         );
       }
     }
