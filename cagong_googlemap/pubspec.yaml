@@ -17,7 +17,7 @@ dependencies:
   youtube_player_iframe: ^4.0.4
   google_maps_cluster_manager: ^3.0.0+1
   google_fonts: ^6.2.1
-
+  intl: ^0.19.0
   firebase_analytics: ^11.3.0 # 0908 최신
   firebase_core: ^3.4.0 # 0908 최신
   firebase_auth: ^5.2.0 # 0908 최신
@@ -29,7 +29,6 @@ dev_dependencies:
   flutter_lints: ^3.0.0
   google_maps_flutter_platform_interface: 2.4.3
   csv: ^5.0.0
-  intl: ^0.17.0
 
 flutter:
   uses-material-design: true
@@ -40,5 +39,24 @@ flutter:
     - assets/images/marker.png
     - assets/images/current_location_marker.png
 
-fonts:
-  - family: Noto_Sans_KR
+  fonts:
+  - family: Pretendard
+    fonts:
+      - asset: assets\fonts\Pretendard\Pretendard-Regular.otf
+      - asset: assets\fonts\Pretendard\Pretendard-Thin.otf
+        weight: 100
+      - asset: assets\fonts\Pretendard\Pretendard-ExtraLight.otf
+        weight: 200        
+      - asset: assets\fonts\Pretendard\Pretendard-Light.otf
+        weight: 300
+      - asset: assets\fonts\Pretendard\Pretendard-Medium.otf
+        weight: 500
+      - asset: assets\fonts\Pretendard\Pretendard-SemiBold.otf
+        weight: 600
+      - asset: assets\fonts\Pretendard\Pretendard-Bold.otf
+        weight: 700
+      - asset: assets\fonts\Pretendard\Pretendard-ExtraBold.otf
+        weight: 800
+      - asset: assets\fonts\Pretendard\Pretendard-Black.otf
+        weight: 900
+

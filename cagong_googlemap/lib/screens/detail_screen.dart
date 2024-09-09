@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../models/cafe.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -175,7 +176,10 @@ class DetailScreenState extends State<DetailScreen> {
         centerTitle: true,
         title: Text(
           widget.cafe.name,
-          style: GoogleFonts.notoSansNKo(fontWeight: FontWeight.w800),
+          style: const TextStyle(
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w900,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -204,13 +208,17 @@ class DetailScreenState extends State<DetailScreen> {
                       const Icon(
                         Icons.place_rounded,
                         color: Colors.grey,
+                        size: 20,
                       ),
                       const SizedBox(
                         width: 5,
                       ),
                       Text(
                         widget.cafe.address,
-                        style: const TextStyle(fontWeight: FontWeight.w800),
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -219,18 +227,55 @@ class DetailScreenState extends State<DetailScreen> {
                       const Icon(
                         Icons.emoji_food_beverage_rounded,
                         color: Colors.grey,
+                        size: 20,
                       ),
                       const SizedBox(
                         width: 5,
                       ),
-                      const Text('아아가격ㆍ'),
-                      Text(widget.cafe.price),
+                      const Text(
+                        '아아가격ㆍ',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        widget.cafe.price,
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.hourglass_full_rounded,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      const Text(
+                        '아아가격ㆍ',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        widget.cafe.price,
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-              Text("주소: ${widget.cafe.address}"),
-              Text("가격: ${widget.cafe.price}"),
               Text("평일 이용 시간: ${_getUsageTimeText(widget.cafe.hoursWeekday)}"),
               Text("주말 이용 시간: ${_getUsageTimeText(widget.cafe.hoursWeekend)}"),
               const SizedBox(height: 20),
