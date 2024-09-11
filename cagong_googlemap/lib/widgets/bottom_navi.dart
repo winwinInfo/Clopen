@@ -15,17 +15,19 @@ class _HomeViewState extends State<HomeView> {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       bottomNavigationBar: NavigationBar(
+        backgroundColor: Colors.white, // 하얀색 배경
+        indicatorColor: Colors.brown.withOpacity(0.2), // 선택된 아이템 배경색
         onDestinationSelected: (int index) {
           setState(() {
             currentPageIndex = index;
           });
         },
-        indicatorColor: Colors.amber,
+        //indicatorColor: Colors.amber,
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
+            icon: Icon(Icons.home_outlined, color: Colors.grey), // 선택되지 않았을 때 아이콘 색상
+            selectedIcon: Icon(Icons.home, color: Colors.brown), // 선택되었을 때 아이콘 색상            
             label: 'Home',
           ),
           NavigationDestination(
@@ -40,6 +42,7 @@ class _HomeViewState extends State<HomeView> {
             label: 'Messages',
           ),
         ],
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected, // 선택된 아이템의 라벨만 표시
       ),
       body: <Widget>[
         /// Home page

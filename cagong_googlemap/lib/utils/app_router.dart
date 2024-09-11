@@ -47,8 +47,9 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
                 // ),
               ],
               currentIndex: _selectedIndex,
-              selectedItemColor: Colors.blue,
+              selectedItemColor: Colors.brown,
               unselectedItemColor: Colors.grey,
+              backgroundColor: Colors.white, // 배경색을 흰색으로 설정
               onTap: _onItemTapped,
               type: BottomNavigationBarType.fixed,
             ),
