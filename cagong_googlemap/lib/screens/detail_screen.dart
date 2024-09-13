@@ -127,13 +127,16 @@ class DetailScreenState extends State<DetailScreen> {
   Widget _buildCouponImage() {
     String imageName = '${widget.cafe.name}쿠폰.png';
 
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50),
-      ),
-      child: Image.asset(
-        'assets/images/coupons/$imageName',
+    return Center(
+      child: Container(
+        clipBehavior: Clip.hardEdge,
+        width: 337.5,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+        ),
+        child: Image.asset(
+          'assets/images/coupons/$imageName',
+        ),
       ),
     );
   }
@@ -208,8 +211,14 @@ class DetailScreenState extends State<DetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(
+                height: 10,
+              ),
               Container(
                 alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0XFFc7b199).withOpacity(0.5)),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 child: Text(
@@ -220,6 +229,9 @@ class DetailScreenState extends State<DetailScreen> {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+              ),
+              const SizedBox(
+                height: 10,
               ),
               Column(
                 children: [
@@ -338,25 +350,23 @@ class DetailScreenState extends State<DetailScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold)),
               _buildSeatingInfoTable(),
               const SizedBox(height: 20),
-              if (widget.cafe.coWork == 1) ...[
-                const Center(
-                  child: Text(
-                    "쿠폰",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _buildCouponImage(),
-                const SizedBox(height: 10),
-              ],
               if (_controller != null)
-                const Center(
-                  child: Text(
-                    "카페 영상",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                Center(
+                  child: Container(
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFdfd3c3),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: const Text(
+                      "카페 영상",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        color: Color(0XFF6c5d53),
+                      ),
                     ),
                   ),
                 ),
@@ -380,6 +390,31 @@ class DetailScreenState extends State<DetailScreen> {
                     ),
                   ),
                 ),
+              const SizedBox(height: 10),
+              if (widget.cafe.coWork == 1) ...[
+                Center(
+                  child: Container(
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFdfd3c3),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: const Text(
+                      "쿠폰",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        color: Color(0XFF6c5d53),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildCouponImage(),
+                const SizedBox(height: 10),
+              ],
             ],
           ),
         ),
