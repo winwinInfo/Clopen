@@ -331,6 +331,7 @@ class MapScreenState extends State<MapScreen> {
                       foregroundColor: Colors.white,
                     ),
                     child: const Icon(Icons.filter_list),
+                    
                   ),
                 ),
               ],
@@ -341,7 +342,10 @@ class MapScreenState extends State<MapScreen> {
             right: 16,
             child: FloatingActionButton(
               onPressed: _moveToCurrentLocation,
-              child: const Icon(Icons.my_location),
+              backgroundColor: Colors.white, // 배경색
+              child: Icon(Icons.my_location,
+                color: Colors.brown, // 아이콘 색상
+              ),
             ),
           ),
         ],
