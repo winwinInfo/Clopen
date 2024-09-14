@@ -227,7 +227,8 @@ class MapScreenState extends State<MapScreen> {
       }
 
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high, // LocationSettings 대신 desiredAccuracy 사용
+        desiredAccuracy:
+            LocationAccuracy.high, // LocationSettings 대신 desiredAccuracy 사용
       );
       _updateCurrentLocationMarker(position);
     } catch (e) {
@@ -331,7 +332,6 @@ class MapScreenState extends State<MapScreen> {
                       foregroundColor: Colors.white,
                     ),
                     child: const Icon(Icons.filter_list),
-                    
                   ),
                 ),
               ],
@@ -343,7 +343,8 @@ class MapScreenState extends State<MapScreen> {
             child: FloatingActionButton(
               onPressed: _moveToCurrentLocation,
               backgroundColor: Colors.white, // 배경색
-              child: Icon(Icons.my_location,
+              child: const Icon(
+                Icons.my_location,
                 color: Colors.brown, // 아이콘 색상
               ),
             ),
