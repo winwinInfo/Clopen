@@ -68,59 +68,67 @@ class DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildBusinessHoursTable() {
-    return Table(
-      border: TableBorder.all(
-        color: Colors.grey,
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: const Color(0XFFc7b199).withOpacity(0.5),
       ),
-      children: [
-        TableRow(
-          children: [
-            '월',
-            '화',
-            '수',
-            '목',
-            '금',
-            '토',
-            '일',
-          ]
-              .map((day) => TableCell(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        day,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+      child: Table(
+        border: TableBorder.all(
+          width: 3,
+          color: Colors.white,
+        ),
+        children: [
+          TableRow(
+            children: [
+              '월',
+              '화',
+              '수',
+              '목',
+              '금',
+              '토',
+              '일',
+            ]
+                .map((day) => TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          day,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                  ))
-              .toList(),
-        ),
-        TableRow(
-          children: [
-            '월',
-            '화',
-            '수',
-            '목',
-            '금',
-            '토',
-            '일',
-          ]
-              .map((day) => TableCell(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        _getBusinessHourText(
-                          widget.cafe.dailyHours[day],
+                    ))
+                .toList(),
+          ),
+          TableRow(
+            children: [
+              '월',
+              '화',
+              '수',
+              '목',
+              '금',
+              '토',
+              '일',
+            ]
+                .map((day) => TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          _getBusinessHourText(
+                            widget.cafe.dailyHours[day],
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ))
-              .toList(),
-        ),
-      ],
+                    ))
+                .toList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -142,53 +150,61 @@ class DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildSeatingInfoTable() {
-    return Table(
-      border: TableBorder.all(
-        color: Colors.grey,
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: const Color(0XFFc7b199).withOpacity(0.5),
       ),
-      children: [
-        const TableRow(
-          children: [
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('좌석 유형',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold)))),
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('좌석 수',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold)))),
-            TableCell(
-                child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('콘센트 수',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold)))),
-          ],
+      child: Table(
+        border: TableBorder.all(
+          color: Colors.white,
+          width: 3,
         ),
-        ...widget.cafe.seatingTypes.map((seating) => TableRow(
-              children: [
-                TableCell(
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child:
-                            Text(seating.type, textAlign: TextAlign.center))),
-                TableCell(
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(seating.count.toString(),
-                            textAlign: TextAlign.center))),
-                TableCell(
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(seating.powerCount,
-                            textAlign: TextAlign.center))),
-              ],
-            )),
-      ],
+        children: [
+          const TableRow(
+            children: [
+              TableCell(
+                  child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('좌석 유형',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontWeight: FontWeight.bold)))),
+              TableCell(
+                  child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('좌석 수',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontWeight: FontWeight.bold)))),
+              TableCell(
+                  child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('콘센트 수',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontWeight: FontWeight.bold)))),
+            ],
+          ),
+          ...widget.cafe.seatingTypes.map((seating) => TableRow(
+                children: [
+                  TableCell(
+                      child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child:
+                              Text(seating.type, textAlign: TextAlign.center))),
+                  TableCell(
+                      child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(seating.count.toString(),
+                              textAlign: TextAlign.center))),
+                  TableCell(
+                      child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(seating.powerCount,
+                              textAlign: TextAlign.center))),
+                ],
+              )),
+        ],
+      ),
     );
   }
 
@@ -196,6 +212,8 @@ class DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.brown,
+        foregroundColor: Colors.white,
         centerTitle: true,
         title: Text(
           widget.cafe.name,
@@ -390,7 +408,7 @@ class DetailScreenState extends State<DetailScreen> {
                     ),
                   ),
                 ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               if (widget.cafe.coWork == 1) ...[
                 Center(
                   child: Container(
