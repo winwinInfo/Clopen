@@ -38,6 +38,8 @@ flutter:
     - assets/images/special.png
     - assets/images/marker.png
     - assets/images/current_location_marker.png
+    - assets/json/cafe_info.json 
+
 
   fonts:
   - family: Pretendard

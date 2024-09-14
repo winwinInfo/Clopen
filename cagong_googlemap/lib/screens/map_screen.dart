@@ -106,7 +106,7 @@ class MapScreenState extends State<MapScreen> {
 
   Future<void> _loadCafesAndCreateMarkers() async {
     try {
-      String jsonString = await rootBundle.loadString('json/cafe_info.json');
+      String jsonString = await rootBundle.loadString('assets/json/cafe_info.json');
       List<dynamic> jsonResponse = json.decode(jsonString);
       _cafes = jsonResponse.map((data) => Cafe.fromJson(data)).toList();
 
