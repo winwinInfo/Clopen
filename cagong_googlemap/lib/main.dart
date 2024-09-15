@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 import 'package:google_maps_flutter_web/google_maps_flutter_web.dart' as web;
+import 'package:provider/provider.dart';
+import 'utils/authProvider.dart' as loginProvider;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,15 +35,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'My Map App',
-      theme: ThemeData(
-        fontFamily: 'Noto_Sans_KR',
-        scaffoldBackgroundColor: Colors.white,
-        primarySwatch: Colors.brown,
+    return ChangeNotifierProvider(
+      create: (context) => loginProvider.AuthProvider(),
+      child: Builder(
+        builder: (context) {
+          final authProvider = Provider.of<loginProvider.AuthProvider>(context);
+          return MaterialApp.router(
+            title: 'My Map App',
+            theme: ThemeData(
+              fontFamily: 'Noto_Sans_KR',
+              scaffoldBackgroundColor: Colors.white,
+              primarySwatch: Colors.brown,
+            ),
+            routerDelegate: AppRouterDelegate(authProvider),
+            routeInformationParser: AppRouteInformationParser(),
+          );
+        },
       ),
-      routerDelegate: AppRouterDelegate(),
-      routeInformationParser: AppRouteInformationParser(),
     );
   }
 }

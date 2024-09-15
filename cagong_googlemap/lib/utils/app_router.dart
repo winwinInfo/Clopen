@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import '../screens/map_screen.dart';
-import '../screens/payments_screen.dart';
+import '../screens/mypage_screen.dart';
+import '../screens/login.dart';
+import 'package:provider/provider.dart';
+import '../utils/authProvider.dart';
 
 class AppRouterDelegate extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  int _selectedIndex = 0;
+  late AuthProvider _authProvider;
+  String _currentRoute = '/';
 
-  List<Widget> get _screens => [
-        const MapScreen(),
-        SignUpScreen(),
-        //const MypageScreen(),
-      ];
+  AppRouterDelegate(AuthProvider authProvider) {
+    _authProvider = authProvider;
+    _authProvider.addListener(_handleAuthStateChange);
+  }
 
-  void _onItemTapped(int index) {
-    _selectedIndex = index;
+  void _handleAuthStateChange() {
     notifyListeners();
   }
 
@@ -28,49 +30,75 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
         MaterialPage(
           child: Scaffold(
             body: IndexedStack(
-              index: _selectedIndex,
-              children: _screens,
+              index: _currentRoute == '/mypage' ? 1 : 0,
+              children: [
+                MapScreen(),
+                _authProvider.user != null ? MyPage() : LoginPage(),
+              ],
             ),
             bottomNavigationBar: BottomNavigationBar(
+              backgroundColor: Colors.white,
               items: const <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
                   icon: Icon(Icons.map),
                   label: '지도',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.payment),
-                  label: '결제',
+                  icon: Icon(Icons.person),
+                  label: '내 정보',
                 ),
-                // BottomNavigationBarItem(
-                //   icon: Icon(Icons.person),
-                //   label: '마이페이지',
-                // ),
               ],
-              currentIndex: _selectedIndex,
+              currentIndex: _currentRoute == '/mypage' ? 1 : 0,
               selectedItemColor: Colors.brown,
               unselectedItemColor: Colors.grey,
-              backgroundColor: Colors.white, // 배경색을 흰색으로 설정
-              onTap: _onItemTapped,
-              type: BottomNavigationBarType.fixed,
+              onTap: (index) {
+                if (index == 1) {
+                  _currentRoute = '/mypage';
+                } else {
+                  _currentRoute = '/';
+                }
+                notifyListeners();
+              },
             ),
           ),
         ),
       ],
-      onPopPage: (route, result) => route.didPop(result),
+      onPopPage: (route, result) {
+        if (!route.didPop(result)) {
+          return false;
+        }
+        _currentRoute = '/';
+        notifyListeners();
+        return true;
+      },
     );
   }
 
   @override
   Future<void> setNewRoutePath(RouteInformation configuration) async {
-    // 딥 링크나 웹 URL 처리를 위한 로직을 여기에 구현할 수 있습니다.
+    if (configuration.location == '/mypage') {
+      _currentRoute = '/mypage';
+    } else {
+      _currentRoute = '/';
+    }
+    notifyListeners();
+  }
+
+  @override
+  RouteInformation? get currentConfiguration {
+    return RouteInformation(location: _currentRoute);
+  }
+
+  @override
+  void dispose() {
+    _authProvider.removeListener(_handleAuthStateChange);
+    super.dispose();
   }
 }
 
-class AppRouteInformationParser
-    extends RouteInformationParser<RouteInformation> {
+class AppRouteInformationParser extends RouteInformationParser<RouteInformation> {
   @override
-  Future<RouteInformation> parseRouteInformation(
-      RouteInformation routeInformation) async {
+  Future<RouteInformation> parseRouteInformation(RouteInformation routeInformation) async {
     return routeInformation;
   }
 

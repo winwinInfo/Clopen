@@ -3,6 +3,9 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../models/cafe.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../utils/authProvider.dart' as loginProvider; 
+import 'login.dart';
 
 class DetailScreen extends StatefulWidget {
   final Cafe cafe;
@@ -210,6 +213,8 @@ class DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<loginProvider.AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown,
@@ -409,7 +414,11 @@ class DetailScreenState extends State<DetailScreen> {
                   ),
                 ),
               const SizedBox(height: 20),
-              if (widget.cafe.coWork == 1) ...[
+
+            // 로그인 상태와 coWork 값에 따른 쿠폰 UI 처리
+            if (widget.cafe.coWork == 1) ...[
+              if (authProvider.user != null) ...[
+                // 로그인한 경우 쿠폰 이미지 표시
                 Center(
                   child: Container(
                     width: 100,
@@ -432,11 +441,49 @@ class DetailScreenState extends State<DetailScreen> {
                 const SizedBox(height: 10),
                 _buildCouponImage(),
                 const SizedBox(height: 10),
-              ],
+              ] else ...[
+                // 로그인하지 않은 경우 로그인 유도 메시지 표시
+                Center(
+                  child: Column(
+                    children: [
+                      const Text(
+                        "로그인 하시면 쿠폰을 확인할 수 있습니다!",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextButton(
+                        onPressed: () {
+                          // 로그인 페이지로 네비게이션
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => LoginPage(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "로그인 하러 가기",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.brown,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                    ],
+                  ),
+                )
+              ]
             ],
-          ),
+            // coWork가 0인 경우는 아무것도 표시하지 않음
+          ],
         ),
       ),
-    );
+    ),
+  );
   }
 }

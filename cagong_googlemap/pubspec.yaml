@@ -21,7 +21,8 @@ dependencies:
   firebase_analytics: ^11.3.0 # 0908 최신
   firebase_core: ^3.4.0 # 0908 최신
   firebase_auth: ^5.2.0 # 0908 최신
-
+  cloud_firestore: ^5.4.1
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
