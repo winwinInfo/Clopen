@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../utils/authProvider.dart' as loginProvider;
 import 'register_screen.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../utils/app_router.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -54,11 +58,32 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text('로그인'),
               ),
               SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  final authProvider = Provider.of<loginProvider.AuthProvider>(context, listen: false);
+                  final userCredential = await authProvider.signInWithGoogle();
+                  if (userCredential != null) {
+                    // 구글 로그인 성공
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                     (Router.of(context).routerDelegate as AppRouterDelegate).setNewRoutePath(RouteInformation(location: '/mypage'));
+                    }
+                  } else {
+                    // 구글 로그인 실패
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('구글 로그인 실패')),
+                    );
+                  }
+                },
+                child: Text('Google로 로그인'),
+              ),
+              SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => SignUpScreen(),
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => SignUpScreen(),
                     ),
                   );
                 },
@@ -79,12 +104,11 @@ class _LoginPageState extends State<LoginPage> {
           email: _emailController.text,
           password: _passwordController.text,
         );
-        // 로그인 성공 시 로그인 시도 이전 페이지로 이동
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();  // 이전 페이지로 돌아가기
-    } else {
-      Navigator.of(context).pushReplacementNamed('/home');  // 이전 페이지가 없으면 홈으로 이동
-    }
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          (Router.of(context).routerDelegate as AppRouterDelegate).setNewRoutePath(RouteInformation(location: '/mypage'));
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('로그인 실패: $e')),

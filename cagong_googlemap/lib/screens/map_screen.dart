@@ -113,9 +113,12 @@ class MapScreenState extends State<MapScreen> {
       // ClusterManager에 카페 추가
       _clusterManager.setItems(_cafes);
       _clusterManager.updateMap();
-      setState(() {
-        _isLoading = false;
-      });
+      if(mounted)
+      {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       print('Error loading cafe data: $e');
     }
@@ -130,6 +133,7 @@ class MapScreenState extends State<MapScreen> {
 
   // 추가: _updateMarkers 메서드
   void _updateMarkers(Set<Marker> markers) {
+    if(!mounted) return;
     setState(() {
       _markers.clear();
       _markers.addAll(markers);
@@ -217,6 +221,8 @@ class MapScreenState extends State<MapScreen> {
 
 //현위치 얻어오기
   void _getCurrentLocation() async {
+    if (!mounted) return;  // 위젯이 여전히 마운트된 상태인지 확인
+
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -250,6 +256,8 @@ class MapScreenState extends State<MapScreen> {
 
 //현위치 마커 업데이트
   void _updateCurrentLocationMarker(Position position) async {
+    if (!mounted) return;  // 위젯이 여전히 마운트된 상태인지 확인
+
     final LatLng location = LatLng(position.latitude, position.longitude);
 
     setState(() {
