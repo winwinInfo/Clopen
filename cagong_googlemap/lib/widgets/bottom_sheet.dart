@@ -111,6 +111,10 @@ class CafeBottomSheet extends StatelessWidget {
         status,
         style: const TextStyle(color: Colors.white),
       ),
+      side: const BorderSide(
+        color: Colors.transparent,
+        width: 0.0,
+      ),
       backgroundColor: statusColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20), // 원하는 둥근 정도로 조절 가능
