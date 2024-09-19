@@ -22,7 +22,7 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(); //여기서 걸림
 
 Future<UserCredential?> signInWithGoogle() async {
   try {
