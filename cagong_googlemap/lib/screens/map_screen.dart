@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
@@ -182,24 +183,38 @@ class MapScreenState extends State<MapScreen> {
       (BuildContext context) {
         return Container(
           height: 200,
-          color: Colors.amber,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Text(
-                  'Cluster Cafes',
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
+          color: Colors.white,
+          child: Column(
+            children: [
+              Expanded(
+                  child: ListView.separated(
+                scrollDirection: Axis.vertical,
+                itemCount: cafes.length,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 10,
                 ),
-                ElevatedButton(
-                  child: const Text('Close BottomSheet'),
-                  onPressed: () => Navigator.pop(context), // 바텀 시트 닫기
+                itemBuilder: (context, Index) {
+                  final cafe = cafes[Index];
+                  return GestureDetector(
+                      onTap: () => _handleCafeSelected(cafe),
+                      child: Row(
+                        children: [
+                          Text(
+                            cafe.name,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ));
+                },
+                separatorBuilder: (context, Index) => const SizedBox(
+                  width: 40,
                 ),
-              ],
-            ),
+              ))
+            ],
           ),
         );
       },
