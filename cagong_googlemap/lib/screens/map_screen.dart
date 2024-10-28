@@ -153,6 +153,7 @@ class MapScreenState extends State<MapScreen> {
         position: cluster.location,
         onTap: () {
           print('Cluster tapped with ${cluster.count} items');
+          showClusterBottomSheet(context, cluster.items);
           // 클러스터 탭 처리 로직
         },
         icon: await _getClusterMarker(cluster.count),
@@ -172,6 +173,52 @@ class MapScreenState extends State<MapScreen> {
         icon: markerIcon,
         onTap: () => _handleCafeSelected(cafe),
       );
+    }
+  }
+
+  void showClusterBottomSheet(BuildContext context, List<Cafe> cafes) {
+    // 바텀 시트 열기
+    final bottomSheetController = Scaffold.of(context).showBottomSheet(
+      (BuildContext context) {
+        return Container(
+          height: 200,
+          color: Colors.amber,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Text(
+                  'Cluster Cafes',
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                ElevatedButton(
+                  child: const Text('Close BottomSheet'),
+                  onPressed: () => Navigator.pop(context), // 바텀 시트 닫기
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // 바텀 시트가 닫힐 때의 처리
+    bottomSheetController.closed.then((_) {
+      if (mounted) {
+        setState(() {
+          _bottomSheetHeight = 0; // 바텀 시트가 닫히면 높이를 0으로 설정
+        });
+      }
+    });
+
+    // 바텀 시트가 열릴 때의 처리
+    if (mounted) {
+      setState(() {
+        _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
+      });
     }
   }
 
