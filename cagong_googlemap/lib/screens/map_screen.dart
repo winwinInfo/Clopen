@@ -160,17 +160,18 @@ class MapScreenState extends State<MapScreen> {
     } else {
       // 단일 마커 처리
       final cafe = cluster.items.first;
-      final markerIcon = await CustomMarkerGenerator.createCustomMarkerBitmap(
+      final markerIcon = await CustomMarkerGenerator.createCustomMarker(
         cafe,
-        markerSize: 32,
-        fontSize: 12,
-        maxTextWidth: 200,
+        markerSize: 36,
+        fontSize: 18,
+        maxTextWidth: 400,
       );
       return Marker(
         markerId: MarkerId('${cafe.latitude},${cafe.longitude}'),
         position: LatLng(cafe.latitude, cafe.longitude),
         icon: markerIcon,
         onTap: () => _handleCafeSelected(cafe),
+        anchor: Offset(0.5, 0.5),
       );
     }
   }
@@ -179,8 +180,8 @@ class MapScreenState extends State<MapScreen> {
     // final size = (clusterSize < 10) ? 80 : (clusterSize < 100) ? 100 : 120.0;
     // final fontSize = (clusterSize < 10) ? 25.0 : (clusterSize < 100) ? 30.0 : 35.0;
 
-    final size = 60 + (clusterSize * 0.5).clamp(0, 60);
-    final fontSize = (20 + (clusterSize * 0.2).clamp(0, 20)).toDouble();
+    final size = 40 + (clusterSize * 0.3).clamp(0, 40);
+    final fontSize = (14 + (clusterSize * 0.1).clamp(0, 14)).toDouble();
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);

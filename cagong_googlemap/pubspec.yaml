@@ -41,6 +41,9 @@ flutter:
     - assets/images/marker.png
     - assets/images/current_location_marker.png
     - assets/json/cafe_info.json 
+    - assets/images/
+    - web/assets/  # web assets도 등록
+
 
 
   fonts:
