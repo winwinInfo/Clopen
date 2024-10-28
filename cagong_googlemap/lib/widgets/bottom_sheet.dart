@@ -58,6 +58,25 @@ class CafeBottomSheet extends StatelessWidget {
                 "주말 이용 시간: ${_getUsageTimeText(cafe.hoursWeekend)}",
                 style: const TextStyle(fontSize: 14),
               ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.brown,
+                ),
+                child: const Text(
+                  '더보기',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

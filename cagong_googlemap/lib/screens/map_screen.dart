@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
@@ -153,6 +154,7 @@ class MapScreenState extends State<MapScreen> {
         position: cluster.location,
         onTap: () {
           print('Cluster tapped with ${cluster.count} items');
+          showClusterBottomSheet(context, cluster.items);
           // 클러스터 탭 처리 로직
         },
         icon: await _getClusterMarker(cluster.count),
@@ -173,6 +175,66 @@ class MapScreenState extends State<MapScreen> {
         onTap: () => _handleCafeSelected(cafe),
         anchor: Offset(0.5, 0.5),
       );
+    }
+  }
+
+  void showClusterBottomSheet(BuildContext context, List<Cafe> cafes) {
+    // 바텀 시트 열기
+    final bottomSheetController = Scaffold.of(context).showBottomSheet(
+      (BuildContext context) {
+        return Container(
+          height: 200,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Expanded(
+                  child: ListView.separated(
+                scrollDirection: Axis.vertical,
+                itemCount: cafes.length,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 10,
+                ),
+                itemBuilder: (context, Index) {
+                  final cafe = cafes[Index];
+                  return GestureDetector(
+                      onTap: () => _handleCafeSelected(cafe),
+                      child: Row(
+                        children: [
+                          Text(
+                            cafe.name,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ));
+                },
+                separatorBuilder: (context, Index) => const SizedBox(
+                  width: 40,
+                ),
+              ))
+            ],
+          ),
+        );
+      },
+    );
+
+    // 바텀 시트가 닫힐 때의 처리
+    bottomSheetController.closed.then((_) {
+      if (mounted) {
+        setState(() {
+          _bottomSheetHeight = 0; // 바텀 시트가 닫히면 높이를 0으로 설정
+        });
+      }
+    });
+
+    // 바텀 시트가 열릴 때의 처리
+    if (mounted) {
+      setState(() {
+        _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
+      });
     }
   }
 
