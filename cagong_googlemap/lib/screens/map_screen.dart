@@ -165,7 +165,7 @@ class MapScreenState extends State<MapScreen> {
       final markerIcon = await CustomMarkerGenerator.createCustomMarker(
         cafe,
         markerSize: 36,
-        fontSize: 18,
+        fontSize: 14,
         maxTextWidth: 400,
       );
       return Marker(
