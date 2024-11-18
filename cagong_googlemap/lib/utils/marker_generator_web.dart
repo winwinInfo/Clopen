@@ -8,54 +8,54 @@ import 'dart:typed_data';
 import 'dart:math' as math;
 
 class PlatformMarkerGenerator {
-  static Future<BitmapDescriptor> generateMarker({
-    required Cafe cafe,
+  // 이미지 마커만 생성
+  static Future<BitmapDescriptor> generateImageMarker({
     required String markerImagePath,
     required double markerSize,
+  }) async {
+    final webImagePath = markerImagePath.replaceFirst('assets', '/assets');
+    
+    final svgString = '''
+      <svg xmlns="http://www.w3.org/2000/svg" 
+           width="$markerSize" 
+           height="$markerSize">
+        <image href="$webImagePath" 
+               width="$markerSize" 
+               height="$markerSize"/>
+      </svg>
+    ''';
+
+    return _svgToMarker(svgString);
+  }
+
+  // 텍스트 마커만 생성
+  static Future<BitmapDescriptor> generateTextMarker({
+    required String text,
     required double fontSize,
-    required double maxTextWidth,
-  })  async {
-    //assets 폴더의 이미지를 웹에서 접근 가능한 경로로 변환
-  final webImagePath = markerImagePath.replaceFirst('assets', '/assets');
-  //final webImagePath = '/assets/images/marker.png';
+  }) async {
+    final svgString = '''
+      <svg xmlns="http://www.w3.org/2000/svg" 
+           width="${fontSize * text.length * 0.7}" 
+           height="${fontSize * 1.2}">
+        <text x="50%" 
+              y="${fontSize}"
+              font-family="Arial, sans-serif" 
+              font-size="${fontSize}px" 
+              text-anchor="middle" 
+              fill="black"
+              stroke="white"
+              stroke-width="2"
+              paint-order="stroke">
+          $text
+        </text>
+      </svg>
+    ''';
 
-  print('Attempting to load image from: $webImagePath');
-  
-  // 텍스트를 위한 여백
-  final textPadding = 16.0;  // 상하 여백
-  final horizontalPadding = 24.0;  // 좌우 여백
-  
-  // SVG 전체 너비를 마커보다 크게 설정
-  final svgWidth = markerSize * 3;  // 또는 더 큰 값으로 조정
-  final svgHeight = markerSize + fontSize + textPadding;
-  
-  // 마커 이미지의 x 오프셋 계산 (중앙 정렬을 위해)
-  final imageXOffset = (svgWidth - markerSize) / 2;
+    return _svgToMarker(svgString);
+  }
 
-  final svgString = '''
-    <svg xmlns="http://www.w3.org/2000/svg" 
-         width="$svgWidth" 
-         height="$svgHeight">
-      <image href="$webImagePath" 
-             x="$imageXOffset"
-             width="$markerSize" 
-             height="$markerSize"/>
-      <text x="${svgWidth / 2}" 
-            y="${markerSize + (textPadding/2)}" 
-            font-family="Arial, sans-serif" 
-            font-size="${fontSize}px" 
-            font-weight="bold" 
-            text-anchor="middle" 
-            fill="black" 
-            stroke="white"
-            stroke-width="2"
-            paint-order="stroke"
-            style="pointer-events: none;">
-        ${cafe.name}
-      </text>
-    </svg>
-  ''';
-
+  // SVG를 마커로 변환하는 헬퍼 메서드
+  static Future<BitmapDescriptor> _svgToMarker(String svgString) async {
     final blob = html.Blob([svgString], 'image/svg+xml');
     final url = html.Url.createObjectUrlFromBlob(blob);
     final completer = Completer<BitmapDescriptor>();
@@ -66,20 +66,19 @@ class PlatformMarkerGenerator {
       ..style.visibility = 'visible'
       ..crossOrigin = 'anonymous';
 
-
-
-img.onLoad.listen((_) {
-
-  final canvas = html.CanvasElement(width: img.width, height: img.height);
-  final ctx = canvas.context2D;
-  
-  ctx.drawImage(img, 0, 0);
-  
-  final dataUrl = canvas.toDataUrl('image/png');
-  final uint8List = _dataUrlToUint8List(dataUrl);
-  
-  completer.complete(BitmapDescriptor.fromBytes(uint8List));
-});
+    img.onLoad.listen((_) {
+      final canvas = html.CanvasElement(
+        width: img.width,
+        height: img.height
+      );
+      final ctx = canvas.context2D;
+      ctx.drawImage(img, 0, 0);
+      
+      final dataUrl = canvas.toDataUrl('image/png');
+      final uint8List = _dataUrlToUint8List(dataUrl);
+      
+      completer.complete(BitmapDescriptor.fromBytes(uint8List));
+    });
 
     return completer.future;
   }

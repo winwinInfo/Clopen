@@ -105,16 +105,26 @@ class MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
-  Future<void> _loadCafesAndCreateMarkers() async {
+    // 필터 적용시 텍스트 마커도 초기화
+  void _applyFilters() {
+    _textMarkers.clear(); // 텍스트 마커 초기화
+    List<Cafe> filteredCafes = _filterManager.applyFilters(_cafes);
+    _clusterManager.setItems(filteredCafes);
+    _clusterManager.updateMap();
+  }
+
+
+  // 지도 생성시 초기화
+  void _loadCafesAndCreateMarkers() async {
     try {
-      String jsonString =
-          await rootBundle.loadString('assets/json/cafe_info.json');
+      String jsonString = await rootBundle.loadString('assets/json/cafe_info.json');
       List<dynamic> jsonResponse = json.decode(jsonString);
       _cafes = jsonResponse.map((data) => Cafe.fromJson(data)).toList();
 
-      // ClusterManager에 카페 추가
+      _textMarkers.clear(); // 텍스트 마커 초기화
       _clusterManager.setItems(_cafes);
       _clusterManager.updateMap();
+      
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -125,20 +135,16 @@ class MapScreenState extends State<MapScreen> {
     }
   }
 
-  //필터 적용
-  void _applyFilters() {
-    List<Cafe> filteredCafes = _filterManager.applyFilters(_cafes);
-    _clusterManager.setItems(filteredCafes);
-    _clusterManager.updateMap();
-  }
 
-  // 추가: _updateMarkers 메서드
   void _updateMarkers(Set<Marker> markers) {
     if (!mounted) return;
     setState(() {
       _markers.clear();
+      // 이미지 마커 추가
       _markers.addAll(markers);
-      // 현재 위치 마커 유지
+      // 텍스트 마커 추가
+      _markers.addAll(_textMarkers);
+      // 현재 위치 마커 추가
       if (_currentLocationMarker != null) {
         _markers.add(_currentLocationMarker!);
       }
@@ -146,34 +152,52 @@ class MapScreenState extends State<MapScreen> {
   }
 
   // 클러스터링 하면서 추가된 마커빌더
-  Future<Marker> _markerBuilder(dynamic cluster) async {
+  // 텍스트 마커를 저장할 새로운 Set 추가
+  final Set<Marker> _textMarkers = {};
+
+Future<Marker> _markerBuilder(Cluster<Cafe> cluster) async {
     if (cluster.isMultiple) {
-      // 클러스터 마커 처리
       return Marker(
         markerId: MarkerId(cluster.getId()),
         position: cluster.location,
         onTap: () {
           print('Cluster tapped with ${cluster.count} items');
-          showClusterBottomSheet(context, cluster.items);
-          // 클러스터 탭 처리 로직
+          showClusterBottomSheet(context, cluster.items as List<Cafe>);  // 타입 캐스팅 추가
         },
         icon: await _getClusterMarker(cluster.count),
       );
     } else {
-      // 단일 마커 처리
-      final cafe = cluster.items.first;
-      final markerIcon = await CustomMarkerGenerator.createCustomMarker(
+      final cafe = cluster.items.first as Cafe;  // 타입 캐스팅 추가
+      final markerPair = await CustomMarkerGenerator.createCustomMarkers(
         cafe,
         markerSize: 36,
         fontSize: 14,
         maxTextWidth: 400,
       );
+
+      // 텍스트 마커용 위치 계산 (이미지 마커보다 약간 아래)
+      final textPosition = LatLng(
+        cafe.latitude - 0.0001,
+        cafe.longitude,
+      );
+
+      // 텍스트 마커를 별도 Set에 추가
+      _textMarkers.add(Marker(
+        markerId: MarkerId('text_${cafe.id}'),
+        position: textPosition,
+        icon: markerPair.textMarker,
+        consumeTapEvents: false,
+        zIndex: 1,
+      ));
+
+      // 이미지 마커만 반환
       return Marker(
-        markerId: MarkerId('${cafe.latitude},${cafe.longitude}'),
+        markerId: MarkerId('image_${cafe.id}'),
         position: LatLng(cafe.latitude, cafe.longitude),
-        icon: markerIcon,
+        icon: markerPair.imageMarker,
         onTap: () => _handleCafeSelected(cafe),
-        anchor: Offset(0.5, 0.5),
+        zIndex: 2,
+        anchor: const Offset(0.5, 0.5),
       );
     }
   }
