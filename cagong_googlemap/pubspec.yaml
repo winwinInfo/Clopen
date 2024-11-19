@@ -24,6 +24,8 @@ dependencies:
   cloud_firestore: ^5.4.1
   provider: ^6.1.2
   google_sign_in: ^6.2.1
+  flutter_svg: ^2.0.10  # SVG 파일 처리
+
 
 dev_dependencies:
   flutter_test:
