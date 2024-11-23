@@ -7,9 +7,8 @@ class MyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<loginProvider.AuthProvider>(context);
     final user = authProvider.user;
-    final userData = authProvider.userData;
 
-    if (user == null || userData == null) {
+    if (user == null) {
       return Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
@@ -19,7 +18,9 @@ class MyPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('마이페이지'),
+        title: Text('마이페이지',
+        style: TextStyle(color: Colors.white)
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.exit_to_app),
@@ -29,31 +30,45 @@ class MyPage extends StatelessWidget {
             },
           ),
         ],
+        backgroundColor: Colors.brown,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('이름: ${userData['name']}', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text('이메일: ${user.email}', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text('별명: ${userData['nickname']}', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text('성별: ${userData['gender']}', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text('생년월일: ${userData['birthDate'].toDate().toString().split(' ')[0]}', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 8),
-            Text('대학교: ${userData['university'] ?? '미입력'}', style: TextStyle(fontSize: 18)),
+            // 프로필 사진 표시 (있는 경우)
+            if (user.photoURL != null)
+              Center(
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage(user.photoURL!),
+                ),
+              ),
             SizedBox(height: 24),
-            ElevatedButton(
-              child: Text('로그아웃'),
-              onPressed: () async {
-                await authProvider.signOut();
-                Navigator.of(context).pushReplacementNamed('/login');
-              },
+            
+            // 이름 표시
+            if (user.displayName != null)
+              Text(
+                '이름: ${user.displayName}',
+                style: TextStyle(fontSize: 18),
+              ),
+            SizedBox(height: 8),
+            
+            // 이메일 표시
+            Text(
+              '이메일: ${user.email ?? "미입력"}',
+              style: TextStyle(fontSize: 18),
             ),
+            
+            SizedBox(height: 24),
+            // ElevatedButton(
+            //   child: Text('로그아웃'),
+            //   onPressed: () async {
+            //     await authProvider.signOut();
+            //     Navigator.of(context).pushReplacementNamed('/login');
+            //   },
+            // ),
           ],
         ),
       ),

@@ -242,8 +242,15 @@ class MapScreenState extends State<MapScreen> {
     // final size = (clusterSize < 10) ? 80 : (clusterSize < 100) ? 100 : 120.0;
     // final fontSize = (clusterSize < 10) ? 25.0 : (clusterSize < 100) ? 30.0 : 35.0;
 
+    //원래 클러스터링 마커 사이즈
     final size = 40 + (clusterSize * 0.3).clamp(0, 40);
     final fontSize = (14 + (clusterSize * 0.1).clamp(0, 14)).toDouble();
+    
+    
+    // 기본 크기에 DPR 적용
+    //final dpr = ui.window.devicePixelRatio; // 현재 기기의 DPR 가져오기
+    //final size = (40 + (clusterSize * 0.3).clamp(0, 40)) * dpr;
+    //final fontSize = (14 + (clusterSize * 0.1).clamp(0, 14)) * dpr;
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
