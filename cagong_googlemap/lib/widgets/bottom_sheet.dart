@@ -26,58 +26,61 @@ class CafeBottomSheet extends StatelessWidget {
       child: Container(
         height: 200,
         color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      cafe.name,
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        cafe.name,
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    _buildOpenStatusChip(),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  cafe.message,
+                  style: const TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "평일 이용 시간: ${_getUsageTimeText(cafe.hoursWeekday)}",
+                  style: const TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "주말 이용 시간: ${_getUsageTimeText(cafe.hoursWeekend)}",
+                  style: const TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.brown,
+                  ),
+                  child: const Text(
+                    '더보기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  _buildOpenStatusChip(),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                cafe.message,
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "평일 이용 시간: ${_getUsageTimeText(cafe.hoursWeekday)}",
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "주말 이용 시간: ${_getUsageTimeText(cafe.hoursWeekend)}",
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
                 ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.brown,
-                ),
-                child: const Text(
-                  '더보기',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
