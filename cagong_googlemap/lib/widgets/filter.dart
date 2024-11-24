@@ -114,6 +114,7 @@ void showFilterDialog(
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
+            backgroundColor: Colors.white,
             title: const Text('필터'),
             content: SingleChildScrollView(
               child: ListBody(
