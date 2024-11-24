@@ -173,7 +173,7 @@ class MapScreenState extends State<MapScreen> {
         position: LatLng(cafe.latitude, cafe.longitude),
         icon: markerIcon,
         onTap: () => _handleCafeSelected(cafe),
-        anchor: Offset(0.5, 0.5),
+        anchor: const Offset(0.5, 0.5),
       );
     }
   }
@@ -245,8 +245,7 @@ class MapScreenState extends State<MapScreen> {
     //원래 클러스터링 마커 사이즈
     final size = 40 + (clusterSize * 0.3).clamp(0, 40);
     final fontSize = (14 + (clusterSize * 0.1).clamp(0, 14)).toDouble();
-    
-    
+
     // 기본 크기에 DPR 적용
     //final dpr = ui.window.devicePixelRatio; // 현재 기기의 DPR 가져오기
     //final size = (40 + (clusterSize * 0.3).clamp(0, 40)) * dpr;
@@ -438,8 +437,9 @@ class MapScreenState extends State<MapScreen> {
     final GoogleMapController controller = await _controller.future;
 
     //카메라를 선택된 카페 위치로 이동
-    controller.animateCamera(CameraUpdate.newLatLng(
+    controller.animateCamera(CameraUpdate.newLatLngZoom(
       LatLng(selectedCafe.latitude, selectedCafe.longitude),
+      21.0,
     ));
 
     //mounted 체크 : 위젯이 트리에 있는지 확인
