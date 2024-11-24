@@ -22,6 +22,28 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
     notifyListeners();
   }
 
+  int getIndexForRoute(String route) {
+    switch (route) {
+      case '/mypage':
+        return 1;
+      case '/feedback':
+        return 2;
+      default:
+        return 0;
+    }
+  }
+
+  String getRouteForIndex(int index) {
+    switch (index) {
+      case 1:
+        return '/mypage';
+      case 2:
+        return '/feedback';
+      default:
+        return '/';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Navigator(
@@ -30,9 +52,9 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
         MaterialPage(
           child: Scaffold(
             body: IndexedStack(
-              index: _currentRoute == '/mypage' ? 1 : 0,
+              index: getIndexForRoute(_currentRoute),
               children: [
-                MapScreen(),
+                const MapScreen(),
                 _authProvider.user != null ? MyPage() : LoginPage(),
               ],
             ),
@@ -47,15 +69,24 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
                   icon: Icon(Icons.person),
                   label: '내 정보',
                 ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.mail),
+                  label: '의견',
+                ),
               ],
-              currentIndex: _currentRoute == '/mypage' ? 1 : 0,
+              currentIndex: getIndexForRoute(_currentRoute),
               selectedItemColor: Colors.brown,
               unselectedItemColor: Colors.grey,
               onTap: (index) {
-                if (index == 1) {
-                  _currentRoute = '/mypage';
-                } else {
-                  _currentRoute = '/';
+                switch (index) {
+                  case 1:
+                    _currentRoute = '/mypage';
+                    break;
+                  case 2:
+                    _currentRoute = '/feedback';
+                    break;
+                  default:
+                    _currentRoute = '/';
                 }
                 notifyListeners();
               },
@@ -67,7 +98,11 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
         if (!route.didPop(result)) {
           return false;
         }
-        _currentRoute = '/';
+
+        if (_currentRoute == '/mypage' || _currentRoute == '/feedback') {
+          _currentRoute = '/';
+        }
+
         notifyListeners();
         return true;
       },
@@ -78,6 +113,8 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
   Future<void> setNewRoutePath(RouteInformation configuration) async {
     if (configuration.location == '/mypage') {
       _currentRoute = '/mypage';
+    } else if (configuration.location == '/feedback') {
+      _currentRoute = 'feedback/';
     } else {
       _currentRoute = '/';
     }
@@ -96,9 +133,11 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
   }
 }
 
-class AppRouteInformationParser extends RouteInformationParser<RouteInformation> {
+class AppRouteInformationParser
+    extends RouteInformationParser<RouteInformation> {
   @override
-  Future<RouteInformation> parseRouteInformation(RouteInformation routeInformation) async {
+  Future<RouteInformation> parseRouteInformation(
+      RouteInformation routeInformation) async {
     return routeInformation;
   }
 
