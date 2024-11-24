@@ -67,6 +67,7 @@ class _CommentsSectionState extends State<CommentsSection> {
              itemBuilder: (context, index) {
                final comment = comments[index];
                return Card(
+                color: Colors.white,
                  child: ListTile(
                    leading: CircleAvatar(
                      backgroundImage: comment.userPhotoUrl != null

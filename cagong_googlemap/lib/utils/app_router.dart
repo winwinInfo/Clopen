@@ -4,6 +4,7 @@ import '../screens/mypage_screen.dart';
 import '../screens/login.dart';
 import 'package:provider/provider.dart';
 import '../utils/authProvider.dart';
+import '../screens/feedback_screen.dart';
 
 class AppRouterDelegate extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
@@ -56,6 +57,7 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
               children: [
                 const MapScreen(),
                 _authProvider.user != null ? MyPage() : LoginPage(),
+                const FeedbackScreen(),
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
