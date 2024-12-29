@@ -20,35 +20,49 @@ class LocationMarkerUtils {
     _circleMarker ??= await _createCircleMarker(Colors.red, 20);
   }
 
-  static Future<BitmapDescriptor> _createCircleMarker(
-      Color color, double size) async {
-    //원 모양 마커 만들기
-    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
-    final Canvas canvas = Canvas(pictureRecorder);
+static Future<BitmapDescriptor> _createCircleMarker(
+    Color color, double size) async {
+  // 디바이스 픽셀 비율 가져오기
+  final dpr = WidgetsBinding.instance.window.devicePixelRatio;
+  
+  // 크기를 픽셀 비율로 조정
+  final adjustedSize = size / dpr;
+  final borderWidth = 3 / dpr;  // 테두리 두께도 조정
+  
+  final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+  final Canvas canvas = Canvas(pictureRecorder);
 
-    // 하얀색 테두리 Paint 객체
-    final Paint borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+  // 하얀색 테두리 Paint 객체
+  final Paint borderPaint = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.fill;
 
-    // 빨간색 원 Paint 객체
-    final Paint circlePaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
+  // 컬러 원 Paint 객체
+  final Paint circlePaint = Paint()
+    ..color = color
+    ..style = PaintingStyle.fill;
 
-    // 하얀색 테두리 원 (테두리 역할, 빨간 원보다 크기 큼)
-    canvas.drawCircle(Offset(size / 2, size / 2), size / 2, borderPaint);
+  // 하얀색 테두리 원
+  canvas.drawCircle(
+    Offset(adjustedSize / 2, adjustedSize / 2), 
+    adjustedSize / 2, 
+    borderPaint
+  );
 
-    // 빨간색 원 (하얀색 테두리 안에 들어가도록 약간 작게)
-    canvas.drawCircle(Offset(size / 2, size / 2), size / 2 - 3, circlePaint);
+  // 컬러 원 (테두리 안쪽)
+  canvas.drawCircle(
+    Offset(adjustedSize / 2, adjustedSize / 2), 
+    adjustedSize / 2 - borderWidth, 
+    circlePaint
+  );
 
-    final img = await pictureRecorder
-        .endRecording()
-        .toImage(size.toInt(), size.toInt());
-    final data = await img.toByteData(format: ui.ImageByteFormat.png);
+  final img = await pictureRecorder
+      .endRecording()
+      .toImage(adjustedSize.toInt(), adjustedSize.toInt());
+  final data = await img.toByteData(format: ui.ImageByteFormat.png);
 
-    return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
-  }
+  return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
+}
 
   static BitmapDescriptor getCircleMarker() {
     if (_circleMarker == null) {
@@ -238,55 +252,58 @@ class MapScreenState extends State<MapScreen> {
     }
   }
 
-  Future<BitmapDescriptor> _getClusterMarker(int clusterSize) async {
-    // final size = (clusterSize < 10) ? 80 : (clusterSize < 100) ? 100 : 120.0;
-    // final fontSize = (clusterSize < 10) ? 25.0 : (clusterSize < 100) ? 30.0 : 35.0;
+Future<BitmapDescriptor> _getClusterMarker(int clusterSize) async {
+  // MediaQuery를 사용하여 현재 디바이스의 픽셀 비율 얻기
+  final dpr = WidgetsBinding.instance.window.devicePixelRatio;
+  
+  // 기본 크기를 픽셀 비율로 나누어 조정
+  final baseSize = 60 + (clusterSize * 0.3).clamp(0, 40);
+  final adjustedSize = baseSize / dpr;
+  final adjustedFontSize = (18 + (clusterSize * 0.1).clamp(0, 14)) / dpr;
 
-    //원래 클러스터링 마커 사이즈
-    final size = 40 + (clusterSize * 0.3).clamp(0, 40);
-    final fontSize = (14 + (clusterSize * 0.1).clamp(0, 14)).toDouble();
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  final paint = Paint()
+    ..color = Colors.brown
+    ..style = PaintingStyle.fill;
 
-    // 기본 크기에 DPR 적용
-    //final dpr = ui.window.devicePixelRatio; // 현재 기기의 DPR 가져오기
-    //final size = (40 + (clusterSize * 0.3).clamp(0, 40)) * dpr;
-    //final fontSize = (14 + (clusterSize * 0.1).clamp(0, 14)) * dpr;
+  // 조정된 크기로 그리기
+  canvas.drawCircle(
+    Offset(adjustedSize / 2, adjustedSize / 2), 
+    adjustedSize / 2, 
+    paint
+  );
 
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-    final paint = Paint()
-      ..color = Colors.brown
-      ..style = PaintingStyle.fill;
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-      textAlign: TextAlign.center,
-    );
-
-    // 원 그리기
-    canvas.drawCircle(Offset(size / 2, size / 2), size / 2, paint);
-
-    // 텍스트 그리기
-    textPainter.text = TextSpan(
+  final textPainter = TextPainter(
+    textDirection: TextDirection.ltr,
+    textAlign: TextAlign.center,
+    text: TextSpan(
       text: clusterSize.toString(),
       style: TextStyle(
         color: Colors.white,
-        fontSize: fontSize,
+        fontSize: adjustedFontSize,
         fontWeight: FontWeight.bold,
       ),
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-          size / 2 - textPainter.width / 2, size / 2 - textPainter.height / 2),
-    );
+    ),
+  );
 
-    // 이미지로 변환
-    final image =
-        await recorder.endRecording().toImage(size.toInt(), size.toInt());
-    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+  textPainter.layout();
+  textPainter.paint(
+    canvas,
+    Offset(
+      adjustedSize / 2 - textPainter.width / 2, 
+      adjustedSize / 2 - textPainter.height / 2
+    ),
+  );
 
-    return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
-  }
+  final image = await recorder.endRecording().toImage(
+    adjustedSize.toInt(), 
+    adjustedSize.toInt()
+  );
+  final data = await image.toByteData(format: ui.ImageByteFormat.png);
+
+  return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
+}
 
 //현위치 얻어오기
   void _getCurrentLocation() async {
