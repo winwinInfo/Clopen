@@ -5,6 +5,7 @@ import '../screens/login.dart';
 import 'package:provider/provider.dart';
 import '../utils/authProvider.dart';
 import '../screens/feedback_screen.dart';
+import '../screens/reservation_screen.dart';
 
 class AppRouterDelegate extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
@@ -29,10 +30,14 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
         return 1;
       case '/feedback':
         return 2;
+      case '/reservation':
+        return 3;
       default:
-        return 0;
+        return 0; // 지도
     }
   }
+
+
 
   String getRouteForIndex(int index) {
     switch (index) {
@@ -40,10 +45,14 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
         return '/mypage';
       case 2:
         return '/feedback';
+      case 3:
+        return '/reservation';
       default:
-        return '/';
+        return '/'; // 지도
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +64,10 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
             body: IndexedStack(
               index: getIndexForRoute(_currentRoute),
               children: [
-                const MapScreen(),
-                _authProvider.user != null ? MyPage() : LoginPage(),
-                const FeedbackScreen(),
+                const MapScreen(),                 // index 0: 지도
+                _authProvider.user != null ? MyPage() : LoginPage(), // index 1: 내정보
+                const FeedbackScreen(),           // index 2: 의견
+                const ReservationScreen(),        // index 3: 예약 ✅ 마지막에 추가
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
@@ -75,23 +85,21 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
                   icon: Icon(Icons.mail),
                   label: '의견',
                 ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.calendar_month),
+                  label: '예약',
+                ),
               ],
+
               currentIndex: getIndexForRoute(_currentRoute),
               selectedItemColor: Colors.brown,
               unselectedItemColor: Colors.grey,
               onTap: (index) {
-                switch (index) {
-                  case 1:
-                    _currentRoute = '/mypage';
-                    break;
-                  case 2:
-                    _currentRoute = '/feedback';
-                    break;
-                  default:
-                    _currentRoute = '/';
-                }
+                _currentRoute = getRouteForIndex(index);
                 notifyListeners();
               },
+
+
             ),
           ),
         ),
