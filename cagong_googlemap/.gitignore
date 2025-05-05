@@ -52,3 +52,6 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
+
+# DS_store 무시
+.DS_Store
