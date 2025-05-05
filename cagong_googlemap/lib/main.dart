@@ -5,7 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
-import 'package:google_maps_flutter_web/google_maps_flutter_web.dart' as web;
 import 'package:provider/provider.dart';
 import 'utils/authProvider.dart' as loginProvider;
 
@@ -26,7 +25,9 @@ void main() async {
   }
 
   if (kIsWeb) {
-    GoogleMapsFlutterPlatform.instance = web.GoogleMapsPlugin();
+    // import 'package:google_maps_flutter_web/google_maps_flutter_web.dart' as web;
+    // GoogleMapsFlutterPlatform.instance = web.GoogleMapsPlugin();
+    print('웹 플랫폼 감지');
   }
 
   runApp(const MyApp());
