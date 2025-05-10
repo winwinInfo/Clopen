@@ -13,8 +13,6 @@ import '../widgets/search_bar.dart' as custom_search_bar;
 import '../widgets/bottom_sheet.dart';
 import '../widgets/filter.dart';
 import 'dart:ui' as ui;
-import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
-
 
 
 class MapScreen extends StatefulWidget {
@@ -57,8 +55,6 @@ class MapScreenState extends State<MapScreen> {
 
   // 클러스터 서비스 초기화
   void _initClusterService() {
-    _clusterService.initClusterManager(_updateMarkers);
-
     // 클러스터 탭 이벤트 처리
     _clusterService.onClusterTap = (cafes) {
       showClusterBottomSheet(context, cafes);
@@ -113,9 +109,6 @@ class MapScreenState extends State<MapScreen> {
       List<dynamic> jsonResponse = json.decode(jsonString);
       _cafes = jsonResponse.map((data) => Cafe.fromJson(data)).toList();
 
-      _clusterService.setItems(_cafes);
-      _clusterService.updateMap();
-
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -129,10 +122,11 @@ class MapScreenState extends State<MapScreen> {
   //필터 적용
   void _applyFilters() {
     List<Cafe> filteredCafes = _filterManager.applyFilters(_cafes);
-    _clusterService.setItems(filteredCafes);
-    _clusterService.updateMap();
+    _updateMarkersForCafes(filteredCafes);
   }
 
+  double _currentZoom = 11.0;
+  
   void _updateMarkers(Set<Marker> markers) {
     if (!mounted) return;
     setState(() {
@@ -146,6 +140,12 @@ class MapScreenState extends State<MapScreen> {
       }
 
     });
+  }
+  
+  // 카페 마커들을 업데이트하는 메서드
+  Future<void> _updateMarkersForCafes(List<Cafe> cafes) async {
+    Set<Marker> markers = await _clusterService.createMarkersWithClustering(cafes, _currentZoom);
+    _updateMarkers(markers);
   }
 
 
@@ -236,21 +236,25 @@ class MapScreenState extends State<MapScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : GoogleMap(
-                      onMapCreated: (GoogleMapController controller) {
-                        _controller.complete(controller);
-                        _clusterService.setMapId(controller.mapId);
-                      },
-                      initialCameraPosition: const CameraPosition(
-                        target: _center,
-                        zoom: 11.0,
-                      ),
-                      myLocationEnabled: false,
-                      myLocationButtonEnabled: false,
-                      zoomControlsEnabled: false,
-                      markers: _markers,
-                      onCameraMove: _clusterService.onCameraMove,
-                      onCameraIdle: _clusterService.updateMap,
-                    ),
+                  onMapCreated: (GoogleMapController controller) {
+                  _controller.complete(controller);
+                  _updateMarkersForCafes(_filterManager.applyFilters(_cafes));
+                  },
+                  initialCameraPosition: const CameraPosition(
+                  target: _center,
+                  zoom: 11.0,
+                  ),
+                  myLocationEnabled: false,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  markers: _markers,
+                  onCameraMove: (CameraPosition position) {
+                    _currentZoom = position.zoom;
+                    },
+                    onCameraIdle: () {
+                      _updateMarkersForCafes(_filterManager.applyFilters(_cafes));
+                    },
+                  ),
             ),
             Positioned(
               top: MediaQuery.of(context).padding.top + 10,

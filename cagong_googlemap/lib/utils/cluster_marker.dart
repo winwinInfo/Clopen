@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui' as ui;
 import '../models/cafe.dart';
 import '../utils/custom_marker_generator.dart';
-import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 
 class ClusterMarkerService {
   // 싱글톤 패턴 구현
@@ -11,69 +10,136 @@ class ClusterMarkerService {
   factory ClusterMarkerService() => _instance;
   ClusterMarkerService._internal();
 
-  // 클러스터 매니저
-  late ClusterManager<Cafe> clusterManager;
-
   // 클러스터 마커 업데이트 콜백
   Function(Set<Marker>)? onMarkersUpdate;
 
-  // 클러스터 매니저 초기화
-  void initClusterManager(Function(Set<Marker>) updateMarkers) {
-    clusterManager = ClusterManager<Cafe>(
-      [],
-      updateMarkers,
-      markerBuilder: _markerBuilder,
-    );
+  // 최대 줌 레벨
+  static const double maxZoomForClustering = 16.0;
+
+  // 마커 생성
+  Future<Set<Marker>> createMarkersWithClustering(List<Cafe> cafes, double currentZoom) async {
+    Set<Marker> markers = {};
+
+    if (currentZoom >= maxZoomForClustering) {
+      // 최대 줌에서는 모든 카페 마커 표시
+      for (Cafe cafe in cafes) {
+        final markerIcon = await CustomMarkerGenerator.createCustomMarker(
+          cafe,
+          markerSize: 36,
+          fontSize: 14,
+          maxTextWidth: 400,
+        );
+
+        markers.add(Marker(
+          markerId: MarkerId(cafe.id.toString()),
+          position: LatLng(cafe.latitude, cafe.longitude),
+          icon: markerIcon,
+          onTap: () {
+            if (onCafeTap != null) {
+              onCafeTap!(cafe);
+            }
+          },
+        ));
+      }
+    } else {
+      // 낮은 줌 레벨에서는 클러스터링 수행
+      List<ClusteredCafe> clusters = performClustering(cafes, currentZoom);
+      
+      for (ClusteredCafe cluster in clusters) {
+        if (cluster.isCluster) {
+          // 클러스터 마커 생성
+          final clusterIcon = await _getClusterMarker(cluster.cafes.length);
+          markers.add(Marker(
+            markerId: MarkerId('cluster_${cluster.id}'),
+            position: cluster.center,
+            icon: clusterIcon,
+            onTap: () {
+              if (onClusterTap != null) {
+                onClusterTap!(cluster.cafes);
+              }
+            },
+          ));
+        } else {
+          // 단일 카페 마커
+          final cafe = cluster.cafes.first;
+          final markerIcon = await CustomMarkerGenerator.createCustomMarker(
+            cafe,
+            markerSize: 36,
+            fontSize: 14,
+            maxTextWidth: 400,
+          );
+
+          markers.add(Marker(
+            markerId: MarkerId(cafe.id.toString()),
+            position: LatLng(cafe.latitude, cafe.longitude),
+            icon: markerIcon,
+            onTap: () {
+              if (onCafeTap != null) {
+                onCafeTap!(cafe);
+              }
+            },
+          ));
+        }
+      }
+    }
+
+    return markers;
   }
 
-  // 클러스터 마커 빌더
-  Future<Marker> _markerBuilder(dynamic cluster) async {
-    if (cluster.isMultiple) {
-      // 클러스터 마커 처리
-      return Marker(
-        markerId: MarkerId(cluster.getId()),
-        position: cluster.location,
-        onTap: () {
-          // 콜백을 통해 클러스터 탭 이벤트 전달
-          if (onClusterTap != null) {
-            onClusterTap!(cluster.items);
-          }
-        },
-        icon: await _getClusterMarker(cluster.count),
-      );
-    } else {
-      // 단일 마커 처리
-      final cafe = cluster.items.first;
-
-      // CustomMarkerGenerator 활용
-      final markerIcon = await CustomMarkerGenerator.createCustomMarker(
-        cafe,
-        markerSize: 36,
-        fontSize: 14,
-        maxTextWidth: 400,
-      );
-
-      return Marker(
-        markerId: MarkerId('${cafe.latitude},${cafe.longitude}'),
-        position: LatLng(cafe.latitude, cafe.longitude),
-        icon: markerIcon,
-        onTap: () {
-          // 콜백을 통해 카페 탭 이벤트 전달
-          if (onCafeTap != null) {
-            onCafeTap!(cafe);
-          }
-        },
-        anchor: const Offset(0.5, 0.5),
-      );
+  // 클러스터링 수행
+  List<ClusteredCafe> performClustering(List<Cafe> cafes, double zoom) {
+    List<ClusteredCafe> clusters = [];
+    List<Cafe> remaining = List.from(cafes);
+    
+    // 줌 레벨에 따른 클러스터 거리 조정
+    double clusterDistance = _getClusteringDistance(zoom);
+    
+    while (remaining.isNotEmpty) {
+      Cafe current = remaining.removeAt(0);
+      List<Cafe> nearCafes = [current];
+      
+      // 가까운 카페들 찾기
+      remaining.removeWhere((cafe) {
+        double distance = _calculateDistance(
+          current.latitude, current.longitude,
+          cafe.latitude, cafe.longitude
+        );
+        if (distance <= clusterDistance) {
+          nearCafes.add(cafe);
+          return true;
+        }
+        return false;
+      });
+      
+      clusters.add(ClusteredCafe(
+        id: '${DateTime.now().millisecondsSinceEpoch}_${clusters.length}',
+        cafes: nearCafes,
+        isCluster: nearCafes.length > 1,
+      ));
     }
+    
+    return clusters;
+  }
+
+  // 줌 레벨에 따른 클러스터 거리 계산
+  double _getClusteringDistance(double zoom) {
+    // 줌이 낮을수록 더 넓은 범위에서 클러스터링
+    if (zoom <= 10) return 0.05;
+    if (zoom <= 12) return 0.02;
+    if (zoom <= 14) return 0.01;
+    return 0.005;
+  }
+
+  // 두 지점 간 거리 계산 (단순 직선 거리)
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    double dLat = lat2 - lat1;
+    double dLon = lon2 - lon1;
+    return (dLat * dLat + dLon * dLon).abs();
   }
 
   // 클러스터 마커 아이콘 생성
   Future<BitmapDescriptor> _getClusterMarker(int clusterSize) async {
-    // 디바이스 픽셀 비율 얻기
     final dpr = WidgetsBinding.instance.window.devicePixelRatio;
-
-    // 기본 크기 설정
     final baseSize = 60 + (clusterSize * 0.3).clamp(0, 40);
     final adjustedSize = baseSize / dpr;
     final adjustedFontSize = (18 + (clusterSize * 0.1).clamp(0, 14)) / dpr;
@@ -123,29 +189,32 @@ class ClusterMarkerService {
     return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
 
-
-
   // 클러스터와 카페 탭 이벤트를 위한 콜백
   Function(List<Cafe>)? onClusterTap;
   Function(Cafe)? onCafeTap;
+}
 
-  // 아이템 설정
-  void setItems(List<Cafe> cafes) {
-    clusterManager.setItems(cafes);
-  }
-
-  // 맵 ID 설정
-  void setMapId(int mapId) {
-    clusterManager.setMapId(mapId);
-  }
-
-  // 지도 업데이트
-  void updateMap() {
-    clusterManager.updateMap();
-  }
-
-  // 카메라 이동 처리
-  void onCameraMove(CameraPosition position) {
-    clusterManager.onCameraMove(position);
+// 클러스터링된 카페 데이터 모델
+class ClusteredCafe {
+  final String id;
+  final List<Cafe> cafes;
+  final bool isCluster;
+  
+  ClusteredCafe({
+    required this.id,
+    required this.cafes,
+    required this.isCluster,
+  });
+  
+  LatLng get center {
+    double lat = 0;
+    double lng = 0;
+    
+    for (Cafe cafe in cafes) {
+      lat += cafe.latitude;
+      lng += cafe.longitude;
+    }
+    
+    return LatLng(lat / cafes.length, lng / cafes.length);
   }
 }
