@@ -1,4 +1,4 @@
-#!/Users/yannoo/Desktop/winwinInfo/Clopen_repo/Clopen/cagong_backend/venv/bin/python3.12
+#!/Users/chajunkyu/Desktop/clopen/cagong_backend/venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys
