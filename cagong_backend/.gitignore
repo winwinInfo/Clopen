@@ -1,0 +1,91 @@
+# Python 가상환경
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Python 컴파일 파일들
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 배포용 빌드 파일들
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 데이터베이스 파일들
+*.db
+*.sqlite
+*.sqlite3
+
+# 환경변수 파일 (보안상 중요)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE/에디터 설정 파일들
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS 시스템 파일들
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows 시스템 파일들
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 로그 파일들
+*.log
+logs/
+
+# 테스트 관련
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+htmlcov/
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+
+# Flask 관련
+instance/
+.webassets-cache
+
+# 백업 파일들
+*.bak
+*.backup
+
+# 임시 파일들
+*.tmp
+*.temp
+.cache/
+
+# 마이그레이션 관련 (Flask-Migrate 사용시)
+migrations/versions/*.pyc
