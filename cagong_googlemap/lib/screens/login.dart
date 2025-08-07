@@ -8,10 +8,9 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('로그인',
-        style: TextStyle(
-        color: Colors.white, // 텍스트 색상을 하얗게 변경
-          ),
+        title: Text(
+          '로그인',
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.brown,
       ),
@@ -29,8 +28,9 @@ class LoginPage extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () async {
                   final authProvider = Provider.of<loginProvider.AuthProvider>(context, listen: false);
-                  final userCredential = await authProvider.signInWithGoogle();
-                  if (userCredential != null) {
+                  final success = await authProvider.signInWithGoogle();
+
+                  if (success) {
                     if (Navigator.of(context).canPop()) {
                       Navigator.of(context).pop();
                     } else {
@@ -45,16 +45,16 @@ class LoginPage extends StatelessWidget {
                 },
                 icon: Image.asset(
                   'assets/images/GoogleCon.png',
-                  height: 24,  // 이미지 크기 조절
-                  width: 24,   // 이미지 크기 조절
+                  height: 24,
+                  width: 24,
                 ),
                 label: Text(
                   'Google로 로그인',
-                  style: TextStyle(color: Colors.black), // 텍스트 색상 설정
+                  style: TextStyle(color: Colors.black),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // 버튼 배경색을 하얗게 설정
-                  foregroundColor: Colors.black, // 텍스트 색상 (강조 색상)
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
               ),

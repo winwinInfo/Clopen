@@ -1,6 +1,5 @@
 // widgets/comments_section.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';  // User 타입을 위해 필요
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/authProvider.dart' as loginProvider;
@@ -25,7 +24,7 @@ class _CommentsSectionState extends State<CommentsSection> {
  @override
  Widget build(BuildContext context) {
    final authProvider = Provider.of<loginProvider.AuthProvider>(context);
-   final user = authProvider.user;
+   final user = authProvider.userData;
 
    return Column(
      crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +93,7 @@ class _CommentsSectionState extends State<CommentsSection> {
                      ],
                    ),
                    subtitle: Text(comment.content),
-                   trailing: user?.uid == comment.userId
+                   trailing: user?['id'] == comment.userId
                        ? IconButton(
                            icon: const Icon(Icons.delete),
                            onPressed: () => _deleteComment(comment.id),
@@ -127,7 +126,7 @@ class _CommentsSectionState extends State<CommentsSection> {
              const SizedBox(width: 8),
              IconButton(
                icon: const Icon(Icons.send),
-               onPressed: () => _submitComment(user),
+               onPressed: user != null ? () => _submitComment(user) : null,
                color: Colors.brown,
              ),
            ],
@@ -154,19 +153,18 @@ class _CommentsSectionState extends State<CommentsSection> {
      ],
    );
  }
-
- Future<void> _submitComment(User user) async {
+ Future<void> _submitComment(Map<String, dynamic> user) async {
    if (_commentController.text.trim().isEmpty) return;
 
    try {
      final comment = Comment(
        id: '', // Firestore가 생성
-       userId: user.uid,
-       userEmail: user.email!,
-       userName: user.displayName ?? '익명',
+       userId: user['id'],
+       userEmail: user['email'] ?? '',
+       userName: user['name'] ?? '익명',
        content: _commentController.text.trim(),
        createdAt: DateTime.now(),
-       userPhotoUrl: user.photoURL,
+       userPhotoUrl: user['photoUrl'], // photoUrl이 없을 수도 있으니 null 가능
      );
 
      await _firestore

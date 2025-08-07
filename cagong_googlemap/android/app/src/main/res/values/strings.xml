@@ -1,0 +1,4 @@
+<resources>
+    <!-- Google Login Web Client ID -->
+    <string name="default_web_client_id">447275815920-ijh2059s7qfvqu9aot4lsfhmvj72rnmo.apps.googleusercontent.com</string>
+</resources>
