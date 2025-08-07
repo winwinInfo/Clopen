@@ -1,8 +1,6 @@
-# models/cafe.py
-from flask_sqlalchemy import SQLAlchemy
+from . import db
 from datetime import datetime
 
-db = SQLAlchemy()
 
 class Cafe(db.Model):
     __tablename__ = 'cafes'
