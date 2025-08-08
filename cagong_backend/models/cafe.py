@@ -1,8 +1,6 @@
-# models/cafe.py
-from flask_sqlalchemy import SQLAlchemy
+from . import db
 from datetime import datetime
 
-db = SQLAlchemy()
 
 class Cafe(db.Model):
     __tablename__ = 'cafes'
@@ -42,6 +40,8 @@ class Cafe(db.Model):
     
     def __repr__(self):
         return f'<Cafe {self.name}>'
+    
+
     
     def to_dict(self):
         """JSON 응답을 위한 딕셔너리 변환"""
