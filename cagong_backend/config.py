@@ -1,3 +1,4 @@
+
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
@@ -6,7 +7,8 @@ load_dotenv()
 
 class Config:
     # Basic Flask Configuration
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key') # JWT 서명용 (차준직이 로그인 할 때 사용함)
+
     DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     
     # Database Configuration

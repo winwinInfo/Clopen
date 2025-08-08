@@ -6,16 +6,11 @@ import uuid
 class User(db.Model):
     __tablename__ = 'users'
 
-    # Firebase UID 호환을 위해 String ID 사용
-    id = db.Column(db.String(255), primary_key=True, default=lambda: str(uuid.uuid4()))
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=True)  # OAuth 사용자는 비밀번호 없을 수 있음
-    name = db.Column(db.String(100), nullable=False)
-    nickname = db.Column(db.String(50))
-    gender = db.Column(db.String(10))
-    birth_date = db.Column(db.Date)
-    university = db.Column(db.String(100))
-    photo_url = db.Column(db.Text)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    google_id = db.Column(db.String(255), unique=True, nullable=False)  # Google의 'sub'
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    photo_url = db.Column(db.String(500))  # 프로필 이미지 URL
     role = db.Column(db.String(20), default='user')  # user/owner/admin
     provider = db.Column(db.String(20), default='email')  # email, google
     provider_id = db.Column(db.String(255))  # OAuth provider ID
@@ -51,3 +46,14 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.email}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "google_id": self.google_id,
+            "email": self.email,
+            "name": self.name,
+            "photo_url": self.photo_url,
+            "role": self.role,
+            "created_at": self.created_at.isoformat()
+        }
