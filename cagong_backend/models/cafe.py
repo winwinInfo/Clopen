@@ -41,6 +41,8 @@ class Cafe(db.Model):
     def __repr__(self):
         return f'<Cafe {self.name}>'
     
+
+    
     def to_dict(self):
         """JSON 응답을 위한 딕셔너리 변환"""
         return {
