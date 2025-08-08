@@ -50,8 +50,26 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# iOS build artifacts
+/ios/build/
+**/ios/build/
+
+# Web build artifacts
+/web/build/
+
+# Windows/Linux/macOS build artifacts
+/windows/build/
+/linux/build/
+/macos/build/
+
 # FVM Version Cache
 .fvm/
+
+# Additional Flutter/Dart ignores
+*.lock
+pubspec.lock
+coverage/
+test_driver/
 
 # DS_store 무시
 .DS_Store

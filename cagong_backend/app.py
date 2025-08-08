@@ -11,6 +11,7 @@ app.config['SECRET_KEY'] = 'simple-secret-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+
 # db.sqlite3가 없다면 테이블 생성
 with app.app_context():
     db.create_all()
@@ -21,5 +22,4 @@ register_blueprints(app)
 
 
 if __name__ == '__main__':
-    
     app.run(debug=True, port=5000)
