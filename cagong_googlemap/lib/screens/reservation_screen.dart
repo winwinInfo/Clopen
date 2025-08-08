@@ -35,7 +35,7 @@ class ReservationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // AuthProvider에서 현재 사용자 정보 가져오기
     final authProvider = Provider.of<loginProvider.AuthProvider>(context);
-    final user = authProvider.user;
+    final user = authProvider.userData;
 
     return Scaffold(
       appBar: AppBar(
@@ -161,7 +161,7 @@ class ReservationCard extends StatelessWidget {
 
     // 현재 사용자 정보 가져오기
     final authProvider = Provider.of<loginProvider.AuthProvider>(context);
-    final user = authProvider.user; // 로그인 여부 확인은 이미 상위 위젯에서 처리되므로 여기서는 버튼 기능만 처리
+    final user = authProvider.userData;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

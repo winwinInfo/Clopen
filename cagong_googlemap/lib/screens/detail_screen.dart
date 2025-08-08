@@ -378,7 +378,7 @@ Widget _buildInfoContent() {
             if (widget.cafe.coWork == 1) ...[
               Consumer<loginProvider.AuthProvider>(
                 builder: (context, authProvider, _) {
-                  if (authProvider.user != null) {
+                  if (authProvider.userData != null) {
                     return Column(
                       children: [
                         Center(

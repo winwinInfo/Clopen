@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "447275815920",
     "project_id": "cagonginfo",
-    "storage_bucket": "cagonginfo.appspot.com"
+    "storage_bucket": "cagonginfo.firebasestorage.app"
   },
   "client": [
     {
@@ -12,7 +12,20 @@
           "package_name": "com.example.cagong_googlemap"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "447275815920-cioe9kr3aag78tmc128fjd25ma6sso2b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cagong_googlemap",
+            "certificate_hash": "5631f1f4eef02ab0e12e01eeec78b914778ad02e"
+          }
+        },
+        {
+          "client_id": "447275815920-ijh2059s7qfvqu9aot4lsfhmvj72rnmo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyABolZAxsqvzWXVsg0RO-DPoemF-1SOY0M"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "447275815920-ijh2059s7qfvqu9aot4lsfhmvj72rnmo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "447275815920-9snlifhjbr4givc0r96fvs7afknvvjdm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cagongGooglemap"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +56,12 @@
           "package_name": "info.cagong.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "447275815920-ijh2059s7qfvqu9aot4lsfhmvj72rnmo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyABolZAxsqvzWXVsg0RO-DPoemF-1SOY0M"
@@ -39,7 +69,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "447275815920-ijh2059s7qfvqu9aot4lsfhmvj72rnmo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "447275815920-9snlifhjbr4givc0r96fvs7afknvvjdm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cagongGooglemap"
+              }
+            }
+          ]
         }
       }
     }

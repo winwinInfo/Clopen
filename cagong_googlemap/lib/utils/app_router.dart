@@ -65,7 +65,7 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
               index: getIndexForRoute(_currentRoute),
               children: [
                 const MapScreen(),                 // index 0: 지도
-                _authProvider.user != null ? MyPage() : LoginPage(), // index 1: 내정보
+                _authProvider.isLoggedIn ? MyPage() : LoginPage(), // index 1: 내정보
                 const FeedbackScreen(),           // index 2: 의견
                 const ReservationScreen(),        // index 3: 예약 ✅ 마지막에 추가
               ],

@@ -21,7 +21,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<loginProvider.AuthProvider>(context);
-    final user = authProvider.user;
+    final user = authProvider.userData;
 
     return Scaffold(
       appBar: AppBar(
@@ -100,7 +100,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             ],
                           ),
                           subtitle: Text(feedback.content),
-                          trailing: user?.uid == feedback.userId
+                          trailing: user?['id'] == feedback.userId
                               ? IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () => _deleteFeedback(feedback.id),
@@ -178,23 +178,21 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     );
   }
 
-  Future<void> _submitFeedback(User user) async {
+  Future<void> _submitFeedback(Map<String, dynamic> user) async {
     if (_feedbackController.text.trim().isEmpty) return;
 
     try {
       final feedback = Comment(
-        id: '', // Firestore가 생성
-        userId: user.uid,
-        userEmail: user.email!,
-        userName: user.displayName ?? '익명',
+        id: '',
+        userId: user['id'],
+        userEmail: user['email'] ?? '',
+        userName: user['name'] ?? '익명',
         content: _feedbackController.text.trim(),
         createdAt: DateTime.now(),
-        userPhotoUrl: user.photoURL,
+        userPhotoUrl: user['photoUrl'],
       );
 
-      await _firestore
-          .collection('feedback')
-          .add(feedback.toMap());
+      await _firestore.collection('feedback').add(feedback.toMap());
 
       _feedbackController.clear();
     } catch (e) {
@@ -203,6 +201,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       );
     }
   }
+
 
   Future<void> _deleteFeedback(String feedbackId) async {
     try {
