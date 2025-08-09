@@ -28,22 +28,6 @@ class User(db.Model):
             return False
         return check_password_hash(self.password_hash, password)
 
-    def to_dict(self):
-        """JSON 응답용 딕셔너리 변환"""
-        return {
-            'id': self.id,
-            'email': self.email,
-            'name': self.name,
-            'nickname': self.nickname,
-            'gender': self.gender,
-            'birth_date': self.birth_date.isoformat() if self.birth_date else None,
-            'university': self.university,
-            'photo_url': self.photo_url,
-            'role': self.role,
-            'provider': self.provider,
-            'created_at': self.created_at.isoformat() if self.created_at else None
-        }
-
     def __repr__(self):
         return f"<User {self.email}>"
 

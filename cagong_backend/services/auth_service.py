@@ -1,4 +1,4 @@
-from models.User import User, db
+from models.user import User, db
 from google.oauth2 import id_token
 from google.auth.transport import requests
 import jwt

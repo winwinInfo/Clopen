@@ -21,9 +21,6 @@ dependencies:
   http: ^1.4.0
   flutter_svg: ^2.0.10
 
-  firebase_core: ^2.27.0
-  firebase_auth: ^4.17.3
-  cloud_firestore: ^4.15.5
 
 dev_dependencies:
   flutter_test:

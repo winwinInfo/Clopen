@@ -1,6 +1,4 @@
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 
 
 class Comment {
@@ -29,7 +27,7 @@ class Comment {
       userEmail: map['userEmail'],
       userName: map['userName'],
       content: map['content'],
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: DateTime.parse(map['createdAt']),
       userPhotoUrl: map['userPhotoUrl'],
     );
   }
@@ -40,7 +38,7 @@ class Comment {
       'userEmail': userEmail,
       'userName': userName,
       'content': content,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt.toIso8601String(),
       'userPhotoUrl': userPhotoUrl,
     };
   }

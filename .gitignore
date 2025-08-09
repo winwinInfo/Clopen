@@ -1,0 +1,160 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+.ENV/
+venv.bak/
+env.bak/
+
+# Flask
+instance/
+.webassets-cache
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Flutter/Dart
+cagong_googlemap/build/
+cagong_googlemap/.dart_tool/
+cagong_googlemap/.flutter-plugins
+cagong_googlemap/.flutter-plugins-dependencies
+cagong_googlemap/.packages
+cagong_googlemap/.pub-cache/
+cagong_googlemap/.pub/
+cagong_googlemap/pubspec.lock
+cagong_googlemap/ios/Pods/
+cagong_googlemap/ios/.symlinks/
+cagong_googlemap/ios/Flutter/Generated.xcconfig
+cagong_googlemap/ios/Flutter/flutter_export_environment.sh
+cagong_googlemap/android/.gradle/
+cagong_googlemap/android/captures/
+cagong_googlemap/android/gradlew
+cagong_googlemap/android/gradlew.bat
+cagong_googlemap/android/local.properties
+cagong_googlemap/android/app/debug/
+cagong_googlemap/android/app/profile/
+cagong_googlemap/android/app/release/
+
+# Android Studio
+cagong_googlemap/android/.idea/
+cagong_googlemap/android/**/android/.idea/
+cagong_googlemap/android/**/android/.gradle/
+cagong_googlemap/android/**/android/local.properties
+cagong_googlemap/android/**/android/gradlew
+cagong_googlemap/android/**/android/gradlew.bat
+
+# Xcode
+cagong_googlemap/ios/**/*.mode1v3
+cagong_googlemap/ios/**/*.mode2v3
+cagong_googlemap/ios/**/*.moved-aside
+cagong_googlemap/ios/**/*.pbxuser
+cagong_googlemap/ios/**/*.perspectivev3
+cagong_googlemap/ios/**/*sync/
+cagong_googlemap/ios/**/.sconsign.dblite
+cagong_googlemap/ios/**/.tags*
+cagong_googlemap/ios/**/.vagrant/
+cagong_googlemap/ios/**/DerivedData/
+cagong_googlemap/ios/**/Icon?
+cagong_googlemap/ios/**/Pods/
+cagong_googlemap/ios/**/.symlinks/
+cagong_googlemap/ios/**/profile
+cagong_googlemap/ios/**/xcuserdata
+cagong_googlemap/ios/.generated/
+cagong_googlemap/ios/Flutter/Generated.xcconfig
+cagong_googlemap/ios/Flutter/flutter_export_environment.sh
+
+# Node.js (if used)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+*~
+.fuse_hidden*
+.nfs*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Secret keys and configurations
+secrets.json
+config.json
+credentials.json
+serviceAccount.json
+
+# Generated files
+generated/
+gen/
+
+# Coverage reports
+coverage/
+.nyc_output/

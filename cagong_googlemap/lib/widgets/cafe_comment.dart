@@ -1,5 +1,5 @@
 // widgets/comments_section.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/authProvider.dart' as loginProvider;
@@ -12,12 +12,11 @@ class CommentsSection extends StatefulWidget {
  const CommentsSection({super.key, required this.cafeId});
 
  @override
- _CommentsSectionState createState() => _CommentsSectionState();
+ State<CommentsSection> createState() => _CommentsSectionState();
 }
 
 class _CommentsSectionState extends State<CommentsSection> {
  final TextEditingController _commentController = TextEditingController();
- final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
  String get _cafeIdString => widget.cafeId.toString();
 
@@ -29,82 +28,13 @@ class _CommentsSectionState extends State<CommentsSection> {
    return Column(
      crossAxisAlignment: CrossAxisAlignment.start,
      children: [
-       // 댓글 목록
-       StreamBuilder<QuerySnapshot>(
-         stream: _firestore
-             .collection('cafes')
-             .doc(_cafeIdString)
-             .collection('comments')
-             .orderBy('createdAt', descending: true)
-             .snapshots(),
-         builder: (context, snapshot) {
-           if (snapshot.hasError) {
-             return const Text('댓글을 불러오는데 실패했습니다');
-           }
-
-           if (snapshot.connectionState == ConnectionState.waiting) {
-             return const Center(child: CircularProgressIndicator());
-           }
-
-           final comments = snapshot.data!.docs.map((doc) => 
-             Comment.fromMap(doc.data() as Map<String, dynamic>, doc.id)
-           ).toList();
-           
-           if (comments.isEmpty) {
-             return const Center(
-               child: Padding(
-                 padding: EdgeInsets.all(16.0),
-                 child: Text('첫 댓글을 남겨보세요!'),
-               ),
-             );
-           }
-
-           return ListView.builder(
-             shrinkWrap: true,
-             physics: const NeverScrollableScrollPhysics(),
-             itemCount: comments.length,
-             itemBuilder: (context, index) {
-               final comment = comments[index];
-               return Card(
-                color: Colors.white,
-                 child: ListTile(
-                   leading: CircleAvatar(
-                     backgroundImage: comment.userPhotoUrl != null
-                         ? NetworkImage(comment.userPhotoUrl!)
-                         : null,
-                     child: comment.userPhotoUrl == null
-                         ? Text(comment.userName[0].toUpperCase())
-                         : null,
-                   ),
-                   title: Row(
-                     children: [
-                       Text(
-                         comment.userName,
-                         style: const TextStyle(fontWeight: FontWeight.bold),
-                       ),
-                       const SizedBox(width: 8),
-                       Text(
-                         _formatDate(comment.createdAt),
-                         style: const TextStyle(
-                           fontSize: 12,
-                           color: Colors.grey,
-                         ),
-                       ),
-                     ],
-                   ),
-                   subtitle: Text(comment.content),
-                   trailing: user?['id'] == comment.userId
-                       ? IconButton(
-                           icon: const Icon(Icons.delete),
-                           onPressed: () => _deleteComment(comment.id),
-                         )
-                       : null,
-                 ),
-               );
-             },
-           );
-         },
-       ),
+       // 댓글 목록 (Firebase 기능 비활성화)
+      const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text('댓글 기능은 현재 비활성화되어 있습니다.\n(Flask 연결 후 다시 활성화됩니다)'),
+        ),
+      ),
 
        // 댓글 입력 섹션
        if (user != null) ...[
@@ -153,26 +83,15 @@ class _CommentsSectionState extends State<CommentsSection> {
      ],
    );
  }
+
  Future<void> _submitComment(Map<String, dynamic> user) async {
    if (_commentController.text.trim().isEmpty) return;
 
    try {
-     final comment = Comment(
-       id: '', // Firestore가 생성
-       userId: user['id'],
-       userEmail: user['email'] ?? '',
-       userName: user['name'] ?? '익명',
-       content: _commentController.text.trim(),
-       createdAt: DateTime.now(),
-       userPhotoUrl: user['photoUrl'], // photoUrl이 없을 수도 있으니 null 가능
+     // Firebase 기능 비활성화 - 임시 처리
+     ScaffoldMessenger.of(context).showSnackBar(
+       const SnackBar(content: Text('댓글 기능은 현재 비활성화되어 있습니다')),
      );
-
-     await _firestore
-         .collection('cafes')
-         .doc(_cafeIdString)
-         .collection('comments')
-         .add(comment.toMap());
-
      _commentController.clear();
    } catch (e) {
      ScaffoldMessenger.of(context).showSnackBar(
@@ -182,18 +101,7 @@ class _CommentsSectionState extends State<CommentsSection> {
  }
 
  Future<void> _deleteComment(String commentId) async {
-   try {
-     await _firestore
-         .collection('cafes')
-         .doc(_cafeIdString)
-         .collection('comments')
-         .doc(commentId)
-         .delete();
-   } catch (e) {
-     ScaffoldMessenger.of(context).showSnackBar(
-       const SnackBar(content: Text('댓글 삭제에 실패했습니다')),
-     );
-   }
+   // Firebase 기능 비활성화
  }
 
  String _formatDate(DateTime date) {
