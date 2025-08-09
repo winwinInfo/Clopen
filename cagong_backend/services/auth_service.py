@@ -11,7 +11,7 @@ def verify_google_token(id_token_str):
             id_token_str,
             requests.Request(),
             # 환경변수 대신 config에서 가져오기
-            current_app.config.get("GOOGLE_CLIENT_ID")  # 필요시 .env에 추가
+            current_app.config.get("GOOGLE_CLIENT_ID")
         )
         return idinfo
     except ValueError:
