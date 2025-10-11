@@ -1,6 +1,8 @@
+# routes/cafes.py
+
 from flask import Blueprint, jsonify
-import json
-import os
+from services import cafe_service 
+
 
 cafe_bp = Blueprint('cafes', __name__)
 
@@ -8,52 +10,45 @@ cafe_bp = Blueprint('cafes', __name__)
 def get_cafe_list():
     """카페 목록 조회"""
     try:
-        # JSON 파일 경로 찾기  
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(os.path.dirname(current_dir))
-        json_path = os.path.join(project_root, 'cagong_googlemap', 'assets', 'json', 'cafe_info.json')
+        cafes = cafe_service.get_all_cafes()
         
-        # JSON 파일 읽기
-        with open(json_path, 'r', encoding='utf-8') as f:
-            cafes = json.load(f)
+        # DB에서 받은 Cafe 객체 리스트를 JSON으로 변환
+        # Cafe 모델에 만들어둔 to_dict() 사용 
+        cafe_list_dict = [cafe.to_dict() for cafe in cafes]
         
         return jsonify({
             "success": True,
-            "count": len(cafes),
-            "data": cafes[:5]  # 처음 5개만 보여주기
+            "count": len(cafe_list_dict),
+            "data": cafe_list_dict
         })
     except Exception as e:
+        # 데이터베이스 연결 오류 등 예외 처리
         return jsonify({
             "success": False,
-            "error": f"오류 발생: {str(e)}"
-        })
+            "error": f"서버 오류 발생: {str(e)}"
+        }), 500
+
+
 
 @cafe_bp.route('/<int:cafe_id>')
 def get_cafe_by_id(cafe_id):
     """특정 카페 조회"""
     try:
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(os.path.dirname(current_dir))
-        json_path = os.path.join(project_root, 'cagong_googlemap', 'assets', 'json', 'cafe_info.json')
-        
-        with open(json_path, 'r', encoding='utf-8') as f:
-            cafes = json.load(f)
-        
-        # ID로 카페 찾기
-        cafe = next((c for c in cafes if c.get('ID') == cafe_id), None)
+        cafe = cafe_service.get_cafe_by_id(cafe_id)
         
         if cafe:
+            # 3. DB에서 받은 Cafe 객체를 JSON으로 변환
             return jsonify({
                 "success": True,
-                "data": cafe
+                "data": cafe.to_dict() 
             })
         else:
             return jsonify({
                 "success": False,
                 "error": "카페를 찾을 수 없어요"
-            })
+            }), 404 
     except Exception as e:
         return jsonify({
             "success": False,
-            "error": f"오류 발생: {str(e)}"
-        })
+            "error": f"서버 오류 발생: {str(e)}"
+        }), 500
