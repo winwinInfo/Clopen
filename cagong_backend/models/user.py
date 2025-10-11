@@ -1,7 +1,6 @@
 from . import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-import uuid
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -18,15 +17,15 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-    def set_password(self, password):
-        """비밀번호 해시화"""
-        self.password_hash = generate_password_hash(password)
+    # def set_password(self, password):
+    #     """비밀번호 해시화"""
+    #     self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password):
-        """비밀번호 검증"""
-        if not self.password_hash:
-            return False
-        return check_password_hash(self.password_hash, password)
+    # def check_password(self, password):
+    #     """비밀번호 검증"""
+    #     if not self.password_hash:
+    #         return False
+    #     return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return f"<User {self.email}>"
