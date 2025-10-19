@@ -63,6 +63,7 @@ def get_name_by_id(cafe_id):
     try:
         cafe = cafe_service.get_cafe_by_id(cafe_id)
 
+
         if cafe:
             return jsonify({
                 "success": True,
@@ -76,6 +77,7 @@ def get_name_by_id(cafe_id):
                 "success": False,
                 "error": f"ID {cafe_id} 카페를 찾을 수 없습니다."
             }), 404
+
 
     except Exception as e:
         return jsonify({

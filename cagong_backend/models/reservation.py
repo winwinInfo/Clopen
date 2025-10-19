@@ -11,7 +11,7 @@ class Reservation(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     cafe_id = db.Column(db.Integer, db.ForeignKey('cafes.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     # 예약 시간 정보 (분 단위 정확도)
     start_datetime = db.Column(db.DateTime, nullable=False)  # 2024-01-15 13:30:00
