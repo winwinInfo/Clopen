@@ -4,7 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
 
-# Reservation 모델 
+# 예약 내역 모델
+
 class Reservation(db.Model):
     __tablename__ = 'reservations'
     
