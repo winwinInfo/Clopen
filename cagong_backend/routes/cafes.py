@@ -54,9 +54,6 @@ def get_cafe_by_id(cafe_id):
         }), 500
 
 
-
-
-
 @cafe_bp.route('/<int:cafe_id>/name')
 def get_name_by_id(cafe_id):
     """ID로 카페 이름 조회"""

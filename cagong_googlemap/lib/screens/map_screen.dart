@@ -2,10 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/cafe.dart';
+import '../services/cafe_service.dart';
 import '../utils/custom_marker_generator.dart';
 import '../utils/cluster_marker.dart';
 import '../utils/location_marker.dart';
