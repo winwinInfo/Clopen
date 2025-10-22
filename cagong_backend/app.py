@@ -5,17 +5,16 @@ from routes import register_blueprints
 from models import init_db
 import os
 from dotenv import load_dotenv
+from config import Config
 
 # .env 파일 로드
 load_dotenv()
 
 # 간단한 Flask 앱 생성
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'simple-secret-key')
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key')
-app.config['GOOGLE_CLIENT_ID'] = os.getenv('GOOGLE_WEB_CLIENT_ID')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# config.py 설정 로드
+app.config.from_object(Config)
 
 # 블루프린트 등록 (routes/__init__.py에서 관리)
 register_blueprints(app)
