@@ -36,7 +36,7 @@ def create_new_order(user_id, item_name, amount):
 # -----------------------------------------------------
 # 2. 결제 최종 승인 서비스 로직 (가장 중요)
 # -----------------------------------------------------
-def confirm_payment(payment_key, order_id, amount):
+def confirm_payment(payment_key, order_id, amount, payment_type):
     """
     DB 검증 후, 토스페이먼츠에 최종 결제 승인을 요청합니다.
     """
@@ -83,6 +83,7 @@ def confirm_payment(payment_key, order_id, amount):
             # 2-1. DB 상태 업데이트
             order.status = 'PAID'
             order.payment_key = response_data.get('paymentKey')
+            order.payment_type = payment_type
             db.session.commit()
 
             current_app.logger.info(f"결제 최종 승인 및 DB 저장 성공: {order_id}")

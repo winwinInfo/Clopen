@@ -27,6 +27,8 @@ class Order(db.Model):
     # 토스페이먼츠 결제 승인 후 받는 고유 키 (환불/조회에 사용)
     payment_key = db.Column(db.String(200), unique=True, nullable=True)  # 결제 완료 전에는 NULL
 
+    payment_type = db.Column(db.String(20), nullable=True) # 결제 타입 저장용
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
