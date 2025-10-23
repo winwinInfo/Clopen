@@ -45,7 +45,7 @@ def handle_google_login(id_token_str):
 
     # 5. JWT 토큰 생성 (config 값 사용)
     payload = {
-        'user_id': user.id,
+        'sub': user.id,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
     }
     token = jwt.encode(payload, current_app.config["JWT_SECRET_KEY"], algorithm='HS256')

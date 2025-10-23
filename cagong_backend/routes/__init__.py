@@ -16,4 +16,8 @@ def register_blueprints(app):
     from .reservations import reservation_bp
     app.register_blueprint(reservation_bp, url_prefix='/api/reservations')
 
+    # 결제 관련 블루프린트
+    from .payment_routes import payments_bp
+    app.register_blueprint(payments_bp, url_prefix='/api/payments')
+
     return app
