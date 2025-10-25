@@ -9,5 +9,5 @@ conn = pymysql.connect(
     password=os.getenv('DATABASE_password'),
     database=os.getenv('DATABASE_name')
 )
-print("✅ 연결 성공!")
+print("연결 성공")
 conn.close()
