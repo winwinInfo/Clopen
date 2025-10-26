@@ -42,6 +42,3 @@ instance/
 .pytest_cache/
 .coverage
 htmlcov/
-
-# Migrations
-migrations/versions/*.pyc
