@@ -11,6 +11,7 @@ import '../utils/location_marker.dart';
 import '../widgets/search_bar.dart' as custom_search_bar;
 import '../widgets/bottom_sheet.dart';
 import '../widgets/filter.dart';
+import '../services/cafe_service.dart';
 import 'dart:ui' as ui;
 
 
@@ -102,19 +103,22 @@ class MapScreenState extends State<MapScreen> {
 
 
   Future<void> _loadCafesAndCreateMarkers() async {
-    try {
-      String jsonString =
-          await rootBundle.loadString('assets/json/cafe_info.json');
-      List<dynamic> jsonResponse = json.decode(jsonString);
-      _cafes = jsonResponse.map((data) => Cafe.fromJson(data)).toList();
+    try { 
+      _cafes = await CafeService.getAllCafes();
 
-      if (mounted) {
+      if(mounted) {
         setState(() {
           _isLoading = false;
         });
       }
     } catch (e) {
-      print('Error loading cafe data: $e');
+      print('Error loading cafes: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

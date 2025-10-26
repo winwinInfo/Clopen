@@ -7,12 +7,22 @@ load_dotenv()
 
 class Config:
     # Basic Flask Configuration
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key') # JWT 서명용 (차준직이 로그인 할 때 사용함)
-
-    DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+    SECRET_KEY  = os.getenv('SECRET_KEY', 'dev-secret-key') # JWT 서명용 (차준직이 로그인 할 때 사용함)
+    DEBUG       = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     
-    # Database Configuration
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///app.db')
+    # Database Configuration (AWS RDS 연결용)
+    DB_HOST     = os.getenv('DATABASE_URL')
+    DB_PORT     = os.getenv('DATABASE_port', '3306')
+    DB_USER     = os.getenv('DATABASE_user', 'admin')
+    DB_PASSWORD = os.getenv('DATABASE_password')
+    DB_NAME     = os.getenv('DATABASE_name', 'cagongDB')
+
+    # MySQL connection string
+    SQLALCHEMY_DATABASE_URI = (
+        f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+        f'?charset=utf8mb4'
+    )
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = DEBUG
     

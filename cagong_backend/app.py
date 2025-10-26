@@ -1,4 +1,6 @@
 from flask import Flask
+from flask_cors import CORS
+from routes.auth import auth_bp
 from routes import register_blueprints
 from models import init_db
 import os
@@ -11,7 +13,7 @@ load_dotenv()
 
 # 간단한 Flask 앱 생성
 app = Flask(__name__)
-
+# config.py 설정 로드
 app.config.from_object(Config)
 
 jwt = JWTManager(app)
@@ -21,6 +23,8 @@ register_blueprints(app)
 
 # db 초기화
 init_db(app)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
