@@ -21,8 +21,19 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
+    # JWT 기본 설정
+    JWT_TOKEN_LOCATION = ["headers"]
+    JWT_HEADER_NAME = "Authorization"
+    JWT_HEADER_TYPE = "Bearer"
+
     # Google ID 토큰 audience 검증용
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+
+    # 프론트엔드 URL (추가)
+    FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:8080')
+
+    # TOSS 결제 비밀키 (추가)
+    TOSS_SECRET_KEY = os.getenv('TOSS_SECRET_KEY')
 
     # CORS Configuration
     CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
