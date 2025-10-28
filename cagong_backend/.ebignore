@@ -1,0 +1,46 @@
+# Elastic Beanstalk 배포 시 제외할 파일들
+
+# 환경 변수 (EB 콘솔에서 설정해야 함)
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 가상환경
+venv/
+env/
+ENV/
+.venv/
+
+# Database (로컬 DB는 업로드 안함)
+*.db
+*.sqlite3
+instance/
+
+# 개발용 스크립트
+DB_CONNECTION_TEST.py
+migrate_cafes_only.py
+migrate_data.py
+sqlite_to_mysql_migration.py
+check_mysql_data.py
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Git
+.git/
+.gitignore

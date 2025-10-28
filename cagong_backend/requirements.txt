@@ -1,7 +1,23 @@
+# 웹 프레임워크
 Flask==3.1.1
-Flask-CORS==4.0.0
+flask-cors==4.0.0
+
+# 데이터베이스
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.1.0
+pymysql==1.1.0
+cryptography==41.0.7
+
+# 인증/보안
+Flask-JWT-Extended==4.6.0
 google-auth==2.23.4
 PyJWT==2.8.0
+
+# 환경변수
 python-dotenv==1.0.0
+
+# HTTP 요청 (payment_service.py, auth_service.py에서 사용)
+requests==2.31.0
+
+# 프로덕션 서버
+gunicorn==21.2.0

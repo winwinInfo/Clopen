@@ -1,6 +1,7 @@
 def register_blueprints(app):
     """블루프린트들을 앱에 등록"""
 
+    #루트 경로 추가 필요
 
     from .health import health_bp
     app.register_blueprint(health_bp, url_prefix='/api')
