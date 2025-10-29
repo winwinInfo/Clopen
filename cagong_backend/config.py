@@ -2,8 +2,11 @@
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
+from pathlib import Path
 
+# 로컬 환경 변수 로드
 load_dotenv()
+
 
 class Config:
     # Basic Flask Configuration
