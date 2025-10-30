@@ -38,12 +38,11 @@ def payment_success_route():
         payment_key = request.args.get('paymentKey')
         order_id = request.args.get('orderId')
         amount = request.args.get('amount')
-        payment_type = request.args.get('paymentType')
 
         if not all([payment_key, order_id, amount]):
             raise Exception("필수 결제 정보가 누락되었습니다.")
 
-        payment_service.confirm_payment(payment_key, order_id, amount, payment_type)
+        payment_service.confirm_payment(payment_key, order_id, amount)
 
         success_page_url = f"{current_app.config['FRONTEND_URL']}/payment/success?orderId={order_id}"
         return redirect(success_page_url)

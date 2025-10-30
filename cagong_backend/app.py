@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
 from config import Config
+from exceptions.handlers import register_handlers
 
 # .env 파일 로드
 load_dotenv()
@@ -18,6 +19,7 @@ app.config.from_object(Config)
 
 jwt = JWTManager(app)
 
+register_handlers(app)
 # 블루프린트 등록 (routes/__init__.py에서 관리)
 register_blueprints(app)
 
