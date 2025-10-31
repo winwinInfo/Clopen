@@ -1,6 +1,6 @@
 # routes/cafes.py
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from services import cafe_service
 
 
@@ -9,7 +9,16 @@ cafe_bp = Blueprint('cafes', __name__)
 
 @cafe_bp.route('/')
 def get_cafe_list():
-    """모든 카페 목록 조회 (전체 정보)"""
+    """모든 카페 목록 조회
+    ---
+    tags:
+      - Cafes
+    responses:
+      200:
+        description: 카페 목록 조회 성공
+      500:
+        description: 서버 오류
+    """
     try:
         cafes = cafe_service.get_all_cafes()
 
@@ -32,49 +41,50 @@ def get_cafe_list():
 
 @cafe_bp.route('/<int:cafe_id>')
 def get_cafe_by_id(cafe_id):
-    """ID로 특정 카페 조회 (전체 정보)"""
+    """ID로 특정 카페 조회
+    ---
+    tags:
+      - Cafes
+    parameters:
+      - name: cafe_id
+        in: path
+        type: integer
+        required: true
+        description: "카페 ID"
+      - name: fields
+        in: query
+        type: string
+        required: false
+        description: "특정 필드만 반환 (예: id,name)"
+    responses:
+      200:
+        description: "카페 조회 성공"
+      404:
+        description: "카페를 찾을 수 없음"
+      500:
+        description: "서버 오류"
+    """
     try:
         cafe = cafe_service.get_cafe_by_id(cafe_id)
 
         if cafe:
+            cafe_data = cafe.to_dict()
+
+            # fields 쿼리 파라미터가 있으면 해당 필드만 반환
+            fields = request.args.get('fields')
+            if fields:
+                requested_fields = [f.strip() for f in fields.split(',')]
+                cafe_data = {k: v for k, v in cafe_data.items() if k in requested_fields}
+
             return jsonify({
                 "success": True,
-                "data": cafe.to_dict()
+                "data": cafe_data
             })
         else:
             return jsonify({
                 "success": False,
                 "error": f"ID {cafe_id} 카페를 찾을 수 없습니다."
             }), 404
-
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": f"서버 오류 발생: {str(e)}"
-        }), 500
-
-
-@cafe_bp.route('/<int:cafe_id>/name')
-def get_name_by_id(cafe_id):
-    """ID로 카페 이름 조회"""
-    try:
-        cafe = cafe_service.get_cafe_by_id(cafe_id)
-
-
-        if cafe:
-            return jsonify({
-                "success": True,
-                "data": {
-                    "id": cafe.id,
-                    "name": cafe.name
-                }
-            })
-        else:
-            return jsonify({
-                "success": False,
-                "error": f"ID {cafe_id} 카페를 찾을 수 없습니다."
-            }), 404
-
 
     except Exception as e:
         return jsonify({

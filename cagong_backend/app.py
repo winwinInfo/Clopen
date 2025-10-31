@@ -3,6 +3,7 @@ from flask_cors import CORS
 from routes.auth import auth_bp
 from routes import register_blueprints
 from models import init_db
+from swagger import init_swagger
 import os
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
@@ -20,6 +21,9 @@ app.config.from_object(Config)
 jwt = JWTManager(app)
 
 register_handlers(app)
+# Swagger 초기화
+init_swagger(app)
+
 # 블루프린트 등록 (routes/__init__.py에서 관리)
 register_blueprints(app)
 
