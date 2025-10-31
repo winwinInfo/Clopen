@@ -4,6 +4,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 import jwt
 import datetime
+from exceptions.custom_exceptions import AuthTokenException
 
 def verify_google_token(id_token_str):
     try:
@@ -20,8 +21,9 @@ def verify_google_token(id_token_str):
 def handle_google_login(id_token_str):
     # 1. 토큰 검증
     idinfo = verify_google_token(id_token_str)
+
     if not idinfo:
-        raise Exception("유효하지 않은 Google ID Token입니다.")
+        raise AuthTokenException("유효하지 않은 Google ID Token입니다.")
 
     # 2. 유저 정보 추출
     google_id = idinfo['sub']

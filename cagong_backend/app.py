@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
 from config import Config
+from exceptions.handlers import register_handlers
 
 # .env 파일 로드
 load_dotenv()
@@ -19,6 +20,7 @@ app.config.from_object(Config)
 
 jwt = JWTManager(app)
 
+register_handlers(app)
 # Swagger 초기화
 init_swagger(app)
 
