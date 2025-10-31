@@ -32,3 +32,5 @@ class AuthTokenException(BaseAppException):
             error_code=ErrorCode.AUTHENTICATION_ERROR,
             message=message
         )
+
+## 여기에 예외 나올때마다 추가 
