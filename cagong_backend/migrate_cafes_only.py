@@ -72,19 +72,19 @@ try:
                 success_count += 1
                 print(f"✓ {success_count}/{len(rows)} 카페 삽입 완료 (ID: {row[0]}, {row[1]})", end='\r')
             except Exception as e:
-                print(f"\n❌ 오류: {e}")
+                print(f"\n 오류: {e}")
                 print(f"   카페 ID: {row[0]}, 이름: {row[1]}")
 
         print(f"\n\n완료: {success_count}개 카페 마이그레이션 성공!")
 
         # 커밋
         mysql_conn.commit()
-        print("\n✅ 데이터베이스 커밋 완료!")
+        print("\n 데이터베이스 커밋 완료!")
 
         # 확인
         mysql_cursor.execute("SELECT COUNT(*) FROM cafes")
         count = mysql_cursor.fetchone()[0]
-        print(f"\n📊 MySQL cafes 테이블: 총 {count}개")
+        print(f"\n MySQL cafes 테이블: 총 {count}개")
 
         # 샘플 데이터 확인
         mysql_cursor.execute("SELECT id, name, address FROM cafes LIMIT 5")
@@ -94,7 +94,7 @@ try:
             print(f"  - ID {sample[0]}: {sample[1]}")
 
 except Exception as e:
-    print(f"\n❌ 마이그레이션 중 오류 발생: {e}")
+    print(f"\n 마이그레이션 중 오류 발생: {e}")
     mysql_conn.rollback()
     import traceback
     traceback.print_exc()
