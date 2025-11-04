@@ -73,3 +73,10 @@ test_driver/
 
 # DS_store 무시
 .DS_Store
+
+
+# Android build artifacts
+/android/build/
+/android/app/build/
+/android/.gradle/
+/android/app/.cxx/

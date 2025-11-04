@@ -5,29 +5,64 @@ import '../models/cafe.dart';
 import '../utils/custom_marker_generator.dart';
 
 class ClusterMarkerService {
-  // 싱글톤 패턴 구현
-  static final ClusterMarkerService _instance = ClusterMarkerService._internal();
-  factory ClusterMarkerService() => _instance;
-  ClusterMarkerService._internal();
-
-  // 클러스터 마커 업데이트 콜백
-  Function(Set<Marker>)? onMarkersUpdate;
+  final BuildContext context;
 
   // 최대 줌 레벨
   static const double maxZoomForClustering = 16.0;
 
+  // 클러스터와 카페 탭 이벤트를 위한 콜백
+  Function(List<Cafe>)? onClusterTap;
+  Function(Cafe)? onCafeTap;
+
+  // 일반 클래스 생성자 (BuildContext 받음)
+  ClusterMarkerService(this.context);
+
+  // MediaQuery 기반 반응형 마커 크기 계산
+  Map<String, double> _calculateResponsiveMarkerSize(double currentZoom) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dpi = MediaQuery.of(context).devicePixelRatio;
+
+    double baseMarkerSize = screenWidth * 0.4;
+
+    // 줌 레벨에 따른 스케일 조정
+    double zoomFactor = 1.0;
+    if (currentZoom >= 16) {
+      zoomFactor = 1.2;
+    } else if (currentZoom >= 14) {
+      zoomFactor = 1.0;
+    } else {
+      zoomFactor = 0.8;
+    }
+
+    double markerSize = (baseMarkerSize * zoomFactor).clamp(75.0, 200.0);
+    double fontSize = (markerSize * 0.3).clamp(24.0, 32.0);
+    double maxTextWidth = screenWidth * 0.6;
+
+    return {
+      'markerSize': markerSize,
+      'fontSize': fontSize,
+      'maxTextWidth': maxTextWidth,
+    };
+  }
+
   // 마커 생성
   Future<Set<Marker>> createMarkersWithClustering(List<Cafe> cafes, double currentZoom) async {
     Set<Marker> markers = {};
+
+    // 반응형 크기 계산
+    final sizes = _calculateResponsiveMarkerSize(currentZoom);
+    final markerSize = sizes['markerSize']!;
+    final fontSize = sizes['fontSize']!;
+    final maxTextWidth = sizes['maxTextWidth']!;
 
     if (currentZoom >= maxZoomForClustering) {
       // 최대 줌에서는 모든 카페 마커 표시
       for (Cafe cafe in cafes) {
         final markerIcon = await CustomMarkerGenerator.createCustomMarker(
           cafe,
-          markerSize: 36,
-          fontSize: 14,
-          maxTextWidth: 400,
+          markerSize: markerSize,
+          fontSize: fontSize,
+          maxTextWidth: maxTextWidth,
         );
 
         markers.add(Marker(
@@ -64,9 +99,9 @@ class ClusterMarkerService {
           final cafe = cluster.cafes.first;
           final markerIcon = await CustomMarkerGenerator.createCustomMarker(
             cafe,
-            markerSize: 36,
-            fontSize: 14,
-            maxTextWidth: 400,
+            markerSize: markerSize,
+            fontSize: fontSize,
+            maxTextWidth: maxTextWidth,
           );
 
           markers.add(Marker(
@@ -137,12 +172,15 @@ class ClusterMarkerService {
     return (dLat * dLat + dLon * dLon).abs();
   }
 
-  // 클러스터 마커 아이콘 생성
+  // 클러스터 마커 아이콘 생성 (반응형)
   Future<BitmapDescriptor> _getClusterMarker(int clusterSize) async {
-    final dpr = WidgetsBinding.instance.window.devicePixelRatio;
-    final baseSize = 60 + (clusterSize * 0.3).clamp(0, 40);
-    final adjustedSize = baseSize / dpr;
-    final adjustedFontSize = (18 + (clusterSize * 0.1).clamp(0, 14)) / dpr;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dpi = MediaQuery.of(context).devicePixelRatio;
+
+    // 화면 크기 기반 계산
+    final baseSize = (screenWidth * 1.5 + (clusterSize * 0.3).clamp(0, 40)).clamp(75.0, 9600.0);
+    final adjustedSize = baseSize / dpi;
+    final adjustedFontSize = ((baseSize * 0.3) + (clusterSize * 0.1).clamp(0, 24)) / dpi;
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
@@ -188,11 +226,11 @@ class ClusterMarkerService {
 
     return BitmapDescriptor.fromBytes(data!.buffer.asUint8List());
   }
-
-  // 클러스터와 카페 탭 이벤트를 위한 콜백
-  Function(List<Cafe>)? onClusterTap;
-  Function(Cafe)? onCafeTap;
 }
+
+
+
+
 
 // 클러스터링된 카페 데이터 모델
 class ClusteredCafe {

@@ -8,8 +8,8 @@ class CafeBottomSheet extends StatelessWidget {
 
   const CafeBottomSheet({super.key, required this.cafe});
 
-  String _getUsageTimeText(double hours) {
-    if (hours == -1) return '무제한';
+  String _getUsageTimeText(int? hours) {
+    if (hours == null || hours == -1) return '무제한';
     if (hours == 0) return '권장X';
     return '$hours 시간';
   }
@@ -47,7 +47,7 @@ class CafeBottomSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  cafe.message,
+                  cafe.message ?? '정보 없음',
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 8),
@@ -89,21 +89,16 @@ class CafeBottomSheet extends StatelessWidget {
 
   String _getOpenStatus() {
     final now = DateTime.now();
-    final dayOfWeek = DateFormat('E').format(now);
     final currentTime = DateFormat('HH:mm').format(now);
 
-    String todayHours =
-        cafe.dailyHours[_koreanDayOfWeek(dayOfWeek)] ?? 'Not available';
+    final todayHours = cafe.operatingHours.getTodayHours();
 
-    if (todayHours == 'Not available' || todayHours == '-1') {
+    if (todayHours == null || todayHours.begin == null || todayHours.end == null) {
       return '휴무일';
     }
 
-    List<String> hours = todayHours.split('~');
-    if (hours.length != 2) return '정보 없음';
-
-    String openTime = hours[0].trim();
-    String closeTime = hours[1].trim();
+    String openTime = todayHours.begin!;
+    String closeTime = todayHours.end!;
 
     if (_isTimeBetween(currentTime, openTime, closeTime)) {
       return '영업중';
@@ -144,47 +139,6 @@ class CafeBottomSheet extends StatelessWidget {
     );
   }
 
-  bool _isCurrentlyOpen() {
-    final now = DateTime.now();
-    final dayOfWeek = DateFormat('E').format(now);
-    final currentTime = DateFormat('HH:mm').format(now);
-
-    String todayHours =
-        cafe.dailyHours[_koreanDayOfWeek(dayOfWeek)] ?? 'Not available';
-
-    if (todayHours == 'Not available' || todayHours.toLowerCase() == 'closed') {
-      return false;
-    }
-
-    List<String> hours = todayHours.split('-');
-    if (hours.length != 2) return false;
-
-    String openTime = hours[0].trim();
-    String closeTime = hours[1].trim();
-
-    return _isTimeBetween(currentTime, openTime, closeTime);
-  }
-
-  String _koreanDayOfWeek(String englishDay) {
-    switch (englishDay) {
-      case 'Mon':
-        return '월';
-      case 'Tue':
-        return '화';
-      case 'Wed':
-        return '수';
-      case 'Thu':
-        return '목';
-      case 'Fri':
-        return '금';
-      case 'Sat':
-        return '토';
-      case 'Sun':
-        return '일';
-      default:
-        return '';
-    }
-  }
 
   bool _isTimeBetween(String current, String open, String close) {
     int currentMinutes = _timeToMinutes(current);
@@ -201,11 +155,5 @@ class CafeBottomSheet extends StatelessWidget {
   int _timeToMinutes(String time) {
     List<String> parts = time.split(':');
     return int.parse(parts[0]) * 60 + int.parse(parts[1]);
-  }
-
-  String _formatBusinessHours() {
-    return cafe.dailyHours.entries
-        .map((entry) => '${entry.key}: ${entry.value}')
-        .join('\n');
   }
 }

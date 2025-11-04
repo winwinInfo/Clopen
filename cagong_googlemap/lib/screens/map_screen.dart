@@ -37,8 +37,9 @@ class MapScreenState extends State<MapScreen> {
 
   //현위치 마커 서비스 인스턴스
   final LocationMarkerService _locationService = LocationMarkerService();
-  // 클러스터 마커 서비스 인스턴스
-  final ClusterMarkerService _clusterService = ClusterMarkerService();
+  // 클러스터 마커 서비스 인스턴스 (late로 선언, build 후 초기화)
+  late ClusterMarkerService _clusterService;
+  bool _clusterServiceInitialized = false;
 
 
   @override
@@ -47,10 +48,19 @@ class MapScreenState extends State<MapScreen> {
 
     // 위치 서비스 초기화 및 콜백 등록
     _initLocationService();
-    // 클러스터 마커 초기화
-    _initClusterService();
     // 카페 마커 load
     _loadCafesAndCreateMarkers();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // BuildContext 사용 가능한 시점에 ClusterMarkerService 초기화 (한 번만)
+    if (!_clusterServiceInitialized) {
+      _clusterService = ClusterMarkerService(context);
+      _initClusterService();
+      _clusterServiceInitialized = true;
+    }
   }
 
   // 클러스터 서비스 초기화
