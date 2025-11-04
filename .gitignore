@@ -158,3 +158,4 @@ gen/
 # Coverage reports
 coverage/
 .nyc_output/
+cagong_googlemap/android/app/.cxx/Debug/5u3h3o5z/armeabi-v7a/configure_fingerprint.bin
