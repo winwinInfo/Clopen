@@ -13,7 +13,110 @@ payments_bp = Blueprint('payments', __name__, url_prefix='/api/payments')
 @payments_bp.route('/create-order', methods=['POST'])
 @jwt_required()
 def create_order_route():
-
+    """새로운 결제 주문 생성
+    ---
+    tags:
+      - Payments
+    security:
+      - bearerAuth: []  # JWT 토큰 인증 필요
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            item_name:
+              type: string
+              description: "상품 이름"
+              example: "A카페 15:00 - 17:00"
+            amount:
+              type: integer
+              description: "결제할 금액"
+              example: 10000
+    responses:
+      201:
+        description: "주문 생성 성공"
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              description: "응답 상태 (ApiStatus enum)"
+              example: "SUCCESS"
+            message:
+              type: string
+              example: "새로운 주문이 성공적으로 생성되었습니다."
+            data:
+              type: object
+              properties:
+                order_id:
+                  type: string
+                  description: "새로 생성된 주문 ID"
+                  example: "a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8"
+                item_name:
+                  type: string
+                  description: "상품 이름"
+                  example: "A카페 15:00 - 17:00"
+                amount:
+                  type: integer
+                  description: "결제할 금액"
+                  example: 10000
+      400:
+        description: "잘못된 요청 (예: 필수 필드 누락)"
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              description: "응답 상태 (ApiStatus enum)"
+              example: "FAIL"
+            message:
+              type: string
+              example: "상품 이름과 가격 정보가 필요합니다."
+            data:
+              type: 'null'
+              description: "실패 시 data는 항상 null 입니다."
+              example: null
+            errorCode:
+              type: string
+              description: "에러 코드 (ErrorCode enum)"
+              example: "BAD_REQUEST"
+      401:
+        description: "인증되지 않은 사용자"
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: "FAIL"
+            message:
+              type: string
+              example: "인증 토큰이 유효하지 않습니다."
+            data:
+              type: 'null'
+              example: null
+            errorCode:
+              type: string
+              example: "AUTHENTICATION_ERROR"
+      500:
+        description: "서버 내부 오류"
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: "FAIL"
+            message:
+              type: string
+              example: "서버 내부 오류가 발생했습니다."
+            data:
+              type: 'null'
+              example: null
+            errorCode:
+              type: string
+              example: "INTERNAL_ERROR"
+    """
     user_id = get_jwt_identity()
 
     data = request.get_json()
@@ -46,9 +149,32 @@ def create_order_route():
 # -----------------------------------------------------
 @payments_bp.route('/success', methods=['GET'])
 def payment_success_route():
-    """
-    토스페이먼츠에서 결제가 성공적으로 끝나면, 사용자는 이 경로로 리디렉션됩니다.
-    여기서 최종 결제 승인을 요청합니다.
+    """결제 성공 처리
+
+    성공하면 성공 URL로 실패하면 실패 URL로 리다이렉션
+    ---
+    tags:
+      - Payments
+    parameters:
+      - name: paymentKey
+        in: query
+        type: string
+        required: true
+        description: "토스페이먼츠에서 발급한 결제 키"
+      - name: orderId
+        in: query
+        type: string
+        required: true
+        description: "주문 ID"
+      - name: amount
+        in: query
+        type: integer
+        required: true
+        description: "결제된 금액"
+    responses:
+      302:
+        description: "결제 처리 결과에 따라 프론트엔드 페이지로 리디렉션
+        (예: /payment/success?orderId=... 또는 /payment/fail?message=...)"
     """
     order_id = request.args.get('orderId')  # orderId는 성공/실패 시 모두 필요하므로 미리 가져옴
 
@@ -105,8 +231,32 @@ def payment_success_route():
 # -----------------------------------------------------
 @payments_bp.route('/fail', methods=['GET'])
 def payment_fail_route():
-    """
-    사용자가 결제를 취소하거나 실패하면 이 경로로 리디렉션됩니다.
+    """결제 실패 처리
+
+    결제 실패하면 fail 페이지로 리다이렉션
+    ---
+    tags:
+      - Payments
+    parameters:
+      - name: code
+        in: query
+        type: string
+        required: true
+        description: "결제 실패 에러 코드"
+      - name: message
+        in: query
+        type: string
+        required: true
+        description: "결제 실패 메시지"
+      - name: orderId
+        in: query
+        type: string
+        required: true
+        description: "주문 ID"
+    responses:
+      302:
+        description: "결제 실패 처리 후 프론트엔드 실패 페이지로 리디렉션
+        (예: /payment/fail?message=...&orderId=...)"
     """
     error_code = request.args.get('code')
     error_message = request.args.get('message')
