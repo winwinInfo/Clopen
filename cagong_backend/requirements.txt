@@ -21,3 +21,6 @@ requests==2.31.0
 
 # 프로덕션 서버
 gunicorn==21.2.0
+
+# API 문서화용
+flasgger==1.3.2
