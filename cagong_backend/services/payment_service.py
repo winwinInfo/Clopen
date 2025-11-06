@@ -1,7 +1,12 @@
 import requests
 import base64
 from flask import current_app, abort
-from models import db
+from sqlalchemy.exc import SQLAlchemyError
+
+from exceptions.custom_exceptions import (InvalidInputException, UserNotFoundException, PaymentApiCallException,
+                                          OrderNotFoundException, DuplicatePaymentException, PaymentMismatchException,
+                                          DatabaseUpdateException)
+from models import db, User
 from models.order import Order
 
 
@@ -12,6 +17,14 @@ def create_new_order(user_id, item_name, amount):
     """
     새로운 주문을 생성하고 'PENDING' 상태로 DB에 저장합니다.
     """
+
+    user = User.query.get(user_id)
+    if not user:
+        raise UserNotFoundException(f"ID가 {user_id}인 사용자를 찾을 수 없습니다.")
+
+    if not isinstance(amount, int) or amount <= 0:
+        raise InvalidInputException(f"주문 금액은 0보다 큰 정수여야 합니다. (입력값: {amount})")
+
     # Order 모델을 이용해 새로운 주문 객체를 만듭니다.
     new_order = Order(
         user_id=user_id,
@@ -29,8 +42,36 @@ def create_new_order(user_id, item_name, amount):
         'orderId': new_order.order_id,
         'orderName': new_order.order_name,
         'amount': new_order.amount,
-        'customerName': new_order.user.name  # User 모델과 연결되어 있으므로 바로 접근 가능
+        'customerName': user.name
     }
+
+
+def _call_toss_api(method, url, json_data=None):
+    """Toss API 호출"""
+    try:
+        secret_key = current_app.config['TOSS_SECRET_KEY']
+        encoded_key = base64.b64encode(f"{secret_key}:".encode('utf-8')).decode('utf-8')
+        headers = {
+            "Authorization": f"Basic {encoded_key}",
+            "Content-Type": "application/json"
+        }
+
+        # POST 요청만 처리 (confirm, cancel 등)
+        response = requests.post(url, json=json_data, headers=headers, timeout=10)
+
+        # HTTP 4xx, 5xx 에러 시 예외 발생
+        response.raise_for_status()
+        return response.json()
+
+    except requests.exceptions.HTTPError as e:
+        # API가 반환한 구체적인 에러 메시지를 포함하여 예외 발생
+        error_details = e.response.json()
+        raise PaymentApiCallException(f"Toss API Error: {error_details.get('message', e.response.text)}")
+
+    except requests.exceptions.RequestException as e:
+        # 네트워크 타임아웃 등
+        current_app.logger.error(f"Toss API 통신 실패: {e}")
+        raise PaymentApiCallException(f"API 통신 중 오류가 발생했습니다: {e}")
 
 
 # -----------------------------------------------------
@@ -38,34 +79,34 @@ def create_new_order(user_id, item_name, amount):
 # -----------------------------------------------------
 def confirm_payment(payment_key, order_id, amount):
     """
-    DB 검증 후, 토스페이먼츠에 최종 결제 승인을 요청합니다.
+    1. DB 검증 로직
     """
-    # 1. 내부 DB 검증 (우리 장부 먼저 확인)
-    order = Order.query.filter_by(order_id=order_id).first()
-    if not order:
-        raise Exception("존재하지 않는 주문입니다.")
+    try:
+        # with_for_update(): 이 레코드에 락(lock)을 걸어 동시 접근을 막습니다.
+        order = Order.query.filter_by(order_id=order_id).with_for_update().first()
 
-    # 이미 처리된 주문인지 확인
-    if order.status == 'PAID':
-        print(f"이미 처리된 주문입니다: {order_id}")
-        return {"message": "이미 처리된 주문입니다."}
+        if not order:
+            raise OrderNotFoundException(f"주문 ID {order_id}를 찾을 수 없습니다.")
 
-    # 금액 일치 확인 (가격 위변조 방지)
-    if order.amount != int(amount):
-        raise Exception("주문 금액이 일치하지 않습니다.")
+        # 멱등성(Idempotency) 처리
+        if order.status == 'PAID':
+            current_app.logger.info(f"이미 처리된 주문입니다: {order_id}")
+            # 에러가 아니라, "이미 처리됨"을 알리는 별도 예외
+            raise DuplicatePaymentException("이미 처리된 주문입니다.")
 
-    # 2. 토스페이먼츠 API 호출 (카드사에 직접 확인)
+            # 서버 측 금액 검증 (위변조 방지)
+        if order.amount != int(amount):
+            # 금액 불일치는 '실패'로 기록
+            _mark_order_as_failed(order, "AMOUNT_MISMATCH", "주문 금액 불일치")
+            raise PaymentMismatchException("주문 금액이 일치하지 않습니다.")
+
+    except SQLAlchemyError as e:
+        db.session.rollback()  # <--- [중요] DB 세션 원상 복구
+        current_app.logger.error(f"결제 승인: DB에서 주문 조회 중 오류: {e}")
+        raise DatabaseUpdateException("주문 조회 중 DB 오류가 발생했습니다.")
+
+    # --- 2. 토스페이먼츠 API 호출 (외부 통신) ---
     url = "https://api.tosspayments.com/v1/payments/confirm"
-
-    # 시크릿 키를 base64로 인코딩 (토스 API 인증 방식)
-    secret_key = current_app.config['TOSS_SECRET_KEY']
-    encoded_key = base64.b64encode(f"{secret_key}:".encode('utf-8')).decode('utf-8')
-
-    headers = {
-        "Authorization": f"Basic {encoded_key}",
-        "Content-Type": "application/json"
-    }
-
     params = {
         "paymentKey": payment_key,
         "orderId": order_id,
@@ -73,53 +114,71 @@ def confirm_payment(payment_key, order_id, amount):
     }
 
     try:
-        # 1. 토스에 결제 승인 요청 (외부 통신)
-        response = requests.post(url, json=params, headers=headers)
-        response.raise_for_status()  # HTTP 에러 발생 시 아래 except로 바로 이동
-        response_data = response.json()
+        # [변경] 1단계에서 만든 헬퍼 함수 사용
+        response_data = _call_toss_api('POST', url, json_data=params)
 
-        # 2. DB 저장 시도 (내부 처리)
-        try:
-            # 2-1. DB 상태 업데이트
-            order.status = 'PAID'
-            order.payment_key = response_data.get('paymentKey')
-            order.payment_type = response_data.get('method')
-            db.session.commit()
+    except PaymentApiCallException as api_error:
+        # API 호출 자체가 실패하면 (e.g., 토스가 4xx/5xx 반환)
+        # 이 주문은 결제가 안 된 것이 확실하므로 '실패'로 기록
+        _mark_order_as_failed(order, "TOSS_API_ERROR", str(api_error))
+        current_app.logger.error(f"Toss 결제 승인 API 실패 (order_id: {order_id}): {api_error}")
+        raise  # PaymentApiCallException을 그대로 라우트 레이어로 전달
 
-            current_app.logger.info(f"결제 최종 승인 및 DB 저장 성공: {order_id}")
-            return response_data
+    # --- 3. DB 상태 업데이트 (내부 트랜잭션) ---
 
-        except Exception as db_error:
-            # 2-2. DB 저장 실패 시 -> 결제 자동 취소 로직 실행
-            current_app.logger.error(f"DB 저장 실패! 결제를 자동 취소합니다. (오류: {db_error})")
-            # 방금 성공한 결제를 즉시 취소(환불) 처리
-            cancel_payment(payment_key, "서버 DB 저장 오류로 인한 자동 취소")
-            # 프론트엔드에 에러 전달
-            raise Exception("결제는 성공했으나 서버 처리 중 오류가 발생하여 자동으로 취소되었습니다.")
+    try:
+        order.status = 'PAID'
+        order.payment_key = response_data.get('paymentKey')
+        order.payment_type = response_data.get('method')
 
-    except requests.exceptions.HTTPError as e:
-        # 1-1. 토스 API 통신 자체가 실패한 경우
-        current_app.logger.error(f"결제 승인 실패 (토스 API 에러): {e.response.json()}")
-        raise Exception(e.response.json().get("message", "결제 승인에 실패했습니다."))
+        db.session.commit()  # <--- DB 저장 시도
 
+        current_app.logger.info(f"결제 최종 승인 및 DB 저장 성공: {order_id}")
+        return response_data  # <--- 유일한 성공 종료 지점
+
+    except SQLAlchemyError as db_error:
+        # ㅈㄴ 큰 문제 -> 수동으로 PAID 처리를 해주든 아니면 환불을 해주든 해야됨
+        db.session.rollback()
+
+        current_app.logger.critical(
+            "!!!!!!!!!! [심각] 결제 성공 후 DB 저장 실패 !!!!!!!!!!\n"
+            f"주문 ID: {order_id}, Payment Key: {payment_key}\n"
+            f"오류: {db_error}\n"
+            "!!!!!!!!!! 즉시 [수동 환불] 및 원인 파악 필요 !!!!!!!!!!"
+        )
+
+        #"데이터베이스 업데이트 실패" 예외를 발생시킴
+        raise DatabaseUpdateException(
+            "결제는 성공했으나, 서버 내부 오류로 주문 처리에 실패했습니다. 즉시 관리자에게 문의하세요."
+        )
 
 # -----------------------------------------------------
 # 3. 결제 실패 처리 서비스 로직
 # -----------------------------------------------------
 def handle_payment_failure(order_id, error_code, error_message):
     """
-    결제 실패 시 원인을 기록(logging)합니다.
+     결제 실패 시 원인을 기록하고 DB 상태를 FAILED로 변경합니다.
     """
-    # 간단한 예시로 print를 사용하지만, 실제로는 logging 라이브러리를 사용하는 것이 좋습니다.
-    print(f"[결제 실패] 주문번호: {order_id}, 오류코드: {error_code}, 메시지: {error_message}")
+    current_app.logger.warn(f"[결제 실패] 주문번호: {order_id}, 오류코드: {error_code}, 메시지: {error_message}")
 
-    order = Order.query.filter_by(order_id=order_id).first()
-    if order and order.status != 'PAID':
-        order.status = 'FAILED'
-        db.session.commit()
-        current_app.logger.info(f"주문 {order_id}의 상태를 'FAILED'로 변경했습니다.")
+    try:
+        order = Order.query.filter_by(order_id=order_id).first()
 
-    return {"status": "failure_handled"}
+        if order and order.status != 'PAID':  # 이미 성공한 결제를 덮어쓰지 않도록
+            order.status = 'FAILED'
+            # (필요시) order.fail_reason = f"{error_code}: {error_message}"
+            db.session.commit()
+            current_app.logger.info(f"주문 {order_id}의 상태를 'FAILED'로 변경했습니다.")
+
+        return {"status": "failure_handled"}
+
+    except SQLAlchemyError as e:
+        # [추가] DB 커밋 실패 시 롤백
+        db.session.rollback()
+        current_app.logger.error(f"결제 실패 상태 DB 업데이트 중 오류: {e}")
+
+        # [중요] 이 함수는 실패해도 예외를 raise하지 않습니다.
+        return {"status": "failure_logging_failed"}
 
 
 def cancel_payment(payment_key, cancel_reason="서버 내부 오류로 인한 자동 취소"):
@@ -144,3 +203,16 @@ def cancel_payment(payment_key, cancel_reason="서버 내부 오류로 인한 �
         current_app.logger.error(f"결제 자동 취소 실패: {e.response.json()}")
         # 취소마저 실패하면 심각한 상태이므로, 별도 모니터링/알림 필요
         raise Exception("결제 자동 취소에 실패했습니다. 즉시 확인이 필요합니다.")
+
+
+def _mark_order_as_failed(order, error_code, error_message):
+    """[신규] 결제 실패 시 DB 상태를 FAILED로 기록하는 내부 헬퍼"""
+    try:
+        if order and order.status != 'PAID': # 이미 성공한 건 덮어쓰기 방지
+            order.status = 'FAILED'
+            # (필요시) order.fail_reason = f"{error_code}: {error_message}"
+            db.session.commit()
+    except SQLAlchemyError as e:
+        # 실패를 기록하는 것마저 실패하면, 롤백하고 로그만 남깁니다.
+        db.session.rollback()
+        current_app.logger.error(f"결제 실패 상태 DB 업데이트 중 오류: {e}")

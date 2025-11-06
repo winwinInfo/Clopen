@@ -14,6 +14,12 @@ class ErrorCode(Enum):
     USER_NOT_FOUND = "USER_NOT_FOUND"
     INVALID_INPUT = "INVALID_INPUT"
 
+    ORDER_NOT_FOUND = "ORDER_NOT_FOUND"
+    PAYMENT_MISMATCH = "PAYMENT_MISMATCH"
+    DUPLICATE_PAYMENT = "DUPLICATE_PAYMENT"
+    PAYMENT_API_ERROR = "PAYMENT_API_ERROR"
+    DATABASE_ERROR = "DATABASE_ERROR"  # DB 저장 실패 시
+
 class ApiResponse:
     def __init__(self, status: ApiStatus, message: str, data=None, error_code: ErrorCode = None):
         self.status = status
