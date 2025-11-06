@@ -5,10 +5,17 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/cafe.dart';
 
-// 웹 로직은 걷어냄
+
+
+//카페 마커 생성 클래스 
+//마커를 생성하기만 할 뿐, 화면에 그리는 것은 google map 패키지 사용해야함
+
+
 
 class CustomMarkerGenerator {
+
   static final Map<String, BitmapDescriptor> _markerCache = {};
+
 
   static Future<BitmapDescriptor> createCustomMarker(
     Cafe cafe, {
