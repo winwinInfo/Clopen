@@ -72,4 +72,12 @@ coverage/
 test_driver/
 
 # DS_store 무시
-.DS_Store
+*.DS_Store
+
+
+# Android build artifacts
+/android/build/
+/android/app/build/
+/android/.gradle/
+
+*.bin

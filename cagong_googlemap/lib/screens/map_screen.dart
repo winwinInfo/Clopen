@@ -5,14 +5,11 @@ import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import '../models/cafe.dart';
 import '../services/cafe_service.dart';
-import '../utils/custom_marker_generator.dart';
-import '../utils/cluster_marker.dart';
+import '../utils/cluster_manager_service.dart';
 import '../utils/location_marker.dart';
 import '../widgets/search_bar.dart' as custom_search_bar;
 import '../widgets/bottom_sheet.dart';
 import '../widgets/filter.dart';
-import '../services/cafe_service.dart';
-import 'dart:ui' as ui;
 
 
 class MapScreen extends StatefulWidget {
@@ -37,8 +34,10 @@ class MapScreenState extends State<MapScreen> {
 
   //현위치 마커 서비스 인스턴스
   final LocationMarkerService _locationService = LocationMarkerService();
-  // 클러스터 마커 서비스 인스턴스
-  final ClusterMarkerService _clusterService = ClusterMarkerService();
+
+  // 클러스터 마커 서비스 인스턴스 (late로 선언, build 후 초기화)
+  late ClusterManagerService _clusterService;
+  bool _clusterServiceInitialized = false;
 
 
   @override
@@ -47,24 +46,41 @@ class MapScreenState extends State<MapScreen> {
 
     // 위치 서비스 초기화 및 콜백 등록
     _initLocationService();
-    // 클러스터 마커 초기화
-    _initClusterService();
     // 카페 마커 load
+    // 클러스터링 하기 전에 일단 db에서 카페 데이터부터 로드해두고 시작.
+    // 데이터는 _cafes에 저장 
     _loadCafesAndCreateMarkers();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // BuildContext 사용 가능한 시점에 ClusterManagerService 초기화 (한 번만)
+    if (!_clusterServiceInitialized) {
+      _clusterService = ClusterManagerService(context);
+      // 클러스터 초기화는 _loadCafesAndCreateMarkers에서 카페 데이터 로드 후 수행
+      _clusterServiceInitialized = true;
+    }
+  }
+
   // 클러스터 서비스 초기화
-  void _initClusterService() {
-    // 클러스터 탭 이벤트 처리
+  Future<void> _initClusterService() async {
+    // 카페 탭 이벤트
+    _clusterService.onCafeTap = (cafe) {
+      _handleCafeSelected(cafe);
+    };
+
+    // 클러스터 탭 이벤트
     _clusterService.onClusterTap = (cafes) {
       showClusterBottomSheet(context, cafes);
     };
 
-    // 카페 탭 이벤트 처리
-    _clusterService.onCafeTap = (cafe) {
-      _handleCafeSelected(cafe);
-    };
+    // ClusterManager 초기화
+    await _clusterService.initClusterManager(_cafes, _updateMarkers);
   }
+
+
+
 
   //현위치 서비스 초기화
   Future<void> _initLocationService() async {
@@ -92,6 +108,9 @@ class MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
+
+
+
   // 현재 위치로 카메라 이동
   void _moveToCurrentLocation() async {
     final position = _locationService.getCurrentPosition();
@@ -102,9 +121,17 @@ class MapScreenState extends State<MapScreen> {
   }
 
 
+
+
+  // API 호출해서 카페 데이터 받아오는거. ( 만드는 로직은 아님 )
   Future<void> _loadCafesAndCreateMarkers() async {
-    try { 
+    try {
       _cafes = await CafeService.getAllCafes();
+
+      // 카페 데이터 로드 완료 후 클러스터 서비스 초기화
+      if (_clusterServiceInitialized) {
+        await _initClusterService();
+      }
 
       if(mounted) {
         setState(() {
@@ -122,13 +149,15 @@ class MapScreenState extends State<MapScreen> {
     }
   }
 
-  //필터 적용
-  void _applyFilters() {
-    List<Cafe> filteredCafes = _filterManager.applyFilters(_cafes);
-    _updateMarkersForCafes(filteredCafes);
-  }
 
-  double _currentZoom = 11.0;
+
+
+
+  //필터 적용
+  Future<void> _applyFilters() async {
+    List<Cafe> filteredCafes = _filterManager.applyFilters(_cafes);
+    await _clusterService.setItems(filteredCafes);
+  }
   
   void _updateMarkers(Set<Marker> markers) {
     if (!mounted) return;
@@ -145,13 +174,8 @@ class MapScreenState extends State<MapScreen> {
     });
   }
   
-  // 카페 마커들을 업데이트하는 메서드
-  Future<void> _updateMarkersForCafes(List<Cafe> cafes) async {
-    Set<Marker> markers = await _clusterService.createMarkersWithClustering(cafes, _currentZoom);
-    _updateMarkers(markers);
-  }
 
-
+  // 클러스터 바텀시트
   void showClusterBottomSheet(BuildContext context, List<Cafe> cafes) {
     // 바텀 시트 열기
     final bottomSheetController = Scaffold.of(context).showBottomSheet(
@@ -169,8 +193,8 @@ class MapScreenState extends State<MapScreen> {
                   vertical: 10,
                   horizontal: 10,
                 ),
-                itemBuilder: (context, Index) {
-                  final cafe = cafes[Index];
+                itemBuilder: (context, index) {
+                  final cafe = cafes[index];
                   return GestureDetector(
                       onTap: () => _handleCafeSelected(cafe),
                       child: Row(
@@ -185,7 +209,7 @@ class MapScreenState extends State<MapScreen> {
                         ],
                       ));
                 },
-                separatorBuilder: (context, Index) => const SizedBox(
+                separatorBuilder: (context, index) => const SizedBox(
                   width: 40,
                 ),
               ))
@@ -212,7 +236,7 @@ class MapScreenState extends State<MapScreen> {
         _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
       });
     }
-  }//showClusterBottomSheet
+  }
 
 
 //화면 구성
@@ -240,23 +264,17 @@ class MapScreenState extends State<MapScreen> {
                   ? const Center(child: CircularProgressIndicator())
                   : GoogleMap(
                   onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                  _updateMarkersForCafes(_filterManager.applyFilters(_cafes));
+                    _controller.complete(controller);
                   },
                   initialCameraPosition: const CameraPosition(
-                  target: _center,
-                  zoom: 11.0,
+                    target: _center,
+                    zoom: 11.0,
                   ),
                   myLocationEnabled: false,
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
                   markers: _markers,
-                  onCameraMove: (CameraPosition position) {
-                    _currentZoom = position.zoom;
-                    },
-                    onCameraIdle: () {
-                      _updateMarkersForCafes(_filterManager.applyFilters(_cafes));
-                    },
+                  clusterManagers: {_clusterService.clusterManager},
                   ),
             ),
             Positioned(
@@ -310,6 +328,10 @@ class MapScreenState extends State<MapScreen> {
       ),
     );
   }
+
+
+
+
 
 
 //when cafe selected
