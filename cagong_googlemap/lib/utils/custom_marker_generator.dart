@@ -30,7 +30,7 @@ class CustomMarkerGenerator {
     }
 
     // Use default marker for now (co-work info not available in current API)
-    final markerImagePath = 'assets/images/marker.png';
+    const markerImagePath = 'assets/images/marker.png';
     
     //mobile marker generation logic 
     final BitmapDescriptor marker = await _generateMobileMarker(
@@ -77,6 +77,8 @@ class CustomMarkerGenerator {
       textDirection: TextDirection.ltr,
     );
     textPainter.layout(maxWidth: maxTextWidth);
+
+    print("마커 생성 함수 호출 ! ! @ ! @ ! @  !       @           !");
 
     final double textY = markerSize;
     final double textX = (markerSize - textPainter.width) / 2;

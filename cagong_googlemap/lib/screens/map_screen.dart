@@ -47,6 +47,8 @@ class MapScreenState extends State<MapScreen> {
     // 위치 서비스 초기화 및 콜백 등록
     _initLocationService();
     // 카페 마커 load
+    // 클러스터링 하기 전에 일단 db에서 카페 데이터부터 로드해두고 시작.
+    // 데이터는 _cafes에 저장 
     _loadCafesAndCreateMarkers();
   }
 
@@ -56,7 +58,7 @@ class MapScreenState extends State<MapScreen> {
     // BuildContext 사용 가능한 시점에 ClusterManagerService 초기화 (한 번만)
     if (!_clusterServiceInitialized) {
       _clusterService = ClusterManagerService(context);
-      _initClusterService();
+      // 클러스터 초기화는 _loadCafesAndCreateMarkers에서 카페 데이터 로드 후 수행
       _clusterServiceInitialized = true;
     }
   }
@@ -119,9 +121,17 @@ class MapScreenState extends State<MapScreen> {
   }
 
 
+
+
+  // API 호출해서 카페 데이터 받아오는거. ( 만드는 로직은 아님 )
   Future<void> _loadCafesAndCreateMarkers() async {
-    try { 
+    try {
       _cafes = await CafeService.getAllCafes();
+
+      // 카페 데이터 로드 완료 후 클러스터 서비스 초기화
+      if (_clusterServiceInitialized) {
+        await _initClusterService();
+      }
 
       if(mounted) {
         setState(() {
@@ -165,7 +175,7 @@ class MapScreenState extends State<MapScreen> {
   }
   
 
-  // 클러스터 바텀시트 (추후 클러스터링 기능 추가 시 사용)
+  // 클러스터 바텀시트
   void showClusterBottomSheet(BuildContext context, List<Cafe> cafes) {
     // 바텀 시트 열기
     final bottomSheetController = Scaffold.of(context).showBottomSheet(
