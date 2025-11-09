@@ -118,6 +118,7 @@ def create_order_route():
               example: "INTERNAL_ERROR"
     """
     user_id = get_jwt_identity()
+    # user_id = 1 (태스트용으로 썼던거 ) 삭제 예정
 
     data = request.get_json()
     if not data:

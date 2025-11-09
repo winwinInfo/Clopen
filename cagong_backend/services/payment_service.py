@@ -37,7 +37,7 @@ def create_new_order(user_id, item_name, amount):
     db.session.add(new_order)
     db.session.commit()
 
-    # 컨트롤러(routes)에 결제창 띄우는 데 필요한 정보를 반환합니다.
+
     return {
         'orderId': new_order.order_id,
         'orderName': new_order.order_name,
@@ -78,11 +78,10 @@ def _call_toss_api(method, url, json_data=None):
 # 2. 결제 최종 승인 서비스 로직 (가장 중요)
 # -----------------------------------------------------
 def confirm_payment(payment_key, order_id, amount):
-    """
-    1. DB 검증 로직
-    """
+    # === 1. [트랜잭션 A]: 락(Lock) 걸고, 검증하고, 'PROCESSING'으로 선점 ===
+    # 이 트랜잭션은 0.01초 안에 끝나야 합니다.
     try:
-        # with_for_update(): 이 레코드에 락(lock)을 걸어 동시 접근을 막습니다.
+        # with_for_update(): 락(lock)을 걸어 동시 접근을 막습니다.
         order = Order.query.filter_by(order_id=order_id).with_for_update().first()
 
         if not order:
@@ -91,22 +90,38 @@ def confirm_payment(payment_key, order_id, amount):
         # 멱등성(Idempotency) 처리
         if order.status == 'PAID':
             current_app.logger.info(f"이미 처리된 주문입니다: {order_id}")
-            # 에러가 아니라, "이미 처리됨"을 알리는 별도 예외
             raise DuplicatePaymentException("이미 처리된 주문입니다.")
 
-            # 서버 측 금액 검증 (위변조 방지)
+        # [신규] 이미 PROCESSING 상태인 경우 (다른 요청이 처리 중)
+        if order.status == 'PROCESSING':
+            current_app.logger.warn(f"이미 처리 중인 주문입니다 (동시 접근): {order_id}")
+            raise DuplicatePaymentException("이미 처리 중인 주문입니다.")
+
+        # 서버 측 금액 검증 (위변조 방지)
         if order.amount != int(amount):
-            # 금액 불일치는 '실패'로 기록
-            _mark_order_as_failed(order, "AMOUNT_MISMATCH", "주문 금액 불일치")
             raise PaymentMismatchException("주문 금액이 일치하지 않습니다.")
 
-    except SQLAlchemyError as e:
-        db.session.rollback()  # <--- [중요] DB 세션 원상 복구
-        current_app.logger.error(f"결제 승인: DB에서 주문 조회 중 오류: {e}")
-        raise DatabaseUpdateException("주문 조회 중 DB 오류가 발생했습니다.")
 
-    # --- 2. 토스페이먼츠 API 호출 (외부 통신) ---
+        # 상태를 'PAID'가 아닌 'PROCESSING'으로 변경합니다.
+        order.status = 'PROCESSING'
+        # 즉시 커밋하여 락을 해제합니다.
+        db.session.commit()
+        # --- [트랜잭션 A 종료] ---
+
+    except SQLAlchemyError as e:
+        db.session.rollback()  # DB 세션 원상 복구
+        current_app.logger.error(f"결제 승인 중 DB 오류: {e}")
+        raise DatabaseUpdateException("주문 처리 중 DB 오류가 발생했습니다.")
+    except (OrderNotFoundException, DuplicatePaymentException, PaymentMismatchException) as e:
+        # 검증 실패는 롤백이 필요 없거나(조회) 이미 됐으므로(SQLAlchemyError) 바로 re-raise
+        db.session.rollback()  # 혹시 모를 세션 롤백
+        raise e
+
+    # === 2. [외부 API 호출]: 락이 없는(No-Lock) 상태에서 실행 ===
+    # 이 작업이 1.5초(Mock)가 걸려도 DB 커넥션 풀과 무관합니다.
+
     url = "https://api.tosspayments.com/v1/payments/confirm"
+    # url = "http://127.0.0.1:5001/v1/payments/confirm"  # Mock API
     params = {
         "paymentKey": payment_key,
         "orderId": order_id,
@@ -114,44 +129,62 @@ def confirm_payment(payment_key, order_id, amount):
     }
 
     try:
-        # [변경] 1단계에서 만든 헬퍼 함수 사용
         response_data = _call_toss_api('POST', url, json_data=params)
 
     except PaymentApiCallException as api_error:
-        # API 호출 자체가 실패하면 (e.g., 토스가 4xx/5xx 반환)
-        # 이 주문은 결제가 안 된 것이 확실하므로 '실패'로 기록
-        _mark_order_as_failed(order, "TOSS_API_ERROR", str(api_error))
+        # API 호출 자체가 실패! (e.g., 토스가 4xx/5xx 반환)
         current_app.logger.error(f"Toss 결제 승인 API 실패 (order_id: {order_id}): {api_error}")
-        raise  # PaymentApiCallException을 그대로 라우트 레이어로 전달
 
-    # --- 3. DB 상태 업데이트 (내부 트랜잭션) ---
+        # --- ★★★ 핵심 변경점 2 ★★★ ---
+        # [트랜잭션 C]: API 호출 실패 시, 'FAILED'로 상태 확정
+        try:
+            # 'order' 객체는 T-A 세션이므로, 새 세션에서 객체를 다시 조회
+            order_to_fail = Order.query.get(order.id)
+            if order_to_fail and order_to_fail.status == 'PROCESSING':
+                order_to_fail.status = 'FAILED'
+                db.session.commit()
+        except SQLAlchemyError as db_fail_error:
+            db.session.rollback()
+            current_app.logger.critical(
+                f"!!!!!!!!!! [심각] API 실패 후 'FAILED' 상태 변경조차 실패 !!!!!!!!!!\n"
+                f"주문 ID: {order_id}, 오류: {db_fail_error}"
+            )
 
+        # API 오류를 라우트(컨트롤러)로 다시 전달
+        raise api_error
+
+    # === 3. [트랜잭션 B]: API 성공 시, 'PAID'로 최종 상태 확정 ===
     try:
-        order.status = 'PAID'
-        order.payment_key = response_data.get('paymentKey')
-        order.payment_type = response_data.get('method')
+        # T-A 세션과 분리하기 위해, order 객체를 id로 다시 조회하는 것이 가장 안전
+        order_to_pay = Order.query.get(order.id)
 
-        db.session.commit()  # <--- DB 저장 시도
+        if not order_to_pay or order_to_pay.status != 'PROCESSING':
+            current_app.logger.error(f"결제 승인 [T-B: 최종 확정] 실패. 주문이 PROCESSING 상태가 아님: {order_id}")
+            raise DatabaseUpdateException("주문 상태가 올바르지 않아 처리에 실패했습니다.")
+
+        order_to_pay.status = 'PAID'
+        order_to_pay.payment_key = response_data.get('paymentKey')
+        order_to_pay.payment_type = response_data.get('method')
+
+        db.session.commit()  # <--- [트랜잭션 B 종료]
 
         current_app.logger.info(f"결제 최종 승인 및 DB 저장 성공: {order_id}")
         return response_data  # <--- 유일한 성공 종료 지점
 
     except SQLAlchemyError as db_error:
-        # ㅈㄴ 큰 문제 -> 수동으로 PAID 처리를 해주든 아니면 환불을 해주든 해야됨
+        # 이 시나리오는 "결제는 성공했으나 DB 저장을 실패"한 최악의 경우입니다.
         db.session.rollback()
 
+        # (기존의 훌륭한 CRITICAL 로그)
         current_app.logger.critical(
             "!!!!!!!!!! [심각] 결제 성공 후 DB 저장 실패 !!!!!!!!!!\n"
             f"주문 ID: {order_id}, Payment Key: {payment_key}\n"
             f"오류: {db_error}\n"
             "!!!!!!!!!! 즉시 [수동 환불] 및 원인 파악 필요 !!!!!!!!!!"
         )
-
-        #"데이터베이스 업데이트 실패" 예외를 발생시킴
         raise DatabaseUpdateException(
             "결제는 성공했으나, 서버 내부 오류로 주문 처리에 실패했습니다. 즉시 관리자에게 문의하세요."
         )
-
 # -----------------------------------------------------
 # 3. 결제 실패 처리 서비스 로직
 # -----------------------------------------------------
