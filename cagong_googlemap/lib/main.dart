@@ -3,10 +3,14 @@ import 'package:provider/provider.dart';
 import 'utils/authProvider.dart' as loginProvider;
 import 'utils/app_router.dart';
 
+
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(const MyApp());
+
+  debugPrint("디버깅 확인: ");
 }
 
 class MyApp extends StatelessWidget {

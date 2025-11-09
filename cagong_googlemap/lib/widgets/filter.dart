@@ -27,21 +27,16 @@ class FilterManager {
 
   bool _isCurrentlyOpen(Cafe cafe) {
     final now = DateTime.now();
-    final dayOfWeek = DateFormat('E').format(now);
     final currentTime = DateFormat('HH:mm').format(now);
 
-    String todayHours =
-        cafe.dailyHours[_koreanDayOfWeek(dayOfWeek)] ?? 'Not available';
+    final todayHours = cafe.operatingHours.getTodayHours();
 
-    if (todayHours == 'Not available' || todayHours == '-1') {
+    if (todayHours == null || todayHours.begin == null || todayHours.end == null) {
       return false;
     }
 
-    List<String> hours = todayHours.split('~');
-    if (hours.length != 2) return false;
-
-    String openTime = hours[0].trim();
-    String closeTime = hours[1].trim();
+    String openTime = todayHours.begin!;
+    String closeTime = todayHours.end!;
 
     return _isTimeBetween(currentTime, openTime, closeTime);
   }
@@ -53,35 +48,14 @@ class FilterManager {
     final cafeRecommendedHours =
         isWeekend ? cafe.hoursWeekend : cafe.hoursWeekday;
 
-    // If cafeRecommendedHours is -1 (무제한), it's always a recommended time
-    if (cafeRecommendedHours == -1) return true;
+    // If cafeRecommendedHours is null or -1 (무제한), it's always a recommended time
+    if (cafeRecommendedHours == null || cafeRecommendedHours == -1) return true;
 
     // If cafeRecommendedHours is 0 (권장X), it's never a recommended time
     if (cafeRecommendedHours == 0) return false;
 
     // Compare the cafe's recommended hours with the user's input
     return cafeRecommendedHours >= options.recommendedHours;
-  }
-
-  String _koreanDayOfWeek(String englishDay) {
-    switch (englishDay) {
-      case 'Mon':
-        return '월';
-      case 'Tue':
-        return '화';
-      case 'Wed':
-        return '수';
-      case 'Thu':
-        return '목';
-      case 'Fri':
-        return '금';
-      case 'Sat':
-        return '토';
-      case 'Sun':
-        return '일';
-      default:
-        return '';
-    }
   }
 
   bool _isTimeBetween(String current, String open, String close) {

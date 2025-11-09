@@ -29,9 +29,9 @@ class DetailScreenState extends State<DetailScreen> {
   }
 
   void _initializeController() {
-    if (widget.cafe.videoUrl.isNotEmpty) {
+    if (widget.cafe.videoUrl != null && widget.cafe.videoUrl!.isNotEmpty) {
       final videoId =
-          YoutubePlayerController.convertUrlToId(widget.cafe.videoUrl);
+          YoutubePlayerController.convertUrlToId(widget.cafe.videoUrl!);
       if (videoId != null) {
         _controller = YoutubePlayerController.fromVideoId(
           videoId: videoId,
@@ -47,20 +47,24 @@ class DetailScreenState extends State<DetailScreen> {
     }
   }
 
-  String _getUsageTimeText(double hours) {
-    if (hours == -1) return '무제한';
+  String _getUsageTimeText(int? hours) {
+    if (hours == null || hours == -1) return '무제한';
     if (hours == 0) return '권장X';
     return '$hours 시간';
   }
 
-  String _getBusinessHourText(String? hours) {
-    if (hours == null || hours.isEmpty || hours == '-1') {
-      return '휴무';
-    }
-    return hours;
-  }
-
   Widget _buildBusinessHoursTable() {
+    final operatingHours = widget.cafe.operatingHours;
+    final days = [
+      {'label': '월', 'hours': operatingHours.monday},
+      {'label': '화', 'hours': operatingHours.tuesday},
+      {'label': '수', 'hours': operatingHours.wednesday},
+      {'label': '목', 'hours': operatingHours.thursday},
+      {'label': '금', 'hours': operatingHours.friday},
+      {'label': '토', 'hours': operatingHours.saturday},
+      {'label': '일', 'hours': operatingHours.sunday},
+    ];
+
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
@@ -74,20 +78,12 @@ class DetailScreenState extends State<DetailScreen> {
         ),
         children: [
           TableRow(
-            children: [
-              '월',
-              '화',
-              '수',
-              '목',
-              '금',
-              '토',
-              '일',
-            ]
+            children: days
                 .map((day) => TableCell(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          day,
+                          day['label'] as String,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
@@ -98,26 +94,23 @@ class DetailScreenState extends State<DetailScreen> {
                 .toList(),
           ),
           TableRow(
-            children: [
-              '월',
-              '화',
-              '수',
-              '목',
-              '금',
-              '토',
-              '일',
-            ]
-                .map((day) => TableCell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          _getBusinessHourText(
-                            widget.cafe.dailyHours[day],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+            children: days
+                .map((day) {
+                  final hours = day['hours'] as DayHours?;
+                  final text = hours != null
+                      ? '${hours.begin ?? ''}-${hours.end ?? ''}'
+                      : '휴무';
+                  return TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        text,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 10),
                       ),
-                    ))
+                    ),
+                  );
+                })
                 .toList(),
           ),
         ],
@@ -143,60 +136,51 @@ class DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildSeatingInfoTable() {
+    final reservation = widget.cafe.reservation;
+
+    // If no reservation info, return placeholder
+    if (!reservation.enabled) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: const Color(0XFFc7b199).withOpacity(0.5),
+        ),
+        child: const Text(
+          '좌석 정보가 제공되지 않습니다.',
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: const Color(0XFFc7b199).withOpacity(0.5),
       ),
-      child: Table(
-        border: TableBorder.all(
-          color: Colors.white,
-          width: 3,
-        ),
-        children: [
-          const TableRow(
-            children: [
-              TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('좌석 유형',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontWeight: FontWeight.bold)))),
-              TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('좌석 수',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontWeight: FontWeight.bold)))),
-              TableCell(
-                  child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('콘센트 수',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontWeight: FontWeight.bold)))),
-            ],
-          ),
-          ...widget.cafe.seatingTypes.map((seating) => TableRow(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            if (reservation.totalSeats != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TableCell(
-                      child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child:
-                              Text(seating.type, textAlign: TextAlign.center))),
-                  TableCell(
-                      child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(seating.count.toString(),
-                              textAlign: TextAlign.center))),
-                  TableCell(
-                      child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(seating.powerCount,
-                              textAlign: TextAlign.center))),
+                  const Text('총 좌석 수:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('${reservation.totalSeats}석'),
                 ],
-              )),
-        ],
+              ),
+            if (reservation.totalConsents != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('콘센트:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('${reservation.totalConsents}개'),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -218,7 +202,7 @@ Widget _buildInfoContent() {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               child: Text(
-                widget.cafe.message,
+                widget.cafe.message ?? '카페 소개가 없습니다.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.jua(
                   fontSize: 15,
@@ -264,7 +248,7 @@ Widget _buildInfoContent() {
                       ),
                     ),
                     Text(
-                      widget.cafe.price,
+                      widget.cafe.price ?? '가격 정보 없음',
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w500,
@@ -375,7 +359,8 @@ Widget _buildInfoContent() {
               ),
             ],
             const SizedBox(height: 20),
-            if (widget.cafe.coWork == 1) ...[
+            // TODO: Add coWork field to API if needed
+            if (widget.cafe.reservation.enabled) ...[
               Consumer<loginProvider.AuthProvider>(
                 builder: (context, authProvider, _) {
                   if (authProvider.userData != null) {
@@ -456,7 +441,7 @@ Widget _buildInfoContent() {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
           children: [
-            CommentsSection(cafeId: widget.cafe.id),
+            CommentsSection(cafeId: widget.cafe.id.toDouble()),
           ],
         ),
       ),

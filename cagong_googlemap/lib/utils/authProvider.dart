@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
 
 class AuthProvider with ChangeNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -25,7 +26,7 @@ class AuthProvider with ChangeNotifier {
 
       // Flask 서버에 idToken 보내기
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:5000/api/auth/google-login'),
+        Uri.parse('${ApiConfig.baseUrl}/auth/google-login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'idToken': googleAuth.idToken}),
       );
