@@ -91,3 +91,13 @@ def get_cafe_by_id(cafe_id):
             "success": False,
             "error": f"서버 오류 발생: {str(e)}"
         }), 500
+
+
+
+
+@cafe_bp.route('/')
+def Is_reservation_possible_cafe(cafe_id):
+    """
+    예약 가능한 카페인지 true/false 반환
+    """
+    pass 

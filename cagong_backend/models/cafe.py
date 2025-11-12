@@ -21,11 +21,11 @@ class Cafe(db.Model):
 
     # 운영 정보
     message         = db.Column(db.Text)            # 카페 소개 한 줄
-    hours_weekday   = db.Column(db.Integer)     # 권장 이용 시간
-    hours_weekend   = db.Column(db.Integer)     # 권장 이용 시간
-    price           = db.Column(db.String(50))        # 아아 가격
-    video_url       = db.Column(db.String(255))   # 카페 내부 영상
-    last_order      = db.Column(db.String(50))   # 라스트 오더 시간
+    hours_weekday   = db.Column(db.Integer)         # 권장 이용 시간
+    hours_weekend   = db.Column(db.Integer)         # 권장 이용 시간
+    price           = db.Column(db.String(50))      # 아아 가격
+    video_url       = db.Column(db.String(255))     # 카페 내부 영상
+    last_order      = db.Column(db.String(50))      # 라스트 오더 시간
     
 
     # 요일별 운영시간(날마다 다른 경우가 있음...) - HH:MM 형식의 문자열
@@ -61,7 +61,7 @@ class Cafe(db.Model):
     
 
     # 예약 정책
-    hourly_rate = db.Column(db.Integer, default=0)     # 30분당 요금(원)
+    hourly_rate = db.Column(db.Integer, default=0)     # 1시간 당 요금
 
 
     # 타임스탬프

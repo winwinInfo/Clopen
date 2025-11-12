@@ -6,6 +6,7 @@ import uuid
 
 # 예약 내역 모델
 
+
 class Reservation(db.Model):
     __tablename__ = 'reservations'
     
