@@ -14,9 +14,9 @@ class Cafe(db.Model):
     address = db.Column(db.Text, nullable=False)
 
 
-    # 위치 정보(좌표)
-    latitude = db.Column(db.Float, nullable=False)
-    longitude = db.Column(db.Float, nullable=False)
+    # 위치 정보(좌표) - GPS 정밀도를 위해 Numeric 사용
+    latitude = db.Column(db.Numeric(precision=10, scale=7), nullable=False)
+    longitude = db.Column(db.Numeric(precision=10, scale=7), nullable=False)
     
 
     # 운영 정보
