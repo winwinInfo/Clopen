@@ -63,6 +63,9 @@ class MapScreenState extends State<MapScreen> {
     }
   }
 
+
+
+
   // 클러스터 서비스 초기화
   Future<void> _initClusterService() async {
     // 카페 탭 이벤트
@@ -70,7 +73,7 @@ class MapScreenState extends State<MapScreen> {
       _handleCafeSelected(cafe);
     };
 
-    // 클러스터 탭 이벤트
+    // 클러스터 탭 이벤트 -> 바텀시트 열기 
     _clusterService.onClusterTap = (cafes) {
       showClusterBottomSheet(context, cafes);
     };
@@ -335,6 +338,7 @@ class MapScreenState extends State<MapScreen> {
 
 
 //when cafe selected
+//지금은 카페마커 눌렀을 때랑, BottomSheet에서 카페 선택했을 때 
   void _handleCafeSelected(Cafe selectedCafe) async {
     final scaffoldContext = Scaffold.of(context);
     final GoogleMapController controller = await _controller.future;

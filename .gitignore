@@ -161,5 +161,5 @@ coverage/
 cagong_googlemap/android/app/.cxx/Debug/5u3h3o5z/armeabi-v7a/configure_fingerprint.bin
 
 
-# 클로드
-.claude/ 
+# 클로드 설정 관련 
+.claude/
