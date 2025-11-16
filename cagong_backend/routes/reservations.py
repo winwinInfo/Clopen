@@ -7,26 +7,79 @@ from services import reservation_service
 reservation_bp = Blueprint('reservations', __name__)
 
 
+
+
+
+
 @reservation_bp.route('/availability', methods=['GET'])
 def check_availability():
     """
     예약 가능 여부 확인
-
-    Query Parameters:
-        cafe_id: 카페 ID (required)
-        date: 날짜 YYYY-MM-DD (required)
-        time: 시간 HH:MM (required)
-        duration: 예약 시간 (시간 단위, default: 2)
-
-    Example:
-        GET /reservations/availability?cafe_id=123&date=2025-10-19&time=14:00&duration=2
+    ---
+    tags:
+      - Reservation
+    parameters:
+      - name: cafe_id
+        in: query
+        type: integer
+        required: true
+        description: "카페 ID"
+      - name: date
+        in: query
+        type: string
+        required: true
+        description: "날짜 YYYY-MM-DD"
+      - name: time
+        in: query
+        type: string
+        required: true
+        description: "시간 HH:MM"
+      - name: duration
+        in: query
+        type: integer
+        required: false
+        default: 2
+        description: "예약 시간 (1시간 단위)"
+    responses:
+      200:
+        description: "예약 가능 여부 확인 성공"
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            data:
+              type: object
+              properties:
+                available:
+                  type: boolean
+                  description: "예약 가능 여부"
+                cafe_id:
+                  type: integer
+                  description: "카페 ID"
+                date:
+                  type: string
+                  description: "요청한 날짜"
+                time:
+                  type: string
+                  description: "요청한 시간"
+                duration:
+                  type: integer
+                  description: "예약 시간 (시간 단위)"
+      400:
+        description: "잘못된 요청"
+      404:
+        description: "카페를 찾을 수 없음"
+      500:
+        description: "서버 오류"
     """
     try:
         # Query Parameters 가져오기
-        cafe_id = request.args.get('cafe_id', type=int)
-        date_str = request.args.get('date')
-        time_str = request.args.get('time')
-        duration = request.args.get('duration', default=2, type=int)
+        cafe_id    = request.args.get('cafe_id', type=int)
+        date_str   = request.args.get('date')
+        time_str   = request.args.get('time')
+        duration   = request.args.get('duration', default=2, type=int)
 
         # 필수 파라미터 검증
         if not cafe_id:
@@ -82,17 +135,70 @@ def check_availability():
         }), 500
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @reservation_bp.route('/slots', methods=['GET'])
 def get_available_slots():
     """
     특정 날짜의 모든 타임 슬롯 조회
-
-    Query Parameters:
-        cafe_id: 카페 ID (required)
-        date: 날짜 YYYY-MM-DD (required)
-
-    Example:
-        GET /reservations/slots?cafe_id=123&date=2025-10-19
+    ---
+    tags:
+      - Reservation
+    parameters:
+      - name: cafe_id
+        in: query
+        type: integer
+        required: true
+        description: "카페 ID"
+      - name: date
+        in: query
+        type: string
+        required: true
+        description: "날짜 YYYY-MM-DD"
+    responses:
+      200:
+        description: "타임 슬롯 조회 성공"
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            data:
+              type: object
+              properties:
+                cafe_id:
+                  type: integer
+                  description: "카페 ID"
+                date:
+                  type: string
+                  description: "조회한 날짜"
+                slots:
+                  type: array
+                  description: "타임 슬롯 목록"
+                  items:
+                    type: object
+                    properties:
+                      time:
+                        type: string
+                        description: "시간 (HH:MM)"
+                      available:
+                        type: boolean
+                        description: "예약 가능 여부"
     """
     try:
         # Query Parameters 가져오기

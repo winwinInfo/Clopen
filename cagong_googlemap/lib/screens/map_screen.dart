@@ -73,13 +73,16 @@ class MapScreenState extends State<MapScreen> {
       _handleCafeSelected(cafe);
     };
 
-    // 클러스터 탭 이벤트 -> 바텀시트 열기 
+    // 클러스터 탭 이벤트 -> 바텀시트 열기
     _clusterService.onClusterTap = (cafes) {
       showClusterBottomSheet(context, cafes);
     };
 
-    // ClusterManager 초기화
-    await _clusterService.initClusterManager(_cafes, _updateMarkers);
+    // 첫 프레임 렌더링 완료 후 마커 생성 (MediaQuery가 정확한 값을 반환하도록 보장)
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // ClusterManager 초기화
+      await _clusterService.initClusterManager(_cafes, _updateMarkers);
+    });
   }
 
 

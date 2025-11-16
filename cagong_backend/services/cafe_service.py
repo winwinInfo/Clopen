@@ -30,3 +30,4 @@ def get_all_cafes_ids():
     """모든 카페 ID 리스트를 반환"""
     result = Cafe.query.with_entities(Cafe.id).all()
     return [cafe_id for (cafe_id,) in result]
+

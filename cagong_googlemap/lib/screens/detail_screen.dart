@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../models/cafe.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../utils/authProvider.dart' as loginProvider; 
 import 'login.dart';
 import '../widgets/cafe_comment.dart'; 
+
 
 
 class DetailScreen extends StatefulWidget {
@@ -20,32 +19,12 @@ class DetailScreen extends StatefulWidget {
 
 class DetailScreenState extends State<DetailScreen> {
   int _selectedIndex = 0; // 0:info, 1:comment
-  YoutubePlayerController? _controller;
 
   @override
   void initState() {
     super.initState();
-    _initializeController();
   }
 
-  void _initializeController() {
-    if (widget.cafe.videoUrl != null && widget.cafe.videoUrl!.isNotEmpty) {
-      final videoId =
-          YoutubePlayerController.convertUrlToId(widget.cafe.videoUrl!);
-      if (videoId != null) {
-        _controller = YoutubePlayerController.fromVideoId(
-          videoId: videoId,
-          autoPlay: false,
-          params: const YoutubePlayerParams(
-            showFullscreenButton: true,
-            strictRelatedVideos: true,
-            showControls: true,
-            showVideoAnnotations: false,
-          ),
-        );
-      }
-    }
-  }
 
   String _getUsageTimeText(int? hours) {
     if (hours == null || hours == -1) return '무제한';
@@ -118,72 +97,9 @@ class DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  Widget _buildCouponImage() {
-    String imageName = '${widget.cafe.name}쿠폰.png';
 
-    return Center(
-      child: Container(
-        clipBehavior: Clip.hardEdge,
-        width: 337.5,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(50),
-        ),
-        child: Image.asset(
-          'assets/images/coupons/$imageName',
-        ),
-      ),
-    );
-  }
 
-  Widget _buildSeatingInfoTable() {
-    final reservation = widget.cafe.reservation;
 
-    // If no reservation info, return placeholder
-    if (!reservation.enabled) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: const Color(0XFFc7b199).withOpacity(0.5),
-        ),
-        child: const Text(
-          '좌석 정보가 제공되지 않습니다.',
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
-
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: const Color(0XFFc7b199).withOpacity(0.5),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (reservation.totalSeats != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('총 좌석 수:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('${reservation.totalSeats}석'),
-                ],
-              ),
-            if (reservation.totalConsents != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('콘센트:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('${reservation.totalConsents}개'),
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
 
 
 Widget _buildInfoContent() {
@@ -315,51 +231,10 @@ Widget _buildInfoContent() {
             const Text("영업 시간", style: TextStyle(fontWeight: FontWeight.bold)),
             _buildBusinessHoursTable(),
             const SizedBox(height: 20),
-            const Text("좌석 정보", style: TextStyle(fontWeight: FontWeight.bold)),
-            _buildSeatingInfoTable(),
-            const SizedBox(height: 20),
-            if (_controller != null) ...[
-              Center(
-                child: Container(
-                  width: 100,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFdfd3c3),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: const Text(
-                    "카페 영상",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                      color: Color(0XFF6c5d53),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.8,
-                    maxHeight: 600,
-                  ),
-                  child: AspectRatio(
-                    aspectRatio: 9 / 16,
-                    child: YoutubePlayerControllerProvider(
-                      controller: _controller!,
-                      child: YoutubePlayer(
-                        controller: _controller!,
-                        aspectRatio: 9 / 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 20),
-            // TODO: Add coWork field to API if needed
+            
+            // 유튜브 영상 로직 삭제
+            
+            // 예약 기능이 활성화된 경우
             if (widget.cafe.reservation.enabled) ...[
               Consumer<loginProvider.AuthProvider>(
                 builder: (context, authProvider, _) {
@@ -374,7 +249,7 @@ Widget _buildInfoContent() {
                               borderRadius: BorderRadius.circular(50),
                             ),
                             child: const Text(
-                              "쿠폰",
+                              "예약하기",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: 'Pretendard',
@@ -385,8 +260,7 @@ Widget _buildInfoContent() {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        _buildCouponImage(),
+
                         const SizedBox(height: 10),
                       ],
                     );
@@ -395,7 +269,7 @@ Widget _buildInfoContent() {
                       child: Column(
                         children: [
                           const Text(
-                            "로그인 하시면 쿠폰을 확인할 수 있습니다!",
+                            "로그인 하시면 예약 기능을 사용할 수 있습니다.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
@@ -427,12 +301,26 @@ Widget _buildInfoContent() {
                   }
                 },
               ),
+            ] else ... [
+              //예약 불가 카페일 때
+              const Center(
+                child: Text(
+                  "예약을 지원하지 않는 카페입니다.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                  ),
+                )
+              )
             ],
           ],
         ),
       ),
     );
   }
+
+
+
 
   
   Widget _buildCommentsContent() {
@@ -447,6 +335,8 @@ Widget _buildInfoContent() {
       ),
     );
   }
+
+
 
 
 
@@ -517,12 +407,6 @@ Widget _buildInfoContent() {
 
   @override
   void dispose() {
-    if (!kIsWeb) {
-      _controller?.close();
-    } else {
-      _controller?.pauseVideo();
-      _controller = null;
-    }
     super.dispose();
   }
 }

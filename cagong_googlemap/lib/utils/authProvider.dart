@@ -5,7 +5,10 @@ import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 
 class AuthProvider with ChangeNotifier {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+    serverClientId: '447275815920-ijh2059s7qfvqu9aot4lsfhmvj72rnmo.apps.googleusercontent.com',
+  );
 
   bool _isLoggedIn = false;
   String? _jwtToken;

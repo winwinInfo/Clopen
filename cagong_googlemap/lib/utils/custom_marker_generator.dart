@@ -41,10 +41,18 @@ class CustomMarkerGenerator {
     required double fontSize,
     required double maxTextWidth,
   }) async {
+    print('===== 마커 생성 파라미터 =====');
+    print('Cafe: ${cafe.name}');
+    print('markerSize: $markerSize');
+    print('fontSize: $fontSize');
+    print('maxTextWidth: $maxTextWidth');
+
     final ByteData imageData = await rootBundle.load(markerImagePath);
     final Uint8List imageBytes = imageData.buffer.asUint8List();
     final ui.Codec codec = await ui.instantiateImageCodec(imageBytes, targetWidth: markerSize.round(), targetHeight: markerSize.round());
     final ui.FrameInfo fi = await codec.getNextFrame();
+
+    print('실제 이미지 크기: width=${fi.image.width}, height=${fi.image.height}');
 
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
@@ -57,18 +65,23 @@ class CustomMarkerGenerator {
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
           color: Colors.black,
+          fontFamily: 'Pretendard', // 폰트 명시
         ),
       ),
       textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
     );
     textPainter.layout(maxWidth: maxTextWidth);
 
-    print("      개별 카페 마커 생성 함수 호출 ! ! @ ! @ ! @  !       @           !");
 
     // 마커 이미지와 텍스트 중 더 큰 너비를 사용
     final double totalWidth = textPainter.width > markerSize
         ? textPainter.width
         : markerSize;
+
+    final double totalHeight = markerSize + textPainter.height + 8;
+
+    print('최종 캔버스 크기: width=$totalWidth, height=$totalHeight');
 
     // 마커 이미지를 중앙에 배치
     final double markerX = (totalWidth - markerSize) / 2;
@@ -79,11 +92,15 @@ class CustomMarkerGenerator {
     final double textX = (totalWidth - textPainter.width) / 2;
     textPainter.paint(canvas, Offset(textX, textY + 4));
 
-    // Convert to image (전체 너비 사용)
-    final ui.Image image = await recorder.endRecording().toImage(
+    // Convert to image with explicit pixel ratio
+    final ui.Picture picture = recorder.endRecording();
+    final ui.Image image = await picture.toImage(
       totalWidth.round(),
-      (markerSize + textPainter.height + 8).round(),
+      totalHeight.round(),
     );
+
+    print('생성된 이미지 크기: width=${image.width}, height=${image.height}');
+
     final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final Uint8List uint8List = byteData!.buffer.asUint8List();
 
