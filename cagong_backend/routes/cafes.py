@@ -7,6 +7,10 @@ from services import cafe_service
 cafe_bp = Blueprint('cafes', __name__)
 
 
+
+
+
+
 @cafe_bp.route('/')
 def get_cafe_list():
     """모든 카페 목록 조회
@@ -36,6 +40,11 @@ def get_cafe_list():
             "success": False,
             "error": f"서버 오류 발생: {str(e)}"
         }), 500
+
+
+
+
+
 
 
 
@@ -95,9 +104,57 @@ def get_cafe_by_id(cafe_id):
 
 
 
-@cafe_bp.route('/')
+
+
+@cafe_bp.route('/<int:cafe_id>/reservation-status')
 def Is_reservation_possible_cafe(cafe_id):
     """
-    예약 가능한 카페인지 true/false 반환
+    카페 예약 가능 여부 조회
+    카페 아이디로 해당 카페 예약 가능 여부만 반환함
+    ---
+    tags:
+      - Cafes
+    parameters:
+      - name: cafe_id
+        in: path
+        type: integer
+        required: true
+        description: "카페 ID"
+    responses:
+      200:
+        description: "예약 가능 여부 조회 성공"
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            data:
+              type: object
+              properties:
+                is_reservation_possible:
+                  type: boolean
+                  example: true
+                  description: "예약 가능 여부"
     """
-    pass 
+    try:
+        cafe = cafe_service.get_cafe_by_id(cafe_id)
+        if cafe:
+            result = {
+                "is_reservation_possible": cafe.is_reservation_possible  # cafe 모델 속성 사용 (column 으로 is_reservation_possible이 있는 것)
+            }
+            return jsonify({
+                "success": True,
+                "data": result
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"ID {cafe_id} 카페를 찾을 수 없습니다."
+            }), 404
+        
+    except Exception as e:
+        return jsonify({
+                "success": False,
+                "error": f"서버 오류 발생: {str(e)}"
+            }), 500
