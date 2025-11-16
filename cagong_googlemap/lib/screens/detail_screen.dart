@@ -234,6 +234,7 @@ Widget _buildInfoContent() {
             
             // 유튜브 영상 로직 삭제
             
+            // 예약 기능이 활성화된 경우
             if (widget.cafe.reservation.enabled) ...[
               Consumer<loginProvider.AuthProvider>(
                 builder: (context, authProvider, _) {
@@ -300,6 +301,17 @@ Widget _buildInfoContent() {
                   }
                 },
               ),
+            ] else ... [
+              //예약 불가 카페일 때
+              const Center(
+                child: Text(
+                  "예약을 지원하지 않는 카페입니다.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                  ),
+                )
+              )
             ],
           ],
         ),
