@@ -15,6 +15,9 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
   late AuthProvider _authProvider;
   String _currentRoute = '/';
 
+  // MapScreen의 GlobalKey 추가
+  final GlobalKey<MapScreenState> _mapScreenKey = GlobalKey<MapScreenState>();
+
   AppRouterDelegate(AuthProvider authProvider) {
     _authProvider = authProvider;
     _authProvider.addListener(_handleAuthStateChange);
@@ -64,10 +67,10 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
             body: IndexedStack(
               index: getIndexForRoute(_currentRoute),
               children: [
-                const MapScreen(),                 // index 0: 지도
+                MapScreen(key: _mapScreenKey),     // index 0: 지도 (GlobalKey 전달, const 제거)
                 _authProvider.isLoggedIn ? MyPage() : LoginPage(), // index 1: 내정보
                 const FeedbackScreen(),           // index 2: 의견
-                const ReservationScreen(),        // index 3: 예약 ✅ 마지막에 추가
+                const ReservationScreen(),        // index 3: 예약
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
@@ -95,6 +98,11 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
               selectedItemColor: Colors.brown,
               unselectedItemColor: Colors.grey,
               onTap: (index) {
+                // MapScreen에서 다른 탭으로 이동할 때 Bottom Sheet 닫기
+                if (_currentRoute == '/' && index != 0) {
+                  _mapScreenKey.currentState?.closeBottomSheetIfOpen();
+                }
+
                 _currentRoute = getRouteForIndex(index);
                 notifyListeners();
               },
