@@ -35,7 +35,8 @@ class AuthProvider with ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final responseData = jsonDecode(response.body);
+        final data = responseData['data'];
         _jwtToken = data['token'];
         _userData = data['user'];
         _isLoggedIn = true;

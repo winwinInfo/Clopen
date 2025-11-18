@@ -12,12 +12,30 @@ import '../widgets/bottom_sheet.dart';
 import '../widgets/filter.dart';
 
 
+
+
+
+
+
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+
+
+  //화면 비활성화 시 호출될 콜백 
+  final VoidCallback? onVisibilityChanged;
+
+
+  const MapScreen({
+    super.key,
+    this.onVisibilityChanged, // 화면 비활성화 콜백 
+    });
 
   @override
   MapScreenState createState() => MapScreenState();
 }
+
+
+
+
 
 
 class MapScreenState extends State<MapScreen> {
@@ -31,7 +49,7 @@ class MapScreenState extends State<MapScreen> {
   Marker? _currentLocationMarker;
   StreamSubscription<Position>? _positionStreamSubscription;
   double _bottomSheetHeight = 0;
-
+  PersistentBottomSheetController? _currentBottomSheetController;
   //현위치 마커 서비스 인스턴스
   final LocationMarkerService _locationService = LocationMarkerService();
 
@@ -183,8 +201,8 @@ class MapScreenState extends State<MapScreen> {
 
   // 클러스터 바텀시트
   void showClusterBottomSheet(BuildContext context, List<Cafe> cafes) {
-    // 바텀 시트 열기
-    final bottomSheetController = Scaffold.of(context).showBottomSheet(
+    // bottom sheet controller 저장
+    _currentBottomSheetController = Scaffold.of(context).showBottomSheet(
       (BuildContext context) {
         return Container(
           height: 200,
@@ -226,11 +244,12 @@ class MapScreenState extends State<MapScreen> {
     );
 
     // 바텀 시트가 닫힐 때의 처리
-    bottomSheetController.closed.then((_) {
+    _currentBottomSheetController!.closed.then((_) {
       if (mounted) {
         setState(() {
           _isBottomSheetOpen = false;
-          _bottomSheetHeight = 0; // 바텀 시트가 닫히면 높이를 0으로 설정
+          _bottomSheetHeight = 0;
+          _currentBottomSheetController = null;
         });
       }
     });
@@ -239,7 +258,7 @@ class MapScreenState extends State<MapScreen> {
     if (mounted) {
       setState(() {
         _isBottomSheetOpen = true;
-        _bottomSheetHeight = 200; // 바텀 시트가 열릴 때의 높이
+        _bottomSheetHeight = 200;
       });
     }
   }
@@ -352,20 +371,20 @@ class MapScreenState extends State<MapScreen> {
       21.0,
     ));
 
-    //checking mount (if widget is on tree)버
     if (!mounted) return;
 
-    //Opening bottom sheet
-    final bottomSheetController = scaffoldContext.showBottomSheet(
+    // bottom sheet controller 저장
+    _currentBottomSheetController = scaffoldContext.showBottomSheet(
       (BuildContext context) => CafeBottomSheet(cafe: selectedCafe),
     );
 
     //when bottom sheet closed
-    bottomSheetController.closed.then((_) {
+    _currentBottomSheetController!.closed.then((_) {
       if (mounted) {
         setState(() {
           _isBottomSheetOpen = false;
           _bottomSheetHeight = 0;
+          _currentBottomSheetController = null; 
         });
       }
     });
@@ -378,4 +397,20 @@ class MapScreenState extends State<MapScreen> {
       });
     }
   }
+
+  // public 메서드로 변경 (외부에서 접근 가능)
+  void closeBottomSheetIfOpen() {
+    if (_currentBottomSheetController != null) {
+      _currentBottomSheetController!.close();
+      _currentBottomSheetController = null;
+
+      if (mounted) {
+        setState(() {
+          _isBottomSheetOpen = false;
+          _bottomSheetHeight = 0;
+        });
+      }
+    }
+  }
+
 }

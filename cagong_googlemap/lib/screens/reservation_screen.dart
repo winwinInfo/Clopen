@@ -46,7 +46,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // 예약 현황 (Firebase 기능 비활성화)
+            // 예약 현황 
             Expanded(
               child: Center(
                 child: Text(
@@ -104,6 +104,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
       ),
     );
   }
+
+
 
   void _makeReservation() {
     ScaffoldMessenger.of(context).showSnackBar(
