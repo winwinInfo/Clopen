@@ -19,6 +19,9 @@ def get_cafe_by_name(cafe_name):
 
 
 
+def get_all_reservable_cafes():
+    """ 예약 가능한 모든 카페"""
+    return Cafe.query.filter_by(reservation_enabled=True).all()
 
 
 def get_all_cafes_names():

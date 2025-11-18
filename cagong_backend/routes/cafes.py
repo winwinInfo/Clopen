@@ -46,6 +46,38 @@ def get_cafe_list():
 
 
 
+@cafe_bp.route('/reservation-possible')
+def get_all_reservable_cafe_list():
+    """예약이 가능한 모든 카페 반환
+    ---
+    tags:
+      - Cafes
+    responses:
+      200:
+        description: 카페 목록 조회 성공
+      500:
+        description: 서버 오류
+    """
+    try:
+        cafes = cafe_service.get_all_reservable_cafes()
+        cafe_list_dict = [cafe.to_dict() for cafe in cafes]
+
+        return jsonify({
+            "success": True,
+            "count": len(cafe_list_dict),
+            "data": cafe_list_dict
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"서버 오류 발생: {str(e)}"
+        }), 500
+
+
+
+
+
 
 
 @cafe_bp.route('/<int:cafe_id>')
