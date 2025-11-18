@@ -158,8 +158,17 @@ gen/
 # Coverage reports
 coverage/
 .nyc_output/
-cagong_googlemap/android/app/.cxx/Debug/5u3h3o5z/armeabi-v7a/configure_fingerprint.bin
 
+# Android NDK/CMake build files
+cagong_googlemap/android/app/.cxx/
+cagong_googlemap/android/.cxx/
+cagong_googlemap/android/**/build/
+cagong_googlemap/android/**/.externalNativeBuild/
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
 
-# 클로드 설정 관련 
+# 클로드 설정 관련
 .claude/
