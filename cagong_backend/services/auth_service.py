@@ -4,52 +4,90 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 import jwt
 import datetime
-from exceptions.custom_exceptions import AuthTokenException
+from exceptions.custom_exceptions import AuthTokenException, InvalidInputException
 
+
+#  공통: 토큰 검증 함수
 def verify_google_token(id_token_str):
     try:
         idinfo = id_token.verify_oauth2_token(
             id_token_str,
             requests.Request(),
-            # 환경변수 대신 config에서 가져오기
             current_app.config.get("GOOGLE_CLIENT_ID")
         )
         return idinfo
     except ValueError:
         return None
 
-def handle_google_login(id_token_str):
+
+# 공통: JWT 생성 헬퍼 함수 (중복 제거)
+def _generate_jwt(user_id):
+    payload = {
+        'sub': user_id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
+    }
+    return jwt.encode(payload, current_app.config["JWT_SECRET_KEY"], algorithm='HS256')
+
+
+# -기능 1: 로그인 (가입 여부 확인)
+def login_with_google(id_token_str):
+    """
+    기존 회원이면 -> User 객체와 Token 반환
+    신규 회원이면 -> None, None 반환 (컨트롤러에서 회원가입 유도)
+    """
     # 1. 토큰 검증
     idinfo = verify_google_token(id_token_str)
-
     if not idinfo:
         raise AuthTokenException("유효하지 않은 Google ID Token입니다.")
 
-    # 2. 유저 정보 추출
+    # 2. 유저 조회
     google_id = idinfo['sub']
-    email = idinfo['email']
-    name = idinfo.get('name', '')
-    photo_url = idinfo.get('picture', '')
-
-    # 3. 이미 있는 유저인지 확인
     user = User.query.filter_by(google_id=google_id).first()
 
-    # 4. 없으면 새로 생성
-    if not user:
-        user = User(
-            google_id=google_id,
-            email=email,
-            name=name,
-            photo_url=photo_url
-        )
-        db.session.add(user)
-        db.session.commit()
+    # 3. 분기 처리
+    if user:
+        # 이미 가입된 유저 -> 토큰 발급
+        token = _generate_jwt(user.id)
+        return user, token
+    else:
+        # 신규 유저 -> None 반환 (컨트롤러가 is_new_user=True 응답을 보내도록 유도)
+        return None, None
 
-    # 5. JWT 토큰 생성 (config 값 사용)
-    payload = {
-        'sub': user.id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
-    }
-    token = jwt.encode(payload, current_app.config["JWT_SECRET_KEY"], algorithm='HS256')
 
-    return user, token
+# 회원가입 (닉네임 포함 저장)
+def register_with_google(id_token_str, nickname):
+    """
+    신규 회원가입: Google 정보 + 닉네임 저장
+    """
+    # 1. 토큰 재검증 (보안 필수)
+    idinfo = verify_google_token(id_token_str)
+    if not idinfo:
+        raise AuthTokenException("유효하지 않은 Google ID Token입니다.")
+
+    # 2. 닉네임 중복 검사
+    if User.query.filter_by(nickname=nickname).first():
+        raise InvalidInputException("이미 사용 중인 닉네임입니다.")
+
+    # 3. 이미 가입된 Google ID인지 재확인 (방어 로직)
+    google_id = idinfo['sub']
+    if User.query.filter_by(google_id=google_id).first():
+        raise InvalidInputException("이미 가입된 구글 계정입니다.")
+
+    # 4. 유저 생성 (닉네임 포함)
+    new_user = User(
+        google_id=google_id,
+        email=idinfo['email'],
+        name=idinfo.get('name', ''),
+        photo_url=idinfo.get('picture', ''),
+        nickname=nickname,
+        role='user',
+        provider='google'
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    # 5. 가입 완료 후 토큰 발급
+    token = _generate_jwt(new_user.id)
+
+    return new_user, token
