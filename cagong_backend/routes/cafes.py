@@ -173,7 +173,7 @@ def Is_reservation_possible_cafe(cafe_id):
         cafe = cafe_service.get_cafe_by_id(cafe_id)
         if cafe:
             result = {
-                "is_reservation_possible": cafe.is_reservation_possible  # cafe 모델 속성 사용 (column 으로 is_reservation_possible이 있는 것)
+                "is_reservation_possible": cafe.reservation_enabled
             }
             return jsonify({
                 "success": True,

@@ -172,3 +172,4 @@ cagong_googlemap/android/**/.externalNativeBuild/
 
 # 클로드 설정 관련
 .claude/
+*.bin

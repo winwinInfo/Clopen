@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/authProvider.dart' as loginProvider;
 import '../screens/login.dart';
+import '../screens/reservation_detail_screen.dart';
 import '../services/cafe_service.dart';
 import '../models/cafe.dart';
 
 Future<void> reserveSpot(String docId) async {
 
-  //debugPrint('예약 기능은 현재 비활성화되어 있습니다.');
 }
 
 class ReservationScreen extends StatefulWidget {
@@ -66,8 +66,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
             // 예약 가능한 카페 목록
             Expanded(
               child: FutureBuilder<List<Cafe>>(
-                // CafeService의 reservableCafes 함수를 호출
-                future: CafeService.reservableCafes(),
+                // CafeService의 reservationPossibleCafes 함수를 호출
+                future: CafeService.reservationPossibleCafes(),
                 builder: (context, snapshot) {
                   // 1. 로딩 중인 상태
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -361,8 +361,20 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
 
   void _makeReservation() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('예약 기능은 현재 비활성화되어 있습니다')),
+    if (_selectedCafe == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('카페를 선택해주세요')),
+      );
+      return;
+    }
+
+    // 예약 상세 화면으로 네비게이션
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ReservationDetailScreen(
+          cafe: _selectedCafe!,
+        ),
+      ),
     );
   }
 }
