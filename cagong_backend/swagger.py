@@ -25,6 +25,21 @@ def init_swagger(app):
         },
         "basePath": "/",
         "schemes": ["http", "https"],
+
+        "securityDefinitions": {
+            "BearerAuth": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "description": "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+            }
+        },
+
+        "security": [
+            {
+                "BearerAuth": []
+            }
+        ]
     }
 
     return Swagger(app, config=swagger_config, template=swagger_template)
