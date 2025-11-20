@@ -1,10 +1,12 @@
-from models import Cafe, CafeTimeSlot, Reservation
+from models import Cafe, Reservation
 from datetime import datetime, timedelta
 
 
+# 카페마다 존재하는 Reservation 모델에서 예약 일시 정보 기반으로 시간이 겹치는 예약 레코드를 조회한다.  
+
 def check_availability(cafe_id, date_str, time_str, duration_hours):
     """
-    특정 카페의 예약 가능 여부를 확인
+    특정 카페의 예약 가능 여부를 확인 (실시간 계산 방식)
 
     Args:
         cafe_id: 카페 ID
@@ -77,110 +79,53 @@ def check_availability(cafe_id, date_str, time_str, duration_hours):
             }
         }
 
-    # 6. 해당 시간의 타임 슬롯 조회 (30분 단위)
-    # 예: 14:00~16:00 예약 = 14:00, 14:30, 15:00, 15:30 슬롯 필요
-    required_slots = []
+    # 6. 해당 시간대에 겹치는 예약들 조회 (실시간 계산)
+    overlapping_reservations = Reservation.query.filter(
+        Reservation.cafe_id == cafe_id,
+        Reservation.start_datetime < end_datetime,
+        Reservation.end_datetime > request_datetime
+    ).all()
+
+    # 7. 30분 단위로 각 슬롯의 예약된 좌석 수 계산
+    max_reserved_seats = 0
     current_time = request_datetime
+    slot_count = 0
 
     while current_time < end_datetime:
-        slot_time_str = current_time.strftime("%H:%M")
+        slot_end = current_time + timedelta(minutes=30)
 
-        slot = CafeTimeSlot.query.filter_by(
-            cafe_id=cafe_id,
-            date=request_date,
-            time_slot=slot_time_str
-        ).first()
+        # 현재 슬롯과 겹치는 예약들의 좌석 수 합계
+        reserved_in_slot = sum(
+            r.seat_count for r in overlapping_reservations
+            if r.start_datetime < slot_end and r.end_datetime > current_time
+        )
 
-        if not slot:
-            # 슬롯이 없으면 생성 필요 (초기 데이터)
-            return {
-                "reservation_enabled": True,
-                "is_available": False,
-                "message": f"해당 날짜({date_str})의 타임 슬롯이 아직 생성되지 않았습니다."
-            }
+        max_reserved_seats = max(max_reserved_seats, reserved_in_slot)
+        current_time = slot_end
+        slot_count += 1
 
-        required_slots.append(slot)
-        current_time += timedelta(minutes=30)
+    # 8. 예약 가능 좌석 수 계산
+    available_seats = cafe.total_seats - max_reserved_seats
 
-    # 7. 모든 슬롯에서 최소 가용 좌석 수 찾기
-    min_available_seats = min([slot.available_seats for slot in required_slots])
-
-    # 8. 가격 계산 (30분당 요금 * 슬롯 개수)
-    slot_count = len(required_slots)
-    total_price = cafe.hourly_rate * slot_count
+    # 9. 가격 계산 (시간당 요금 * 시간)
+    total_price = cafe.hourly_rate * duration_hours
 
     return {
         "reservation_enabled": True,
-        "is_available": min_available_seats > 0,
+        "is_available": available_seats > 0,
         "cafe_id": cafe_id,
         "cafe_name": cafe.name,
         "requested_date": date_str,
         "requested_time": time_str,
         "duration_hours": duration_hours,
-        "available_seats": min_available_seats,
+        "available_seats": available_seats,
         "total_seats": cafe.total_seats,
-        "reserved_seats": cafe.total_seats - min_available_seats,
+        "reserved_seats": max_reserved_seats,
         "operating_hours": {
             "open": open_time,
             "close": close_time
         },
         "hourly_rate": cafe.hourly_rate,
         "total_price": total_price,
-        "required_slots": slot_count,
-        "message": "예약 가능합니다." if min_available_seats > 0 else "해당 시간대에 예약 가능한 좌석이 없습니다."
-    }
-
-
-def get_available_slots(cafe_id, date_str):
-    """
-    특정 카페의 특정 날짜의 모든 타임 슬롯 조회
-
-    Args:
-        cafe_id: 카페 ID
-        date_str: 날짜 문자열 (예: "2025-10-19")
-
-    Returns:
-        list: 타임 슬롯 리스트
-        None: 카페를 찾을 수 없는 경우
-    """
-    # 카페 조회
-    cafe = Cafe.query.get(cafe_id)
-    if not cafe:
-        return None
-
-    if not cafe.reservation_enabled:
-        return {
-            "reservation_enabled": False,
-            "message": "이 카페는 예약 시스템을 운영하지 않습니다."
-        }
-
-    # 날짜 파싱
-    try:
-        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    except ValueError:
-        return {
-            "error": "날짜 형식이 잘못되었습니다. (형식: YYYY-MM-DD)"
-        }
-
-    # 해당 날짜의 모든 슬롯 조회
-    slots = CafeTimeSlot.query.filter_by(
-        cafe_id=cafe_id,
-        date=target_date
-    ).order_by(CafeTimeSlot.time_slot).all()
-
-    if not slots:
-        return {
-            "cafe_id": cafe_id,
-            "cafe_name": cafe.name,
-            "date": date_str,
-            "slots": [],
-            "message": f"해당 날짜({date_str})의 타임 슬롯이 아직 생성되지 않았습니다."
-        }
-
-    return {
-        "cafe_id": cafe_id,
-        "cafe_name": cafe.name,
-        "date": date_str,
-        "total_seats": cafe.total_seats,
-        "slots": [slot.to_dict() for slot in slots]
+        "message": "예약 가능합니다." if available_seats > 0 else "해당 시간대에 예약 가능한 좌석이 없습니다."
     }
