@@ -12,5 +12,8 @@ key.properties
 **/*.keystore
 **/*.jks
 
+# NDK build cache
+app/.cxx/
+
 google-services.json
 app/google-services.json
