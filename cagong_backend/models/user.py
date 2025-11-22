@@ -17,6 +17,8 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
 
     # def set_password(self, password):
     #     """비밀번호 해시화"""
@@ -37,6 +39,7 @@ class User(db.Model):
             "google_id": self.google_id,
             "email": self.email,
             "name": self.name,
+            "nickname": self.nickname,
             "photo_url": self.photo_url,
             "role": self.role,
             "created_at": self.created_at.isoformat()
