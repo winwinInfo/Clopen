@@ -135,6 +135,20 @@ def check_availability():
         }), 500
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @reservation_bp.route('/', methods=['POST'])
 def create_reservation():
     """
@@ -200,6 +214,7 @@ def create_reservation():
         time_str = data.get('time')
         duration = data.get('duration')
         seat_count = data.get('seat_count', 1)
+        payment_key = data.get('payment_key')
 
         # 필수 파라미터 검증
         if not cafe_id:
@@ -239,7 +254,8 @@ def create_reservation():
             date_str=date_str,
             time_str=time_str,
             duration_hours=duration,
-            seat_count=seat_count
+            seat_count=seat_count,
+            payment_key=payment_key
         )
 
         # 카페를 찾을 수 없는 경우

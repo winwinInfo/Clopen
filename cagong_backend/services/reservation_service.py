@@ -135,7 +135,7 @@ def check_availability(cafe_id, date_str, time_str, duration_hours):
 
 
 
-def create_reservation(cafe_id, user_id, date_str, time_str, duration_hours, seat_count=1):
+def create_reservation(cafe_id, user_id, date_str, time_str, duration_hours, seat_count=1, payment_key=None):
     """
     예약 생성
 
@@ -146,12 +146,13 @@ def create_reservation(cafe_id, user_id, date_str, time_str, duration_hours, sea
         time_str: 시간 문자열 (예: "14:00")
         duration_hours: 예약 시간 (시간 단위, 예: 2)
         seat_count: 예약 좌석 수 (기본값: 1)
+        payment_key: 토스페이먼츠 결제 키 (결제 완료 후 전달)
 
     Returns:
         dict: 예약 결과
         None: 카페를 찾을 수 없는 경우
     """
-    # 1. 예약 가능 여부 재확인 ( 문제 방지)
+    # 1. 예약 가능 여부 재확인 (비동기 환경 대비)
     availability = check_availability(cafe_id, date_str, time_str, duration_hours)
 
     if availability is None:
@@ -186,7 +187,9 @@ def create_reservation(cafe_id, user_id, date_str, time_str, duration_hours, sea
         start_datetime=start_datetime,
         end_datetime=end_datetime,
         seat_count=seat_count,
-        total_amount=total_amount
+        total_amount=total_amount,
+        payment_key=payment_key,
+        status='confirmed'
     )
 
     try:

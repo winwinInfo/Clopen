@@ -23,6 +23,9 @@ class Reservation(db.Model):
 
     # 결제 정보
     total_amount = db.Column(db.Integer, default=0)
+    payment_key = db.Column(db.String(200), nullable=True)  # 토스페이먼츠 결제 키
 
-    
+    # 예약 상태: confirmed(확정), cancelled(취소)
+    status = db.Column(db.String(20), default='confirmed')
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

@@ -23,7 +23,6 @@ def get_all_reservable_cafes():
     """ 예약 가능한 모든 카페"""
     return Cafe.query.filter_by(reservation_enabled=True).all()
 
-
 def get_all_cafes_names():
     """모든 카페 이름 리스트를 반환"""
     result = Cafe.query.with_entities(Cafe.name).all()
