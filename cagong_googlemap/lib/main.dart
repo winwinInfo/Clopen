@@ -29,6 +29,12 @@ class MyApp extends StatelessWidget {
               fontFamily: 'Noto_Sans_KR',
               scaffoldBackgroundColor: Colors.white,
               primarySwatch: Colors.brown,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.brown,
+                primary: Colors.brown,
+                secondary: const Color(0xFFF5F0E6), // 연한 베이지
+                surface: Colors.white,
+              ),
             ),
             routerDelegate: AppRouterDelegate(authProvider),
             routeInformationParser: AppRouteInformationParser(),
