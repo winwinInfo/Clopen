@@ -1,4 +1,4 @@
-from models import Cafe, Reservation
+from models import Cafe, Reservation, db
 from datetime import datetime, timedelta
 
 
@@ -129,3 +129,87 @@ def check_availability(cafe_id, date_str, time_str, duration_hours):
         "total_price": total_price,
         "message": "예약 가능합니다." if available_seats > 0 else "해당 시간대에 예약 가능한 좌석이 없습니다."
     }
+
+
+
+
+
+
+def create_reservation(cafe_id, user_id, date_str, time_str, duration_hours, seat_count=1):
+    """
+    예약 생성
+
+    Args:
+        cafe_id: 카페 ID
+        user_id: 사용자 ID
+        date_str: 날짜 문자열 (예: "2025-10-19")
+        time_str: 시간 문자열 (예: "14:00")
+        duration_hours: 예약 시간 (시간 단위, 예: 2)
+        seat_count: 예약 좌석 수 (기본값: 1)
+
+    Returns:
+        dict: 예약 결과
+        None: 카페를 찾을 수 없는 경우
+    """
+    # 1. 예약 가능 여부 재확인 ( 문제 방지)
+    availability = check_availability(cafe_id, date_str, time_str, duration_hours)
+
+    if availability is None:
+        return None
+
+    if "error" in availability:
+        return availability
+
+    if not availability.get("is_available", False):
+        return {
+            "success": False,
+            "message": availability.get("message", "예약이 불가능합니다.")
+        }
+
+    # 2. 날짜/시간 파싱
+    try:
+        start_datetime = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+        end_datetime = start_datetime + timedelta(hours=duration_hours)
+    except ValueError:
+        return {
+            "error": "날짜 또는 시간 형식이 잘못되었습니다."
+        }
+
+    # 3. 총 금액 계산
+    cafe = Cafe.query.get(cafe_id)
+    total_amount = cafe.hourly_rate * duration_hours
+
+    # 4. 예약 생성
+    new_reservation = Reservation(
+        cafe_id=cafe_id,
+        user_id=user_id,
+        start_datetime=start_datetime,
+        end_datetime=end_datetime,
+        seat_count=seat_count,
+        total_amount=total_amount
+    )
+
+    try:
+        db.session.add(new_reservation)
+        db.session.commit()
+
+        return {
+            "success": True,
+            "message": "예약이 완료되었습니다.",
+            "reservation": {
+                "id": new_reservation.id,
+                "cafe_id": cafe_id,
+                "cafe_name": cafe.name,
+                "user_id": user_id,
+                "start_datetime": start_datetime.isoformat(),
+                "end_datetime": end_datetime.isoformat(),
+                "duration_hours": duration_hours,
+                "seat_count": seat_count,
+                "total_amount": total_amount
+            }
+        }
+    except Exception as e:
+        db.session.rollback()
+        return {
+            "error": f"예약 저장 중 오류가 발생했습니다: {str(e)}"
+        }
