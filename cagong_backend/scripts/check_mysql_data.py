@@ -24,7 +24,7 @@ print("MySQL 데이터베이스 확인")
 print("="*60)
 
 # 테이블별 데이터 개수 확인
-tables = ['cafes', 'users', 'reservations', 'cafe_time_slots', 'orders']
+tables = ['cafes', 'users', 'reservations', 'orders']
 
 for table in tables:
     try:
