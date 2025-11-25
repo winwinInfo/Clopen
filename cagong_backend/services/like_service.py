@@ -23,6 +23,8 @@ class LikeService:
         try:
             if existing:
                 db.session.delete(existing)
+                cafe.likes_count = max(0, cafe.likes_count - 1)
+
                 db.session.commit()
                 return ApiResponse.success(
                     data={"liked": False},
@@ -32,6 +34,8 @@ class LikeService:
 
             new_like = CafeLike(user_id=user_id, cafe_id=cafe_id)
             db.session.add(new_like)
+
+            cafe.likes_count += 1
             db.session.commit()
 
             return ApiResponse.success(
@@ -68,7 +72,7 @@ class LikeService:
 
         return ApiResponse.success(
             data=cafe_list,
-            message="좋아요한 카페 목록 조회 성공",
+            message="좋아요 한 카페 목록 조회 성공",
             http_status=200
         )
 

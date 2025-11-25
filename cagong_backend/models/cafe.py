@@ -47,7 +47,8 @@ class Cafe(db.Model):
 
     # 추가 정보
     operating_hours = db.Column(db.Text)  # 전체 운영시간 설명(ex 평일 09~20, 주말 14~22 처럼 설명)
-    
+
+    likes_count = db.Column(db.Integer, default=0)
 
     # 예약 기본 설정
     reservation_enabled = db.Column(db.Boolean, default=False)  # 예약 기능 활성화 여부
@@ -119,6 +120,7 @@ class Cafe(db.Model):
                 },
                 'description': self.operating_hours
             },
+            'likes_count': self.likes_count,
             'reservation': {
                 'enabled': self.reservation_enabled,
                 'total_seats': self.total_seats,
