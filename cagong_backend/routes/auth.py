@@ -5,7 +5,7 @@ from services import auth_service
 from common.api_response import ApiResponse
 from exceptions.custom_exceptions import InvalidInputException
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+auth_bp = Blueprint('auth', __name__)
 
 # 1. 로그인 요청 (기존 /google-login)
 @auth_bp.route('/google-login', methods=['POST'])

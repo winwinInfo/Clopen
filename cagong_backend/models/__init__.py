@@ -15,6 +15,8 @@ def init_db(app):
     from .cafe import Cafe
     from .reservation import Reservation
     from .order import Order
+    from .cafe_likes import CafeLike
+
 
     return db
 
@@ -23,4 +25,6 @@ from .user import User
 from .cafe import Cafe
 from .reservation import Reservation
 from .order import Order
+from .cafe_likes import CafeLike
+
 
