@@ -8,7 +8,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from common.api_response import ApiResponse, ErrorCode
 
 
-payments_bp = Blueprint('payments', __name__, url_prefix='/api/payments')
+payments_bp = Blueprint('payments', __name__)
 
 @payments_bp.route('/create-order', methods=['POST'])
 @jwt_required()

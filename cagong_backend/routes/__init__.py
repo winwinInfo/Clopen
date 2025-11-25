@@ -20,5 +20,8 @@ def register_blueprints(app):
     # 결제 관련 블루프린트
     from .payment_routes import payments_bp
     app.register_blueprint(payments_bp, url_prefix='/api/payments')
+    # 좋아요 기능 관련 블루 프린트
+    from .likes import likes_bp
+    app.register_blueprint(likes_bp, url_prefix='/api/likes')
 
     return app
