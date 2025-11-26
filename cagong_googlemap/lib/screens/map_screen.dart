@@ -300,6 +300,12 @@ class MapScreenState extends State<MapScreen> {
                   zoomControlsEnabled: false,
                   markers: _markers,
                   clusterManagers: {_clusterService.clusterManager},
+                  //여기서 poi 탭 동작 추가
+                  // onPoiClick: (PointOfInterest poi) {
+                  //   print('POI tapped: ${poi.name}');
+                  //   print('POI placeId: ${poi.placeId}');
+                  //   print('POI position: ${poi.position}');
+                  // },
                   ),
             ),
             Positioned(
