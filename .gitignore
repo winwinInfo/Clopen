@@ -119,8 +119,6 @@ cagong_googlemap/ios/**/.symlinks/
 cagong_googlemap/ios/**/profile
 cagong_googlemap/ios/**/xcuserdata
 cagong_googlemap/ios/.generated/
-cagong_googlemap/ios/Flutter/Generated.xcconfig
-cagong_googlemap/ios/Flutter/flutter_export_environment.sh
 
 # Node.js (if used)
 node_modules/
@@ -131,14 +129,9 @@ yarn-error.log*
 # Temporary files
 *.tmp
 *.temp
-*~
 .fuse_hidden*
 .nfs*
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
 
 # Backup files
 *.bak
@@ -174,3 +167,7 @@ cagong_googlemap/android/**/.externalNativeBuild/
 .claude/
 *.bin
 /cagong_googlemap/android/app/.cxx
+cagong_backend/routes/__pycache__/__init__.cpython-311.pyc
+cagong_googlemap/android/app/.cxx/Debug/5u3h3o5z/armeabi-v7a/configure_fingerprint.bin
+cagong_googlemap/android/app/.cxx/Debug/5u3h3o5z/x86/configure_fingerprint.bin
+cagong_googlemap/android/app/.cxx/Debug/5u3h3o5z/x86_64/configure_fingerprint.bin
