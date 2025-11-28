@@ -288,24 +288,24 @@ class MapScreenState extends State<MapScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : GoogleMap(
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller.complete(controller);
-                  },
-                  initialCameraPosition: const CameraPosition(
-                    target: _center,
-                    zoom: 11.0,
-                  ),
-                  myLocationEnabled: false,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  markers: _markers,
-                  clusterManagers: {_clusterService.clusterManager},
-                  //여기서 poi 탭 동작 추가
-                  // onPoiClick: (PointOfInterest poi) {
-                  //   print('POI tapped: ${poi.name}');
-                  //   print('POI placeId: ${poi.placeId}');
-                  //   print('POI position: ${poi.position}');
-                  // },
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller.complete(controller);
+                    },
+                    initialCameraPosition: const CameraPosition(
+                      target: _center,
+                      zoom: 11.0,
+                    ),
+                    myLocationEnabled: false,
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
+                    markers: _markers,
+                    clusterManagers: {_clusterService.clusterManager},
+                    //여기서 poi 탭 동작 추가
+                    // onPoiClick: (PointOfInterest poi) {
+                    //   print('POI tapped: ${poi.name}');
+                    //   print('POI placeId: ${poi.placeId}');
+                    //   print('POI position: ${poi.position}');
+                    // },
                   ),
             ),
             Positioned(

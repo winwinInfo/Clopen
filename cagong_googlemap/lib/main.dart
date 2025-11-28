@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
               colorScheme: ColorScheme.fromSeed(
                 seedColor: Colors.brown,
                 primary: Colors.brown,
-                secondary: const Color(0xFFF5F0E6), // 연한 베이지
+                secondary: const Color(0xB6FFDEC6), // 연한 베이지
                 surface: Colors.white,
               ),
             ),

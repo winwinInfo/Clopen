@@ -4,7 +4,7 @@ import '../screens/mypage_screen.dart';
 import '../screens/login.dart';
 import 'package:provider/provider.dart';
 import '../utils/authProvider.dart';
-import '../screens/feedback_screen.dart';
+//import '../screens/feedback_screen.dart';
 import '../screens/reservation_screen.dart';
 
 class AppRouterDelegate extends RouterDelegate<RouteInformation>
@@ -32,9 +32,9 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
       case '/mypage':
         return 1;
       case '/feedback':
-        return 2;
+        return 999; //deprecated
       case '/reservation':
-        return 3;
+        return 2;
       default:
         return 0; // 지도
     }
@@ -46,9 +46,9 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
     switch (index) {
       case 1:
         return '/mypage';
-      case 2:
+      case 999: //deprecated
         return '/feedback';
-      case 3:
+      case 2:
         return '/reservation';
       default:
         return '/'; // 지도
@@ -69,8 +69,8 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
               children: [
                 MapScreen(key: _mapScreenKey),     // index 0: 지도 (GlobalKey 전달, const 제거)
                 _authProvider.isLoggedIn ? MyPage() : LoginPage(), // index 1: 내정보
-                const FeedbackScreen(),           // index 2: 의견
-                const ReservationScreen(),        // index 3: 예약
+                //const FeedbackScreen(),           // index 2: 의견 -> deprecated
+                const ReservationScreen(),        // index 3: 예약 -> 2로 수정 
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
@@ -84,10 +84,10 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
                   icon: Icon(Icons.person),
                   label: '내 정보',
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.mail),
-                  label: '의견',
-                ),
+                // BottomNavigationBarItem(
+                //   icon: Icon(Icons.mail),
+                //   label: '의견',
+                // ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.calendar_month),
                   label: '예약',
@@ -97,6 +97,7 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
               currentIndex: getIndexForRoute(_currentRoute),
               selectedItemColor: Colors.brown,
               unselectedItemColor: Colors.grey,
+
               onTap: (index) {
                 // MapScreen에서 다른 탭으로 이동할 때 Bottom Sheet 닫기
                 if (_currentRoute == '/' && index != 0) {
@@ -127,12 +128,13 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
     );
   }
 
+
+
+
   @override
   Future<void> setNewRoutePath(RouteInformation configuration) async {
     if (configuration.location == '/mypage') {
       _currentRoute = '/mypage';
-    } else if (configuration.location == '/feedback') {
-      _currentRoute = 'feedback/';
     } else {
       _currentRoute = '/';
     }
@@ -150,6 +152,8 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
     super.dispose();
   }
 }
+
+
 
 class AppRouteInformationParser
     extends RouteInformationParser<RouteInformation> {

@@ -161,7 +161,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _selectedCafe != null
                         ? Colors.brown
-                        : Colors.grey[400],
+                        : const Color.fromARGB(182, 255, 222, 198),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -212,6 +212,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
   /// 카페 카드 위젯을 생성하는 메서드
   Widget _buildCafeCard(Cafe cafe, bool isSelected) {
     return Card(
+      color:Colors.brown[100] ,
       elevation: isSelected ? 8 : 2,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       shape: RoundedRectangleBorder(
@@ -262,14 +263,14 @@ class _ReservationScreenState extends State<ReservationScreen> {
               // 주소
               Row(
                 children: [
-                  const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                  Icon(Icons.location_on, size: 16, color: Colors.brown[900]),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       cafe.address,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[700],
+                        color: Colors.grey[800],
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -282,7 +283,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.brown[50],
+                  color: Colors.white70,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
