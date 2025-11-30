@@ -153,12 +153,12 @@ class CafeService {
     try {
       final uri = Uri.parse('${ApiConfig.baseUrl}/cafes/search');
 
-      // Prepare request body
-      final requestBody = {
+      // Prepare request body (Map<String, dynamic>으로 명시적 선언)
+      final Map<String, dynamic> requestBody = {
         'query': query,
       };
 
-      // Add optional location parameters
+      // Add optional location parameters (double 값을 그대로 저장)
       if (latitude != null && longitude != null) {
         requestBody['latitude'] = latitude;
         requestBody['longitude'] = longitude;
@@ -218,12 +218,12 @@ class CafeService {
     try {
       final uri = Uri.parse('${ApiConfig.baseUrl}/cafes/add-from-places');
 
-      // Prepare request body
-      final requestBody = {
+      // Prepare request body (Map<String, dynamic>으로 명시적 선언)
+      final Map<String, dynamic> requestBody = {
         'name': name,
         'address': address,
-        'latitude': latitude,
-        'longitude': longitude,
+        'latitude': latitude,  // double 값을 그대로 저장 (정밀도 보존)
+        'longitude': longitude,  // double 값을 그대로 저장 (정밀도 보존)
       };
 
       // Send POST request

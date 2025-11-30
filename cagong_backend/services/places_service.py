@@ -36,6 +36,7 @@ def search_cafes_from_places(query, latitude=None, longitude=None, radius=None):
                 {
                     "place_id": str,
                     "name": str,
+                    "address": str,
                     "latitude": float,
                     "longitude": float
                 },
@@ -58,7 +59,7 @@ def search_cafes_from_places(query, latitude=None, longitude=None, radius=None):
     headers = {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': api_key,
-        'X-Goog-FieldMask': 'places.id,places.displayName,places.location'
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location'
     }
 
     # 요청 본문 구성
@@ -107,6 +108,9 @@ def search_cafes_from_places(query, latitude=None, longitude=None, radius=None):
             display_name = place.get('displayName', {})
             name = display_name.get('text', '이름 없음')
 
+            # formattedAddress 파싱
+            address = place.get('formattedAddress', '주소 정보 없음')
+
             # location 파싱
             location = place.get('location', {})
             lat = location.get('latitude')
@@ -118,6 +122,7 @@ def search_cafes_from_places(query, latitude=None, longitude=None, radius=None):
             cafe_info = {
                 'place_id': place_id,
                 'name': name,
+                'address': address,
                 'latitude': lat,
                 'longitude': lng
             }
