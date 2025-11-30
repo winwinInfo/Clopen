@@ -10,6 +10,7 @@ import '../utils/location_marker.dart';
 import '../widgets/search_bar.dart' as custom_search_bar;
 import '../widgets/bottom_sheet.dart';
 import '../widgets/filter.dart';
+import '../widgets/add_cafe_dialog.dart';
 
 
 
@@ -342,15 +343,31 @@ class MapScreenState extends State<MapScreen> {
                 ],
               ),
             ),
+            // 현위치 이동 버튼
             Positioned(
               bottom: 16 + _bottomSheetHeight,
               right: 16,
               child: FloatingActionButton(
                 onPressed: _moveToCurrentLocation,
-                backgroundColor: Colors.white, // 배경색
+                backgroundColor: Colors.white,
+                heroTag: 'location_button',
                 child: const Icon(
                   Icons.my_location,
-                  color: Colors.brown, // 아이콘 색상
+                  color: Colors.brown,
+                ),
+              ),
+            ),
+            // 카페 추가 버튼
+            Positioned(
+              bottom: 80 + _bottomSheetHeight,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: _showAddCafeDialog,
+                backgroundColor: Colors.brown,
+                heroTag: 'add_cafe_button',
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -417,6 +434,34 @@ class MapScreenState extends State<MapScreen> {
         });
       }
     }
+  }
+
+
+  // 현재 지도 중심 위치 가져오기
+  Future<LatLng> _getMapCenter() async {
+    final GoogleMapController controller = await _controller.future;
+    final LatLngBounds bounds = await controller.getVisibleRegion();
+
+    // 중심점 계산
+    final double centerLat = (bounds.northeast.latitude + bounds.southwest.latitude) / 2;
+    final double centerLng = (bounds.northeast.longitude + bounds.southwest.longitude) / 2;
+
+    return LatLng(centerLat, centerLng);
+  }
+
+
+  // 카페 추가 다이얼로그 표시
+  void _showAddCafeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddCafeDialog(
+        getMapCenter: _getMapCenter,
+        onCafeAdded: () {
+          // 카페 추가 성공 시 지도 새로고침
+          _loadCafesAndCreateMarkers();
+        },
+      ),
+    );
   }
 
 }

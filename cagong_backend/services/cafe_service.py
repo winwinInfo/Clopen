@@ -51,10 +51,10 @@ def add_cafe_from_places(name, address, latitude, longtitude):
     """
     # 필수 값 검증
     if not name or not address:
-        return False, "카페 이름과 주소는 필수입니다."
+        return False, "cafe name is required"
 
     if latitude is None or longtitude is None:
-        return False, "위도와 경도는 필수입니다."
+        return False, "location is required"
 
     # 동일한 이름과 주소를 가진 카페가 이미 있는지 검사
     existing_cafe = Cafe.query.filter_by(
@@ -63,7 +63,7 @@ def add_cafe_from_places(name, address, latitude, longtitude):
     ).first()
 
     if existing_cafe:
-        return False, f"'{name}' 카페가 이미 등록되어 있습니다."
+        return False, "duplicated"
 
     # 새로운 카페 생성
     new_cafe = Cafe(
