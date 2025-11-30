@@ -42,6 +42,9 @@ class Config:
     # Google ID 토큰 audience 검증용
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 
+    # Google Maps/Places API 키
+    GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+
     # 프론트엔드 URL (추가)
     FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:8080')
 
