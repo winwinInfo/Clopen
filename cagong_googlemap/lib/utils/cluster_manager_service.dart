@@ -5,7 +5,8 @@ import '../utils/custom_marker_generator.dart';
 
 /// 네이티브 google_maps_flutter 클러스터링 전담 서비스
 class ClusterManagerService {
-  final BuildContext context;
+  // 화면 크기 캐싱 (앱 실행 중 변하지 않음)
+  late final double _screenWidth;
 
   // 네이티브 ClusterManager
   late final ClusterManager _nativeClusterManager;
@@ -21,11 +22,17 @@ class ClusterManagerService {
   Function(List<Cafe>)? onClusterTap;
   Function(Set<Marker>)? _updateMarkersCallback;
 
-  ClusterManagerService(this.context) {
+  ClusterManagerService() {
     _nativeClusterManager = ClusterManager(
       clusterManagerId: const ClusterManagerId('cafe_cluster'),
       onClusterTap: _handleClusterTapInternal,
     );
+  }
+
+  /// 화면 크기 초기화 (최초 1회만 호출)
+  void initializeScreenSize(BuildContext context) {
+    _screenWidth = MediaQuery.of(context).size.width;
+    print('화면 크기 캐싱 완료: $_screenWidth');
   }
 
   /// 클러스터 탭 내부 핸들러
@@ -123,9 +130,8 @@ class ClusterManagerService {
 
   /// 반응형 마커 크기 계산
   Map<String, double> _calculateResponsiveMarkerSize(double offset) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    double baseMarkerSize = screenWidth * 0.15;
+    // 캐싱된 화면 크기 사용 (MediaQuery 호출 안함)
+    double baseMarkerSize = _screenWidth * 0.15;
 
     //줌 레벨에 따른 크기 조정 로직이었으나 deprecated 
     double offsetFactor = 1.0;
@@ -139,7 +145,7 @@ class ClusterManagerService {
 
     double markerSize = (baseMarkerSize * offsetFactor).clamp(36.0, 72.0);
     double fontSize = (markerSize * 0.5).clamp(24.0, 48.0);
-    double maxTextWidth = screenWidth * 1000; // 무제한 
+    double maxTextWidth = _screenWidth * 1000; // 무제한
     print( "   @@@@ 생성된 마커 사이즈 정보 :  ${markerSize}, ${fontSize}, ${maxTextWidth}   @@@@   ");
 
     return {
