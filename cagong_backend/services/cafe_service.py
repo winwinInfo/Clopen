@@ -34,7 +34,7 @@ def get_all_cafes_ids():
     return [cafe_id for (cafe_id,) in result]
 
 
-def add_cafe_from_places(name, address, latitude, longtitude):
+def add_cafe_from_places(name, address, latitude, longitude):
     """
      Google Places에서 검색한 카페를 데이터베이스에 추가
 
@@ -53,7 +53,7 @@ def add_cafe_from_places(name, address, latitude, longtitude):
     if not name or not address:
         return False, "cafe name is required"
 
-    if latitude is None or longtitude is None:
+    if latitude is None or longitude is None:
         return False, "location is required"
 
     # 동일한 이름과 주소를 가진 카페가 이미 있는지 검사
@@ -70,7 +70,7 @@ def add_cafe_from_places(name, address, latitude, longtitude):
         name        = name,
         address     = address,
         latitude    = latitude,
-        longtitude  = longtitude,
+        longitude   = longitude,
         # 나머지 필드는 기본값
         # 사용자가 추가한 카페는 나중에 추가 정보를 입력할 수 있음
         reservation_enabled = False,

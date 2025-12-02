@@ -77,8 +77,6 @@ class MapScreenState extends State<MapScreen> {
     // BuildContext 사용 가능한 시점에 ClusterManagerService 초기화 (한 번만)
     if (!_clusterServiceInitialized) {
       _clusterService = ClusterManagerService();
-      // 화면 크기를 한 번만 저장 (이후 계속 재사용)
-      _clusterService.initializeScreenSize(context);
       // 클러스터 초기화는 _loadCafesAndCreateMarkers에서 카페 데이터 로드 후 수행
       _clusterServiceInitialized = true;
     }
@@ -101,6 +99,8 @@ class MapScreenState extends State<MapScreen> {
 
     // 첫 프레임 렌더링 완료 후 마커 생성 (MediaQuery가 정확한 값을 반환하도록 보장)
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 레이아웃 완료 후 화면 크기를 저장 (한 번만)
+      _clusterService.initializeScreenSize(context);
       // ClusterManager 초기화
       await _clusterService.initClusterManager(_cafes, _updateMarkers);
     });

@@ -45,7 +45,7 @@ class CustomMarkerGenerator {
     print('Cafe: ${cafe.name}');
     print('markerSize: $markerSize');
     print('fontSize: $fontSize');
-    print('maxTextWidth: $maxTextWidth');
+    //print('maxTextWidth: $maxTextWidth');
 
     final ByteData imageData = await rootBundle.load(markerImagePath);
     final Uint8List imageBytes = imageData.buffer.asUint8List();
@@ -71,8 +71,8 @@ class CustomMarkerGenerator {
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
     );
-    textPainter.layout(maxWidth: maxTextWidth);
-
+    //textPainter.layout(maxWidth: 52); //일단 하드 코딩 해둔다.
+    textPainter.layout(); //없으면 무제한
 
     // 마커 이미지와 텍스트 중 더 큰 너비를 사용
     final double totalWidth = textPainter.width > markerSize

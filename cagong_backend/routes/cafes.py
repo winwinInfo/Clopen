@@ -402,7 +402,7 @@ def add_cafe_from_places():
             name=name,
             address=address,
             latitude=latitude,
-            longtitude=longitude  # 주의: 모델에서 longtitude로 오타
+            longitude=longitude
         )
 
         if success:
