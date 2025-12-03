@@ -61,8 +61,8 @@ class ClusterManagerService {
   /// 네이티브 ClusterManager getter
   ClusterManager get clusterManager => _nativeClusterManager;
 
-  /// 초기화 - 카페 데이터를 마커로 변환
-  Future<void> initClusterManager(
+  /// 카페 데이터와 콜백으로 클러스터 매니저 설정
+  Future<void> setupWithCafes(
     List<Cafe> cafes,
     Function(Set<Marker>) updateMarkers,
   ) async {

@@ -56,7 +56,8 @@ class MapScreenState extends State<MapScreen> {
 
   // 클러스터 마커 서비스 인스턴스 (late로 선언, build 후 초기화)
   late ClusterManagerService _clusterService;
-  bool _clusterServiceInitialized = false;
+  bool _screenWidthInitialized = false;
+  bool _cafesLoaded = false;
 
 
   @override
@@ -72,21 +73,39 @@ class MapScreenState extends State<MapScreen> {
   }
 
   @override
+  //얘는 screen width 저장하는 것만 함
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // BuildContext 사용 가능한 시점에 ClusterManagerService 초기화 (한 번만)
-    if (!_clusterServiceInitialized) {
-      _clusterService = ClusterManagerService();
-      // 클러스터 초기화는 _loadCafesAndCreateMarkers에서 카페 데이터 로드 후 수행
-      _clusterServiceInitialized = true;
+
+    if (!_screenWidthInitialized) {
+      final screenWidth = MediaQuery.of(context).size.width;
+
+      if (screenWidth > 0) {
+        // 화면 크기가 유효하면 서비스 초기화
+        _clusterService = ClusterManagerService();
+        _clusterService.initializeScreenSize(context);
+        _screenWidthInitialized = true;
+
+        print('ClusterService 초기화 완료 (화면 너비: $screenWidth)');
+
+        // 카페 데이터도 로드되었으면 클러스터 설정
+        _setupClusterIfReady();
+      }
     }
   }
 
 
 
 
-  // 클러스터 서비스 초기화
-  Future<void> _initClusterService() async {
+  // 두 조건이 모두 충족되었을 때만 클러스터 설정
+  Future<void> _setupClusterIfReady() async {
+    if (!_screenWidthInitialized || !_cafesLoaded) {
+      print('클러스터 설정 대기 중 - 화면 너비: $_screenWidthInitialized, 카페 로드: $_cafesLoaded');
+      return;
+    }
+
+    print('클러스터 설정 시작 (카페 ${_cafes.length}개)');
+
     // 카페 탭 이벤트
     _clusterService.onCafeTap = (cafe) {
       _handleCafeSelected(cafe);
@@ -97,13 +116,7 @@ class MapScreenState extends State<MapScreen> {
       showClusterBottomSheet(context, cafes);
     };
 
-    // 첫 프레임 렌더링 완료 후 마커 생성 (MediaQuery가 정확한 값을 반환하도록 보장)
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // 레이아웃 완료 후 화면 크기를 저장 (한 번만)
-      _clusterService.initializeScreenSize(context);
-      // ClusterManager 초기화
-      await _clusterService.initClusterManager(_cafes, _updateMarkers);
-    });
+    await _clusterService.setupWithCafes(_cafes, _updateMarkers);
   }
 
 
@@ -148,30 +161,14 @@ class MapScreenState extends State<MapScreen> {
 
 
 
-
-  // API 호출해서 카페 데이터 받아오는거. ( 만드는 로직은 아님 )
-  Future<void> _loadCafesAndCreateMarkers({bool isRefresh = false}) async {
+  // 전체 카페 데이터 받아오기. ( 만드는 로직은 아님 )
+  Future<void> _loadCafesAndCreateMarkers() async {
     try {
       _cafes = await CafeService.getAllCafes();
+      _cafesLoaded = true;
 
-      // 카페 데이터 로드 완료 후 클러스터 서비스 초기화
-      if (_clusterServiceInitialized) {
-        if (isRefresh) {
-          // 새로고침: setState 내부에서 실행하여 빌드 사이클과 동기화
-          if (mounted) {
-            setState(() {
-              // setState가 완료된 후의 다음 프레임에 실행
-              // 이 시점에는 Widget 트리가 완전히 갱신되어 MediaQuery가 정확함
-              WidgetsBinding.instance.addPostFrameCallback((_) async {
-                await _clusterService.setItems(_cafes);
-              });
-            });
-          }
-        } else {
-          // 최초 로드: 기존 방식 사용
-          await _initClusterService();
-        }
-      }
+      // 화면 너비도 초기화되었으면 클러스터 설정
+      await _setupClusterIfReady();
 
       if(mounted) {
         setState(() {
@@ -473,7 +470,7 @@ class MapScreenState extends State<MapScreen> {
         getMapCenter: _getMapCenter,
         onCafeAdded: () {
           // 카페 추가 성공 시 지도 새로고침
-          _loadCafesAndCreateMarkers(isRefresh: true);
+          _loadCafesAndCreateMarkers();
         },
       ),
     );
