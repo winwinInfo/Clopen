@@ -76,7 +76,7 @@ class MapScreenState extends State<MapScreen> {
   //얘는 screen width 저장하는 것만 함
   void didChangeDependencies() {
     super.didChangeDependencies();
-
+    //print(" # didChangeDependencies called !");
     if (!_screenWidthInitialized) {
       final screenWidth = MediaQuery.of(context).size.width;
 

@@ -30,6 +30,8 @@ class _AddCafeDialogState extends State<AddCafeDialog> {
 
   Future<void> _searchCafes() async {
     final query = _searchController.text.trim();
+    //focus 해제
+    FocusScope.of(context).unfocus();
 
     if (query.isEmpty) {
       _showSnackBar('검색어를 입력해주세요.');
@@ -193,6 +195,7 @@ class _AddCafeDialogState extends State<AddCafeDialog> {
                 border: OutlineInputBorder(),
               ),
               onSubmitted: (_) => _searchCafes(),
+
             ),
             const SizedBox(height: 10),
 
