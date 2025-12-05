@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // kDebugMode 사용
 import '../screens/map_screen.dart';
 import '../screens/mypage_screen.dart';
 import '../screens/login.dart';
@@ -34,7 +35,7 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
       case '/feedback':
         return 999; //deprecated
       case '/reservation':
-        return 2;
+        return kDebugMode ? 2 : 0; // 디버그 모드에서만 예약 탭 표시, 릴리즈에서는 지도로
       default:
         return 0; // 지도
     }
@@ -49,7 +50,7 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
       case 999: //deprecated
         return '/feedback';
       case 2:
-        return '/reservation';
+        return kDebugMode ? '/reservation' : '/'; // 디버그 모드에서만 예약, 릴리즈에서는 지도로
       default:
         return '/'; // 지도
     }
@@ -70,17 +71,17 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
                 MapScreen(key: _mapScreenKey),     // index 0: 지도 (GlobalKey 전달, const 제거)
                 _authProvider.isLoggedIn ? MyPage() : LoginPage(), // index 1: 내정보
                 //const FeedbackScreen(),           // index 2: 의견 -> deprecated
-                const ReservationScreen(),        // index 3: 예약 -> 2로 수정 
+                if (kDebugMode) const ReservationScreen(),        // index 2: 예약 (디버그 모드에서만)
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
               backgroundColor: Colors.white,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
+              items: <BottomNavigationBarItem>[
+                const BottomNavigationBarItem(
                   icon: Icon(Icons.map),
                   label: '지도',
                 ),
-                BottomNavigationBarItem(
+                const BottomNavigationBarItem(
                   icon: Icon(Icons.person),
                   label: '내 정보',
                 ),
@@ -88,10 +89,11 @@ class AppRouterDelegate extends RouterDelegate<RouteInformation>
                 //   icon: Icon(Icons.mail),
                 //   label: '의견',
                 // ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_month),
-                  label: '예약',
-                ),
+                if (kDebugMode)
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.calendar_month),
+                    label: '예약',
+                  ),
               ],
 
               currentIndex: getIndexForRoute(_currentRoute),

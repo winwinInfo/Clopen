@@ -3,6 +3,8 @@
 from flask import Blueprint, jsonify, request
 from services import cafe_service
 from services import places_service
+from flask_jwt_extended import jwt_required
+
 
 
 cafe_bp = Blueprint('cafes', __name__)
@@ -317,6 +319,7 @@ def search_cafes_from_google_places():
 
 
 @cafe_bp.route('/add-from-places', methods=['POST'])
+@jwt_required()
 def add_cafe_from_places():
     """
     Google Places에서 검색한 카페를 DB에 추가
