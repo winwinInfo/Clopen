@@ -1,4 +1,4 @@
-package com.example.cagong_googlemap
+package com.cagongmap
 
 import io.flutter.embedding.android.FlutterActivity
 

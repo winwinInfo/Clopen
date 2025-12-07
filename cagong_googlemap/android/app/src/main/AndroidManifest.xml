@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.cagong_googlemap">
+    package="com.cagongmap">
     
     <!-- 필요한 권한 설정 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     
     <application
-        android:label="cagong_googlemap"
+        android:label="카공여지도"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

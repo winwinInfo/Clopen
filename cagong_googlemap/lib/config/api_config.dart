@@ -4,14 +4,23 @@ import 'dart:io';
 ///
 /// This class handles the base URL configuration for API requests
 /// depending on the platform (Android/iOS) and environment (development/production)
+///
+/// Usage:
+/// - Development: flutter run (기본값)
+/// - Production build: flutter build apk --dart-define=ENVIRONMENT=production
+/// - Production run: flutter run --dart-define=ENVIRONMENT=production
 class ApiConfig {
-  // Development mode flag
-  // Set to false when deploying to production
-  static const bool isDevelopment = true;
+  // 빌드 타임에 환경 변수로 주입 (기본값: development)
+  static const String _environment = String.fromEnvironment(
+    'ENVIRONMENT',
+    defaultValue: 'development',
+  );
 
-  // Production server URL
-  // Update this when you have a production backend server
-  static const String productionUrl = 'https://your-backend-server.com/api';
+  // 환경 변수 기반으로 개발 모드 자동 판단
+  static bool get isDevelopment => _environment == 'development';
+
+  // Production server URL (AWS Elastic Beanstalk)
+  static const String productionUrl = 'http://cagong-backend-eb-v3-env.eba-pm3hhipc.ap-northeast-2.elasticbeanstalk.com/api';
 
   /// Get the appropriate base URL based on platform and environment
   ///
