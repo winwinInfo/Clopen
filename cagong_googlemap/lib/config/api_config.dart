@@ -19,8 +19,8 @@ class ApiConfig {
   // 환경 변수 기반으로 개발 모드 자동 판단
   static bool get isDevelopment => _environment == 'development';
 
-  // Production server URL (AWS Elastic Beanstalk)
-  static const String productionUrl = 'http://cagong-backend-eb-v3-env.eba-pm3hhipc.ap-northeast-2.elasticbeanstalk.com/api';
+  // Production server URL (PythonAnywhere)
+  static const String productionUrl = 'https://yannoo.pythonanywhere.com/api';
 
   /// Get the appropriate base URL based on platform and environment
   ///

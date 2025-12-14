@@ -4,36 +4,13 @@ from routes.auth import auth_bp
 from routes import register_blueprints
 from models import init_db
 from swagger import init_swagger
-import os
-from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
-from config import config
+from config import config, FLASK_ENV
 from exceptions.handlers import register_handlers
 
-# 환경 변수에서 환경 설정 가져오기 (기본값: development)
-# 시스템 환경 변수 또는 이전에 설정된 FLASK_ENV 확인
-env = os.getenv('FLASK_ENV', 'development')
-
-# 환경에 따라 다른 .env 파일 로드
-# production → .env.prd
-# development → .env.local (없으면 .env)
-if env == 'production':
-    env_file = '.env.prd'
-else:
-    env_file = '.env.local' if os.path.exists('.env.local') else '.env'
-
-# .env 파일 로드
-if os.path.exists(env_file):
-    load_dotenv(env_file)
-    print(f"Loaded environment from: {env_file}")
-else:
-    load_dotenv()  # 기본 .env 로드
-    print(f"Loaded environment from: .env (default)")
-
-# Flask 앱 생성
+# Flask 앱 생성 및 환경별 설정 로드
 app = Flask(__name__)
-# 환경별 설정 로드 (development 또는 production)
-app.config.from_object(config.get(env, config['default']))
+app.config.from_object(config.get(FLASK_ENV, config['default']))
 
 # CORS 설정
 CORS(app, resources={

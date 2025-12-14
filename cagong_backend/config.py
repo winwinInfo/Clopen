@@ -4,8 +4,24 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from pathlib import Path
 
-# 로컬 환경 변수 로드
-load_dotenv()
+# 환경 감지 (기본값: development)
+FLASK_ENV = os.getenv('FLASK_ENV', 'development')
+
+# 환경별 .env 파일 선택 및 로드
+if FLASK_ENV == 'production':
+    env_file = '.env.prd'
+elif os.path.exists('.env.local'):
+    env_file = '.env.local'
+else:
+    env_file = '.env'
+
+# .env 파일 로드
+if os.path.exists(env_file):
+    load_dotenv(env_file, override=True)
+    print(f"[Config] Loaded environment from: {env_file}")
+else:
+    load_dotenv(override=True)
+    print(f"[Config] Loaded environment from: .env (default)")
 
 
 class Config:
@@ -13,12 +29,12 @@ class Config:
     SECRET_KEY  = os.getenv('SECRET_KEY', 'dev-secret-key') # JWT 서명용 (차준직이 로그인 할 때 사용함)
     DEBUG       = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     
-    # Database Configuration (AWS RDS 연결용)
+    # Database Configuration
     DB_HOST     = os.getenv('DATABASE_URL')
     DB_PORT     = os.getenv('DATABASE_port', '3306')
-    DB_USER     = os.getenv('DATABASE_user', 'admin')
+    DB_USER     = os.getenv('DATABASE_user')
     DB_PASSWORD = os.getenv('DATABASE_password')
-    DB_NAME     = os.getenv('DATABASE_name', 'cagongDB')
+    DB_NAME     = os.getenv('DATABASE_name')
 
     # MySQL connection string
     SQLALCHEMY_DATABASE_URI = (
