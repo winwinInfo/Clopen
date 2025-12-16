@@ -305,7 +305,8 @@ Widget _buildInfoContent() {
               //예약 불가 카페일 때
               const Center(
                 child: Text(
-                  "예약을 지원하지 않는 카페입니다.",
+                  //"예약을 지원하지 않는 카페입니다.",
+                  "", //걍 아무말도 안나오게
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,

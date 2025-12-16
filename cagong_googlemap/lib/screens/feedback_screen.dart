@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/authProvider.dart' as loginProvider;
 import '../screens/login.dart';
-import '../models/opinion.dart';
+import '../models/comment.dart';
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});

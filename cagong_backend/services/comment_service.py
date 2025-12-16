@@ -3,6 +3,33 @@ from common.api_response import ApiResponse, ErrorCode
 
 class CommentService:
 
+
+
+    @staticmethod
+    def get_comments(cafe_id: int):
+
+        cafe = Cafe.query.get(cafe_id)
+
+        try:
+            comments = Comment.query.filter_by(cafe_id=cafe_id).order_by(Comment.created_at.desc()).all()
+            comments_data = [comment.to_dict() for comment in comments]
+
+            return ApiResponse.success(
+                data=comments_data,
+                message="댓글 목록을 불러왔습니다.",
+                http_status=200
+            )
+
+        except Exception:
+            return ApiResponse.fail(
+                error_code=ErrorCode.DATABASE_ERROR,
+                message="댓글 조회 중 데이터베이스 오류가 발생했습니다.",
+                http_status=500
+            )
+
+
+
+
     @staticmethod
     def create_comment(user_id: int, cafe_id: int, data: dict):
         # 1. 입력값 검증

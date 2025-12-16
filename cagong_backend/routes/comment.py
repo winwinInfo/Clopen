@@ -4,6 +4,45 @@ from services.comment_service import CommentService
 
 comment_bp = Blueprint('comments', __name__)
 
+@comment_bp.route('/<int:cafe_id>', methods=['GET'])
+def get_comments(cafe_id):
+    """
+    댓글 목록 조회
+    ---
+    tags:
+      - Comments
+    summary: 특정 카페의 댓글 목록을 조회합니다.
+    description: 카페에 달린 모든 댓글을 최신순으로 조회합니다.
+    parameters:
+      - in: path
+        name: cafe_id
+        required: true
+        description: 댓글을 조회할 카페 ID
+        schema:
+          type: integer
+    responses:
+      200:
+        description: 댓글 목록 조회 성공
+        content:
+          application/json:
+            example:
+              status: SUCCESS
+              message: "댓글 목록을 불러왔습니다."
+              data:
+                - id: 1
+                  content: "분위기가 너무 좋아요!"
+                  user_nickname: "카페러버"
+                  user_photo: ""
+                  created_at: "2023-10-25T12:00:00"
+                - id: 2
+                  content: "커피가 맛있어요!"
+                  user_nickname: "커피매니아"
+                  user_photo: null
+                  created_at: "2023-10-24T10:30:00"
+    """
+    return CommentService.get_comments(cafe_id)
+
+
 @comment_bp.route('/<int:cafe_id>', methods=['POST'])
 @jwt_required()
 def create_comment(cafe_id):
@@ -88,3 +127,5 @@ def delete_comment(comment_id):
     """
     user_id = get_jwt_identity()
     return CommentService.delete_comment(user_id, comment_id)
+
+
