@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import '../models/cafe.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../utils/authProvider.dart' as loginProvider; 
+import '../utils/authProvider.dart' as loginProvider;
 import 'login.dart';
-import '../widgets/cafe_comment.dart'; 
+import '../widgets/cafe_comment.dart';
+import '../widgets/cafe_rating_section.dart'; 
 
 
 
@@ -110,6 +111,11 @@ Widget _buildInfoContent() {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
+
+            CafeRatingSection(cafeId: widget.cafe.id),
+
+            const SizedBox(height: 10),
+
             Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
@@ -126,108 +132,13 @@ Widget _buildInfoContent() {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            Column(
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.place_rounded,
-                      color: Colors.grey,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      widget.cafe.address,
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.emoji_food_beverage_rounded,
-                      color: Colors.grey,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 5),
-                    const Text(
-                      '아아가격ㆍ',
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
-                    ),
-                    Text(
-                      widget.cafe.price ?? '가격 정보 없음',
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.alarm_on_rounded,
-                      color: Colors.grey,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 5),
-                    const Text(
-                      '평일 권장 체류 시간ㆍ',
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
-                    ),
-                    Text(
-                      _getUsageTimeText(widget.cafe.hoursWeekday),
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.alarm_on_rounded,
-                      color: Colors.grey,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 5),
-                    const Text(
-                      '주말 권장 체류 시간ㆍ',
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
-                    ),
-                    Text(
-                      _getUsageTimeText(widget.cafe.hoursWeekend),
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+
+            const SizedBox(height: 16),
+
+            _buildInfoSection(),
+
             const SizedBox(height: 20),
+
             const Text("영업 시간", style: TextStyle(fontWeight: FontWeight.bold)),
             _buildBusinessHoursTable(),
             const SizedBox(height: 20),
@@ -323,7 +234,94 @@ Widget _buildInfoContent() {
 
 
 
-  
+  Widget _buildInfoSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(
+            icon: Icons.place_rounded,
+            label: '주소',
+            value: widget.cafe.address,
+          ),
+          const Divider(height: 24),
+          _buildInfoRow(
+            icon: Icons.emoji_food_beverage_rounded,
+            label: '아아 가격',
+            value: widget.cafe.price ?? '가격 정보 없음',
+          ),
+          const Divider(height: 24),
+          _buildInfoRow(
+            icon: Icons.alarm_on_rounded,
+            label: '평일 권장 시간',
+            value: _getUsageTimeText(widget.cafe.hoursWeekday),
+          ),
+          const Divider(height: 24),
+          _buildInfoRow(
+            icon: Icons.alarm_on_rounded,
+            label: '주말 권장 시간',
+            value: _getUsageTimeText(widget.cafe.hoursWeekend),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          color: Colors.brown[600],
+          size: 22,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+
   Widget _buildCommentsContent() {
     return SingleChildScrollView(
       child: Padding(

@@ -38,29 +38,20 @@ class MyPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 프로필 사진 표시
-            if (user['photoUrl'] != null)
-              Center(
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(user['photoUrl']),
-                ),
-              ),
             SizedBox(height: 24),
 
-            // 이름
-            if (user['name'] != null)
-              Text(
-                '이름: ${user['name']}',
-                style: TextStyle(fontSize: 18),
+            // 인사말
+            Center(
+              child: Text(
+                '반갑습니다, ${user['nickname'] ?? "사용자"}님',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            SizedBox(height: 8),
-
-            // 이메일
-            Text(
-              '이메일: ${user['email'] ?? "미입력"}',
-              style: TextStyle(fontSize: 18),
             ),
+            SizedBox(height: 24),
+
           ],
         ),
       ),

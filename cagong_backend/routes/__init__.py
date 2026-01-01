@@ -27,4 +27,7 @@ def register_blueprints(app):
     from .comment import comment_bp
     app.register_blueprint(comment_bp, url_prefix='/api/comments')
 
+    from .rating import rating_bp
+    app.register_blueprint(rating_bp, url_prefix='/api/ratings')
+
     return app
