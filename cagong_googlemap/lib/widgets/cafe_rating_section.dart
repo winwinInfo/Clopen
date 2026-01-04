@@ -52,6 +52,9 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
   }
 
   Future<void> _submitRating(int rate) async {
+    //이미 제출 중이면 즉시 return (중복 요청 방지)
+    if (_isSubmitting) return;
+
     final authProvider = Provider.of<loginProvider.AuthProvider>(context, listen: false);
     final jwtToken = authProvider.jwtToken;
 
@@ -70,25 +73,31 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_ratingStats?.myRating == null
-              ? '평점이 등록되었습니다!'
-              : '평점이 수정되었습니다!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(_ratingStats?.myRating == null
+                ? '평점이 등록되었습니다!'
+                : '평점이 수정되었습니다!'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 1),
+            ),
+          );
       }
 
       await _loadRatingStats();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('평점 등록 실패: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('평점 등록 실패: $e'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 1),
+            ),
+          );
       }
     } finally {
       setState(() => _isSubmitting = false);
