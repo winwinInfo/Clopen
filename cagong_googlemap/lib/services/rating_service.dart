@@ -94,4 +94,33 @@ class RatingService {
       rethrow;
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getMyRatings({
+    required String jwtToken,
+  }) async {
+    try {
+      final uri = Uri.parse('${ApiConfig.baseUrl}/ratings/my-ratings');
+      final response = await http.get(
+        uri,
+        headers: {'Authorization': 'Bearer $jwtToken'},
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw Exception('요청 시간 초과'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'SUCCESS') {
+          List<dynamic> ratingsJson = data['data'];
+          return ratingsJson.map((item) => item as Map<String, dynamic>).toList();
+        } else {
+          throw Exception(data['message']);
+        }
+      } else {
+        throw Exception('Server Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

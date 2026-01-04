@@ -172,3 +172,38 @@ def get_my_rating(cafe_id):
     """
     user_id = get_jwt_identity()
     return RatingService.get_my_rating(user_id, cafe_id)
+
+
+@rating_bp.route('/my-ratings', methods=['GET'])
+@jwt_required()
+def get_all_my_ratings():
+    """
+    내가 평점을 매긴 모든 카페 목록 조회
+    ---
+    tags:
+      - Ratings
+    summary: 내가 평점을 매긴 모든 카페 목록을 조회합니다.
+    security:
+      - BearerAuth: []
+    responses:
+      200:
+        description: 내 평점 목록 조회 성공
+        content:
+          application/json:
+            example:
+              status: SUCCESS
+              message: "내가 평점을 매긴 카페 목록을 조회했습니다."
+              data:
+                - rating_id: 1
+                  rate: 5
+                  created_at: "2025-12-31T10:00:00"
+                  updated_at: "2025-12-31T10:00:00"
+                  cafe:
+                    id: 10
+                    name: "스타벅스 강남점"
+                    address: "서울시 강남구 ..."
+                    latitude: 37.1234
+                    longitude: 127.5678
+    """
+    user_id = get_jwt_identity()
+    return RatingService.get_all_my_ratings(user_id)

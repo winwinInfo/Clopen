@@ -197,3 +197,47 @@ class RatingService:
                 message="평점을 아직 등록하지 않았습니다.",
                 http_status=200
             )
+
+    @staticmethod
+    def get_all_my_ratings(user_id: int):
+        """
+        내가 평점을 매긴 모든 카페 목록 조회
+        """
+        try:
+            ratings = CafeRating.query.filter_by(user_id=user_id).all()
+
+            if not ratings:
+                return ApiResponse.success(
+                    data=[],
+                    message="평점을 매긴 카페가 없습니다.",
+                    http_status=200
+                )
+
+            result = []
+            for rating in ratings:
+                cafe = Cafe.query.get(rating.cafe_id)
+                if cafe:
+                    result.append({
+                        "rating_id": rating.id,
+                        "rate": rating.rate,
+                        "created_at": rating.created_at.isoformat(),
+                        "updated_at": rating.updated_at.isoformat(),
+                        "cafe": {
+                            "id": cafe.id,
+                            "name": cafe.name,
+                            "address": cafe.address
+                        }
+                    })
+
+            return ApiResponse.success(
+                data=result,
+                message="내가 평점을 매긴 카페 목록을 조회했습니다.",
+                http_status=200
+            )
+
+        except Exception:
+            return ApiResponse.fail(
+                error_code=ErrorCode.DATABASE_ERROR,
+                message="평점 목록 조회 중 데이터베이스 오류가 발생했습니다.",
+                http_status=500
+            )
