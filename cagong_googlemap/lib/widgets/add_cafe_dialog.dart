@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import '../services/cafe_service.dart';
+import '../utils/authProvider.dart' as loginProvider;
+
+
 
 class AddCafeDialog extends StatefulWidget {
   final Future<LatLng> Function() getMapCenter;
@@ -78,6 +82,11 @@ class _AddCafeDialogState extends State<AddCafeDialog> {
   }
 
   Future<void> _addCafe(Map<String, dynamic> cafe) async {
+
+    final authProvider = Provider.of<loginProvider.AuthProvider>(context, listen: false);
+    final jwtToken = authProvider.jwtToken;
+    if (jwtToken == null) return;
+
     // 확인 다이얼로그
     final confirmed = await showDialog<bool>(
       context: context,
@@ -116,6 +125,7 @@ class _AddCafeDialogState extends State<AddCafeDialog> {
         address: cafe['address'] ?? '',
         latitude: cafe['latitude'],
         longitude: cafe['longitude'],
+        jwtToken: jwtToken,
       );
 
       // 로딩 다이얼로그 닫기
