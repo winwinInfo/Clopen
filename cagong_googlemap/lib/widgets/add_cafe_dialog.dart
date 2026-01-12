@@ -85,7 +85,10 @@ class _AddCafeDialogState extends State<AddCafeDialog> {
 
     final authProvider = Provider.of<loginProvider.AuthProvider>(context, listen: false);
     final jwtToken = authProvider.jwtToken;
-    if (jwtToken == null) return;
+    if (jwtToken == null) {
+      _showSnackBar('로그인이 필요합니다.');
+      return;
+    }
 
     // 확인 다이얼로그
     final confirmed = await showDialog<bool>(
