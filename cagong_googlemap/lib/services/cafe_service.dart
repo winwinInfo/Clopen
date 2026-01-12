@@ -214,6 +214,7 @@ class CafeService {
     required String address,
     required double latitude,
     required double longitude,
+    required String jwtToken,
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.baseUrl}/cafes/add-from-places');
@@ -229,7 +230,10 @@ class CafeService {
       // Send POST request
       final response = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
         body: json.encode(requestBody),
       ).timeout(
         const Duration(seconds: 10),
