@@ -37,11 +37,10 @@ Widget _buildInfoContent() {
           children: [
             const SizedBox(height: 10),
 
-            CafeRatingSection(cafeId: widget.cafe.id),
-
-            const SizedBox(height: 16),
-
-            _buildInfoSection(),
+            CafeRatingSection(
+              cafeId: widget.cafe.id,
+              editorComment: widget.cafe.message,
+            ),
 
             const SizedBox(height: 20),
 
@@ -133,75 +132,6 @@ Widget _buildInfoContent() {
 
 
 
-
-  Widget _buildInfoSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          _buildInfoRow(
-            icon: Icons.place_rounded,
-            label: '주소',
-            value: widget.cafe.address,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          color: Colors.brown[600],
-          size: 22,
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
 
   Widget _buildCommentsContent() {

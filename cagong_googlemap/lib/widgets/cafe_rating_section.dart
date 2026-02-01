@@ -7,8 +7,13 @@ import '../screens/login.dart';
 
 class CafeRatingSection extends StatefulWidget {
   final int cafeId;
+  final String? editorComment;
 
-  const CafeRatingSection({super.key, required this.cafeId});
+  const CafeRatingSection({
+    super.key,
+    required this.cafeId,
+    this.editorComment,
+  });
 
   @override
   State<CafeRatingSection> createState() => _CafeRatingSectionState();
@@ -246,8 +251,191 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
       return const SizedBox.shrink();
     }
 
+    return Column(
+      children: [
+        // 1. 카공 적합도 섹션
+        _buildSuitabilitySection(),
+
+        const SizedBox(height: 12),
+
+        // 2. 에디터 코멘트 섹션
+        if (widget.editorComment != null && widget.editorComment!.isNotEmpty)
+          _buildEditorCommentSection(),
+
+        const SizedBox(height: 12),
+
+        // 3. 평가하기 섹션
+        _buildRatingInputSection(),
+      ],
+    );
+  }
+
+  // 1. 카공 적합도 섹션
+  Widget _buildSuitabilitySection() {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(Icons.analytics_outlined, color: Colors.brown[600], size: 20),
+              const SizedBox(width: 8),
+              Text(
+                '카공 적합도',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.brown[800],
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${_ratingStats!.totalCount}명 평가',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              // 카공지수
+              Expanded(
+                child: _buildStatItem(
+                  label: '카공지수',
+                  value: _ratingStats!.averageRating.toStringAsFixed(1),
+                  icon: Icons.star,
+                  iconColor: Colors.amber[600]!,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: Colors.grey[300],
+              ),
+              // 콘센트
+              Expanded(
+                child: _buildStatItem(
+                  label: '콘센트',
+                  value: _ratingStats!.consentKeyword ?? '-',
+                  icon: Icons.power,
+                  iconColor: Colors.brown[600]!,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: Colors.grey[300],
+              ),
+              // 좌석
+              Expanded(
+                child: _buildStatItem(
+                  label: '좌석',
+                  value: _ratingStats!.seatKeyword ?? '-',
+                  icon: Icons.chair,
+                  iconColor: Colors.brown[600]!,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: iconColor, size: 20),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.brown[800],
+            fontFamily: 'Pretendard',
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey[600],
+            fontFamily: 'Pretendard',
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 2. 에디터 코멘트 섹션
+  Widget _buildEditorCommentSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: const Color(0xFFFAF7F2),
+        border: Border.all(color: Colors.brown.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.edit_note, color: Colors.brown[600], size: 20),
+              const SizedBox(width: 8),
+              Text(
+                '에디터 코멘트',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.brown[700],
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            widget.editorComment!,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.brown[800],
+              fontFamily: 'Pretendard',
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 3. 평가하기 섹션
+  Widget _buildRatingInputSection() {
+    return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
@@ -261,7 +449,7 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -270,114 +458,106 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.star, color: Colors.amber[700], size: 24),
+              Icon(Icons.rate_review, color: Colors.brown[700], size: 20),
               const SizedBox(width: 8),
-              const Text(
-                '카공지수',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Pretendard',
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
               Text(
-                _ratingStats!.averageRating.toStringAsFixed(1),
+                '평가하기',
                 style: TextStyle(
-                  fontSize: 48,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.brown[800],
                   fontFamily: 'Pretendard',
                 ),
               ),
-              const SizedBox(width: 8),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Text(
-                  '/ 5.0',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.brown[600],
-                    fontFamily: 'Pretendard',
-                  ),
-                ),
-              ),
             ],
           ),
+          const SizedBox(height: 16),
 
-          Text(
-            '${_ratingStats!.totalCount}명 평가',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.brown[700],
-              fontFamily: 'Pretendard',
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          const Text(
-            '카공하기에 얼마나 적합한가요?',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Pretendard',
-            ),
+          // 카공지수 평가
+          _buildRatingRow(
+            label: '카공지수',
+            options: ['1', '2', '3', '4', '5'],
+            selectedValue: _ratingStats!.myRating,
+            onSelect: _submitRating,
           ),
 
           const SizedBox(height: 12),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(5, (index) {
-              final ratingValue = index + 1;
-              final isSelected = _ratingStats!.myRating == ratingValue;
+          // 콘센트 평가
+          _buildRatingRow(
+            label: '콘센트',
+            options: ['적음', '보통', '많음'],
+            selectedValue: _ratingStats!.myConsentRate,
+            onSelect: _submitConsentRate,
+          ),
+
+          const SizedBox(height: 12),
+
+          // 좌석 평가
+          _buildRatingRow(
+            label: '좌석',
+            options: ['적음', '보통', '많음'],
+            selectedValue: _ratingStats!.mySeatRate,
+            onSelect: _submitSeatRate,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRatingRow({
+    required String label,
+    required List<String> options,
+    required int? selectedValue,
+    required Function(int) onSelect,
+  }) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 65,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.brown[700],
+              fontFamily: 'Pretendard',
+            ),
+          ),
+        ),
+        Expanded(
+          child: Row(
+            children: List.generate(options.length, (index) {
+              final value = index + 1;
+              final isSelected = selectedValue == value;
 
               return Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
                   child: GestureDetector(
-                    onTap: _isSubmitting ? null : () => _submitRating(ratingValue),
+                    onTap: _isSubmitting ? null : () => onSelect(value),
                     child: Container(
-                      height: 50,
+                      height: 36,
                       decoration: BoxDecoration(
                         color: isSelected
-                          ? Colors.brown
-                          : Colors.white.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(10),
+                            ? Colors.brown
+                            : Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: isSelected
-                            ? Colors.brown
-                            : Colors.brown.withOpacity(0.3),
+                              ? Colors.brown
+                              : Colors.brown.withOpacity(0.3),
                           width: isSelected ? 2 : 1,
                         ),
-                        boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: Colors.brown.withOpacity(0.3),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : null,
                       ),
                       child: Center(
                         child: Text(
-                          ratingValue.toString(),
+                          options[index],
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: isSelected ? Colors.white : Colors.brown,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected ? Colors.white : Colors.brown[700],
                             fontFamily: 'Pretendard',
                           ),
                         ),
@@ -388,136 +568,6 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
               );
             }),
           ),
-
-          if (_ratingStats!.myRating != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              '내 평점: ${_ratingStats!.myRating}점',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.brown[700],
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 24),
-          const Divider(color: Colors.brown, thickness: 0.5),
-          const SizedBox(height: 16),
-
-          // 콘센트 평가 섹션
-          _buildSubRatingSection(
-            icon: Icons.power,
-            title: '콘센트',
-            keyword: _ratingStats!.consentKeyword,
-            myValue: _ratingStats!.myConsentRate,
-            onSubmit: _submitConsentRate,
-          ),
-
-          const SizedBox(height: 16),
-
-          // 좌석 평가 섹션
-          _buildSubRatingSection(
-            icon: Icons.chair,
-            title: '좌석',
-            keyword: _ratingStats!.seatKeyword,
-            myValue: _ratingStats!.mySeatRate,
-            onSubmit: _submitSeatRate,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 콘센트/좌석 평가 위젯 빌더
-  Widget _buildSubRatingSection({
-    required IconData icon,
-    required String title,
-    required String? keyword,
-    required int? myValue,
-    required Function(int) onSubmit,
-  }) {
-    const labels = ['적음', '보통', '많음'];
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.brown[600], size: 20),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-            if (keyword != null) ...[
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.brown[100],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  keyword,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.brown[700],
-                    fontFamily: 'Pretendard',
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(3, (index) {
-            final value = index + 1;
-            final isSelected = myValue == value;
-
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: GestureDetector(
-                  onTap: _isSubmitting ? null : () => onSubmit(value),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.brown
-                          : Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected
-                            ? Colors.brown
-                            : Colors.brown.withOpacity(0.3),
-                        width: isSelected ? 2 : 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        labels[index],
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? Colors.white : Colors.brown,
-                          fontFamily: 'Pretendard',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
         ),
       ],
     );
