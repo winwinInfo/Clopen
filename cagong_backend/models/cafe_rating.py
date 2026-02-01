@@ -6,13 +6,14 @@ class CafeRating(db.Model):
     __tablename__ = 'cafe_ratings'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     cafe_id = db.Column(db.Integer, db.ForeignKey('cafes.id'), nullable=False)
-
     # 카공점수
-    rate = db.Column(db.Integer, nullable=False)
-
+    rate = db.Column(db.Integer, nullable=True)
+    # 콘센트
+    consent_rate = db.Column(db.Integer, nullable=True)
+    # 좌석
+    seat_rate = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -30,6 +31,8 @@ class CafeRating(db.Model):
             "user_id": self.user_id,
             "cafe_id": self.cafe_id,
             "rate": self.rate,
+            "consent_rate": self.consent_rate,
+            "seat_rate": self.seat_rate,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat()
         }

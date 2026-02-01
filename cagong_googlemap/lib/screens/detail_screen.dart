@@ -27,81 +27,6 @@ class DetailScreenState extends State<DetailScreen> {
   }
 
 
-  String _getUsageTimeText(int? hours) {
-    if (hours == null || hours == -1) return '무제한';
-    if (hours == 0) return '권장X';
-    return '$hours 시간';
-  }
-
-  Widget _buildBusinessHoursTable() {
-    final operatingHours = widget.cafe.operatingHours;
-    final days = [
-      {'label': '월', 'hours': operatingHours.monday},
-      {'label': '화', 'hours': operatingHours.tuesday},
-      {'label': '수', 'hours': operatingHours.wednesday},
-      {'label': '목', 'hours': operatingHours.thursday},
-      {'label': '금', 'hours': operatingHours.friday},
-      {'label': '토', 'hours': operatingHours.saturday},
-      {'label': '일', 'hours': operatingHours.sunday},
-    ];
-
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: const Color(0XFFc7b199).withOpacity(0.5),
-      ),
-      child: Table(
-        border: TableBorder.all(
-          width: 3,
-          color: Colors.white,
-        ),
-        children: [
-          TableRow(
-            children: days
-                .map((day) => TableCell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          day['label'] as String,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ))
-                .toList(),
-          ),
-          TableRow(
-            children: days
-                .map((day) {
-                  final hours = day['hours'] as DayHours?;
-                  final text = hours != null
-                      ? '${hours.begin ?? ''}-${hours.end ?? ''}'
-                      : '휴무';
-                  return TableCell(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        text,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    ),
-                  );
-                })
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-
-
-
 
 Widget _buildInfoContent() {
     return SingleChildScrollView(
@@ -114,37 +39,12 @@ Widget _buildInfoContent() {
 
             CafeRatingSection(cafeId: widget.cafe.id),
 
-            const SizedBox(height: 10),
-
-            Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: const Color(0XFFc7b199).withOpacity(0.5),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              child: Text(
-                widget.cafe.message ?? '카페 소개가 없습니다.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.jua(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-
             const SizedBox(height: 16),
 
             _buildInfoSection(),
 
             const SizedBox(height: 20),
 
-            const Text("영업 시간", style: TextStyle(fontWeight: FontWeight.bold)),
-            _buildBusinessHoursTable(),
-            const SizedBox(height: 20),
-            
-            // 유튜브 영상 로직 삭제
-            
             // 예약 기능이 활성화된 경우
             if (widget.cafe.reservation.enabled) ...[
               Consumer<loginProvider.AuthProvider>(
@@ -254,24 +154,6 @@ Widget _buildInfoContent() {
             icon: Icons.place_rounded,
             label: '주소',
             value: widget.cafe.address,
-          ),
-          const Divider(height: 24),
-          _buildInfoRow(
-            icon: Icons.emoji_food_beverage_rounded,
-            label: '아아 가격',
-            value: widget.cafe.price ?? '가격 정보 없음',
-          ),
-          const Divider(height: 24),
-          _buildInfoRow(
-            icon: Icons.alarm_on_rounded,
-            label: '평일 권장 시간',
-            value: _getUsageTimeText(widget.cafe.hoursWeekday),
-          ),
-          const Divider(height: 24),
-          _buildInfoRow(
-            icon: Icons.alarm_on_rounded,
-            label: '주말 권장 시간',
-            value: _getUsageTimeText(widget.cafe.hoursWeekend),
           ),
         ],
       ),

@@ -51,8 +51,8 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
     }
   }
 
+  // 카공지수 제출
   Future<void> _submitRating(int rate) async {
-    //이미 제출 중이면 즉시 return (중복 요청 방지)
     if (_isSubmitting) return;
 
     final authProvider = Provider.of<loginProvider.AuthProvider>(context, listen: false);
@@ -68,8 +68,8 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
     try {
       await RatingService.submitRating(
         cafeId: widget.cafeId,
-        rate: rate,
         jwtToken: jwtToken,
+        rate: rate,
       );
 
       if (mounted) {
@@ -78,8 +78,8 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
           ..showSnackBar(
             SnackBar(
               content: Text(_ratingStats?.myRating == null
-                ? '평점이 등록되었습니다!'
-                : '평점이 수정되었습니다!'),
+                ? '카공지수가 등록되었습니다!'
+                : '카공지수가 수정되었습니다!'),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 1),
             ),
@@ -93,7 +93,109 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
           ..clearSnackBars()
           ..showSnackBar(
             SnackBar(
-              content: Text('평점 등록 실패: $e'),
+              content: Text('등록 실패: $e'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 1),
+            ),
+          );
+      }
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+  // 콘센트 평가 제출
+  Future<void> _submitConsentRate(int consentRate) async {
+    if (_isSubmitting) return;
+
+    final authProvider = Provider.of<loginProvider.AuthProvider>(context, listen: false);
+    final jwtToken = authProvider.jwtToken;
+
+    if (jwtToken == null) {
+      _showLoginPrompt();
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      await RatingService.submitRating(
+        cafeId: widget.cafeId,
+        jwtToken: jwtToken,
+        consentRate: consentRate,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text('콘센트 평가가 등록되었습니다!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 1),
+            ),
+          );
+      }
+
+      await _loadRatingStats();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('등록 실패: $e'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 1),
+            ),
+          );
+      }
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+  // 좌석 평가 제출
+  Future<void> _submitSeatRate(int seatRate) async {
+    if (_isSubmitting) return;
+
+    final authProvider = Provider.of<loginProvider.AuthProvider>(context, listen: false);
+    final jwtToken = authProvider.jwtToken;
+
+    if (jwtToken == null) {
+      _showLoginPrompt();
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      await RatingService.submitRating(
+        cafeId: widget.cafeId,
+        jwtToken: jwtToken,
+        seatRate: seatRate,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text('좌석 평가가 등록되었습니다!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 1),
+            ),
+          );
+      }
+
+      await _loadRatingStats();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('등록 실패: $e'),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 1),
             ),
@@ -299,8 +401,125 @@ class _CafeRatingSectionState extends State<CafeRatingSection> {
               ),
             ),
           ],
+
+          const SizedBox(height: 24),
+          const Divider(color: Colors.brown, thickness: 0.5),
+          const SizedBox(height: 16),
+
+          // 콘센트 평가 섹션
+          _buildSubRatingSection(
+            icon: Icons.power,
+            title: '콘센트',
+            keyword: _ratingStats!.consentKeyword,
+            myValue: _ratingStats!.myConsentRate,
+            onSubmit: _submitConsentRate,
+          ),
+
+          const SizedBox(height: 16),
+
+          // 좌석 평가 섹션
+          _buildSubRatingSection(
+            icon: Icons.chair,
+            title: '좌석',
+            keyword: _ratingStats!.seatKeyword,
+            myValue: _ratingStats!.mySeatRate,
+            onSubmit: _submitSeatRate,
+          ),
         ],
       ),
+    );
+  }
+
+  // 콘센트/좌석 평가 위젯 빌더
+  Widget _buildSubRatingSection({
+    required IconData icon,
+    required String title,
+    required String? keyword,
+    required int? myValue,
+    required Function(int) onSubmit,
+  }) {
+    const labels = ['적음', '보통', '많음'];
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.brown[600], size: 20),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Pretendard',
+              ),
+            ),
+            if (keyword != null) ...[
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.brown[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  keyword,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.brown[700],
+                    fontFamily: 'Pretendard',
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(3, (index) {
+            final value = index + 1;
+            final isSelected = myValue == value;
+
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: GestureDetector(
+                  onTap: _isSubmitting ? null : () => onSubmit(value),
+                  child: Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.brown
+                          : Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isSelected
+                            ? Colors.brown
+                            : Colors.brown.withOpacity(0.3),
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        labels[index],
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.white : Colors.brown,
+                          fontFamily: 'Pretendard',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 }

@@ -1,23 +1,19 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 /// API Configuration for different environments and platforms
 ///
 /// This class handles the base URL configuration for API requests
-/// depending on the platform (Android/iOS) and environment (development/production)
+/// depending on the platform (Android/iOS) and build mode (debug/release)
 ///
 /// Usage:
-/// - Development: flutter run (기본값)
-/// - Production build: flutter build apk --dart-define=ENVIRONMENT=production
-/// - Production run: flutter run --dart-define=ENVIRONMENT=production
+/// - Development: flutter run (debug mode)
+/// - Production: flutter run --release (release mode)
+/// - Production build: flutter build apk --release
 class ApiConfig {
-  // 빌드 타임에 환경 변수로 주입 (기본값: development)
-  static const String _environment = String.fromEnvironment(
-    'ENVIRONMENT',
-    defaultValue: 'development',
-  );
-
-  // 환경 변수 기반으로 개발 모드 자동 판단
-  static bool get isDevelopment => _environment == 'development';
+  // 릴리즈 모드일 때 자동으로 production 환경 사용
+  // kReleaseMode는 Flutter에서 제공하는 빌드 모드 감지 상수
+  static bool get isDevelopment => kDebugMode;
 
   // Production server URL (PythonAnywhere)
   static const String productionUrl = 'https://yannoo.pythonanywhere.com/api';

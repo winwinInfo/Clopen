@@ -271,7 +271,7 @@ class MapScreenState extends State<MapScreen> {
     if (mounted) {
       setState(() {
         _isBottomSheetOpen = true;
-        _bottomSheetHeight = 200;
+        _bottomSheetHeight = 150;
       });
     }
   }
@@ -325,34 +325,9 @@ class MapScreenState extends State<MapScreen> {
               top: MediaQuery.of(context).padding.top + 10,
               left: 10,
               right: 10,
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 85,
-                    child: custom_search_bar.SearchBar(
-                      cafes: _cafes,
-                      onCafeSelected: _handleCafeSelected,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Expanded(
-                    flex: 15,
-                    child: ElevatedButton(
-                      onPressed: () => showFilterDialog(
-                          context, _filterManager, _applyFilters),
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        minimumSize: const Size(0, 48),
-                        backgroundColor: Colors.brown,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Icon(Icons.filter_list),
-                    ),
-                  ),
-                ],
+              child: custom_search_bar.SearchBar(
+                cafes: _cafes,
+                onCafeSelected: _handleCafeSelected,
               ),
             ),
             // 현위치 이동 버튼
@@ -403,7 +378,7 @@ class MapScreenState extends State<MapScreen> {
     //move camera to selected cafe
     controller.animateCamera(CameraUpdate.newLatLngZoom(
       LatLng(selectedCafe.latitude, selectedCafe.longitude),
-      21.0,
+      17.0,
     ));
 
     if (!mounted) return;
@@ -428,7 +403,7 @@ class MapScreenState extends State<MapScreen> {
     if (mounted) {
       setState(() {
         _isBottomSheetOpen = true;
-        _bottomSheetHeight = 200; //height
+        _bottomSheetHeight = 150; //height
       });
     }
   }

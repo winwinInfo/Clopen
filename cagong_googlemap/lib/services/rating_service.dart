@@ -34,20 +34,33 @@ class RatingService {
     }
   }
 
+  /// 평점 등록/수정 (전달된 필드만 업데이트)
+  /// - rate: 카공지수 (1~5)
+  /// - consentRate: 콘센트 (1=적음, 2=보통, 3=많음)
+  /// - seatRate: 좌석 (1=적음, 2=보통, 3=많음)
   static Future<Rating> submitRating({
     required int cafeId,
-    required int rate,
     required String jwtToken,
+    int? rate,
+    int? consentRate,
+    int? seatRate,
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.baseUrl}/ratings/$cafeId');
+
+      // 전달된 필드만 body에 포함
+      final body = <String, dynamic>{};
+      if (rate != null) body['rate'] = rate;
+      if (consentRate != null) body['consent_rate'] = consentRate;
+      if (seatRate != null) body['seat_rate'] = seatRate;
+
       final response = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
         },
-        body: json.encode({'rate': rate}),
+        body: json.encode(body),
       ).timeout(
         const Duration(seconds: 10),
         onTimeout: () => throw Exception('요청 시간 초과'),
